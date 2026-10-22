@@ -22,6 +22,11 @@ const NO_NUMBERS = {
   ok: false,
   text: 'No numbers found. Tap any number to enter it, or retake the photo.',
 };
+const READER_BUSY = {
+  ok: false,
+  retry: true,
+  text: 'The photo reader is busy right now. Try again in a moment, or tap any number to enter it.',
+};
 const foundMessage = (
   r: Pick<CardioTelemetryResult, 'steps' | 'distanceKm' | 'elapsedMinutes' | 'deviceType'>,
 ) => {
@@ -48,7 +53,12 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{
+    ok: boolean;
+    text: string;
+    /** Offer to read the same photo again. */
+    retry?: boolean;
+  } | null>(null);
   const [telemetry, setTelemetry] = useState<CardioTelemetryResult | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,8 +74,10 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     setIsAnalyzing(true);
     setStatusMessage(null);
     tactileEngine.triggerSelectionBuzz();
+    let readerBusy = false;
     try {
       const res = await analyzeConsoleTelemetry(base64);
+      readerBusy = res.readerBusy === true;
       const hasAny =
         res.steps != null ||
         res.distanceKm != null ||
@@ -100,11 +112,11 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
         mapped.caloriesBurned != null ||
         mapped.elapsedMinutes != null;
       setTelemetry(hasOcr ? mapped : null);
-      setStatusMessage(hasOcr ? foundMessage(mapped) : NO_NUMBERS);
+      setStatusMessage(hasOcr ? foundMessage(mapped) : readerBusy ? READER_BUSY : NO_NUMBERS);
       if (hasOcr) tactileEngine.playPRCelebration();
     } catch {
       setTelemetry(null);
-      setStatusMessage(NO_NUMBERS);
+      setStatusMessage(readerBusy ? READER_BUSY : NO_NUMBERS);
     } finally {
       setIsAnalyzing(false);
     }
@@ -356,7 +368,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
             </div>
           )}
           {statusMessage && (
-            <p
+            <div
               role="status"
               className={`px-3 py-2 rounded-xl border text-o1-label font-light leading-snug ${
                 statusMessage.ok
@@ -364,8 +376,17 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
                   : 'bg-o1-amber-deep/10 border-o1-amber-deep/25 text-o1-amber'
               }`}
             >
-              {statusMessage.text}
-            </p>
+              <p>{statusMessage.text}</p>
+              {statusMessage.retry && selectedImage && !isAnalyzing ? (
+                <button
+                  type="button"
+                  onClick={() => handleProcessImage(selectedImage)}
+                  className="mt-1.5 min-h-[44px] px-4 rounded-xl border border-o1-amber-deep/40 text-o1-amber font-medium cursor-pointer active:scale-95"
+                >
+                  Try this photo again
+                </button>
+              ) : null}
+            </div>
           )}
           <CardioMetricsGrid metrics={metrics} onUpdateMetric={handleUpdateMetric} />
         </div>

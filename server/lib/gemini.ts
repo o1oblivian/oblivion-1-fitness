@@ -54,29 +54,73 @@ export function getGenAI(overrideKey?: string): GoogleGenAI | null {
 /** Reading digits off a photo does not need long reasoning; a low thinking level answers noticeably faster. */
 export const QUICK_READ_THINKING = { thinkingLevel: ThinkingLevel.LOW };
 
-// Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes
+/** How long one Gemini call may take, and how long a whole request may spend across retries. */
+export interface GenerateLimits {
+  attemptTimeoutMs?: number;
+  budgetMs?: number;
+}
+
+const DEFAULT_ATTEMPT_TIMEOUT_MS = 25_000;
+const DEFAULT_BUDGET_MS = 50_000;
+
+class GeminiTimeoutError extends Error {
+  constructor(ms: number) {
+    super(`Gemini did not answer within ${Math.round(ms / 1000)}s`);
+  }
+}
+
+/** Runs one call that gives up, and cancels the request, after `ms`. A stalled call never holds the caller. */
+async function withTimeout<T>(ms: number, run: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const expired = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new GeminiTimeoutError(ms));
+    }, ms);
+  });
+  try {
+    return await Promise.race([run(controller.signal), expired]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Resilient Gemini generateContent caller with model fallback & exponential retry for 503/429 spikes.
+// Every attempt is time-limited, so an overloaded model costs seconds, not minutes.
 export async function generateContentWithFallback(
   genAI: GoogleGenAI,
   contents: GenerateContentParameters['contents'],
   config?: GenerateContentConfig,
+  limits: GenerateLimits = {},
 ): Promise<GenerateContentResponse> {
   const modelsToTry = ['gemini-flash-latest', 'gemini-3.1-flash-lite'];
+  const attemptTimeoutMs = limits.attemptTimeoutMs ?? DEFAULT_ATTEMPT_TIMEOUT_MS;
+  const budgetMs = limits.budgetMs ?? DEFAULT_BUDGET_MS;
+  const startedAt = Date.now();
   let lastError: unknown = null;
   let activeConfig = config;
 
   for (const model of modelsToTry) {
     for (let attempt = 0; attempt < 2; attempt++) {
+      const remaining = budgetMs - (Date.now() - startedAt);
+      if (remaining <= 1_000) {
+        throw lastError instanceof Error ? lastError : new GeminiTimeoutError(budgetMs);
+      }
       try {
-        const response = await genAI.models.generateContent({
-          model,
-          contents,
-          config: activeConfig,
-        });
+        const response = await withTimeout(Math.min(attemptTimeoutMs, remaining), (signal) =>
+          genAI.models.generateContent({
+            model,
+            contents,
+            config: { ...activeConfig, abortSignal: signal },
+          }),
+        );
         if (response && response.text) {
           return response;
         }
       } catch (err) {
         lastError = err;
+        if (err instanceof GeminiTimeoutError) break; // this model is stalled; try the next one
         const errMsg = errorMessage(err, String(err));
         if (activeConfig?.thinkingConfig && /thinking/i.test(errMsg)) {
           // This model does not accept the thinking setting. Ask again without it.

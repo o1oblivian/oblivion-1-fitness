@@ -18,7 +18,12 @@ export interface CardioTelemetryResult {
   watts?: number | null;
   pace?: string | null;
   deviceType?: 'watch' | 'console' | 'wearable' | 'other';
+  /** The photo reader did not answer (busy, offline). Different from a photo with no numbers on it. */
+  readerBusy?: boolean;
 }
+
+/** How long the app waits for the photo reader: its AI attempt, then its backup, with room to spare. */
+export const SCAN_WAIT_MS = 55_000;
 
 export interface MealNutrientsResult {
   mealName: string;
@@ -37,7 +42,7 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
   for (let attempt = 1; attempt <= 2; attempt++) {
     const startedAt = Date.now();
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 40_000);
+    const timer = setTimeout(() => controller.abort(), SCAN_WAIT_MS);
     // Retry only a fast failure (dropped connection); a slow one already used the time budget.
     const retryable = () => attempt === 1 && Date.now() - startedAt < 5_000;
     try {
@@ -86,7 +91,8 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
     }
   }
 
-  // Strict null baseline: Zero fake numbers and zero fallback estimates
+  // Strict null baseline: Zero fake numbers and zero fallback estimates.
+  // A server that answered "nothing found" returned above, so getting here means it did not answer.
   return {
     deviceType: 'watch',
     elapsedDisplay: null,
@@ -99,6 +105,7 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
     steps: null,
     watts: null,
     pace: null,
+    readerBusy: true,
   };
 }
 

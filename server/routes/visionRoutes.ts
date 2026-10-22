@@ -8,6 +8,13 @@ import {
 } from '../lib/gemini';
 import { errorMessage } from '../../shared/errorMessage';
 
+/**
+ * Time allowed for the AI reader on a photo, then for the backup reader. Together they stay inside
+ * the 55 seconds the app waits, so a busy model gives an answer instead of a silent timeout.
+ */
+const SCAN_AI_LIMITS = { attemptTimeoutMs: 12_000, budgetMs: 22_000 };
+const OCR_FALLBACK_MS = 20_000;
+
 /** Photo reading: cardio consoles and watches, and meal photos. */
 export function registerVisionRoutes(app: Express): void {
   // DEDICATED ZERO-MOCK MULTIMODAL VISION OCR FOR CONSOLES AND SMARTWATCHES
@@ -24,6 +31,8 @@ export function registerVisionRoutes(app: Express): void {
       let ocrExtracted = null as Awaited<ReturnType<typeof recognizeTelemetryFromBuffer>> | null;
 
       const genAI = getGenAI();
+      // True when the AI reader could not answer, so "nothing found" below does not mean the screen was empty.
+      let aiFailed = !genAI;
 
       if (genAI) {
         try {
@@ -79,6 +88,7 @@ Return STRICT JSON matching this schema:
               },
             ],
             { responseMimeType: 'application/json', thinkingConfig: QUICK_READ_THINKING },
+            SCAN_AI_LIMITS,
           );
 
           const text = response?.text || '';
@@ -165,6 +175,7 @@ Return STRICT JSON matching this schema:
             });
           }
         } catch (genErr) {
+          aiFailed = true;
           console.warn(
             'Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:',
             errorMessage(genErr, String(genErr)),
@@ -172,7 +183,10 @@ Return STRICT JSON matching this schema:
         }
       }
 
-      ocrExtracted = await recognizeTelemetryFromBuffer(imgBuffer);
+      ocrExtracted = await Promise.race([
+        recognizeTelemetryFromBuffer(imgBuffer),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), OCR_FALLBACK_MS)),
+      ]);
       if (
         ocrExtracted &&
         (ocrExtracted.steps ||
@@ -198,6 +212,14 @@ Return STRICT JSON matching this schema:
           calibrationNote: ocrExtracted.steps
             ? `Optical OCR verified: ${ocrExtracted.steps.toLocaleString()} steps read from display.`
             : 'Optical OCR telemetry extracted from display.',
+        });
+      }
+
+      // The AI reader was down and the backup found nothing: say so, rather than blaming the photo.
+      if (aiFailed) {
+        return res.status(503).json({
+          error: 'The photo reader is busy right now. Try again in a moment.',
+          code: 'reader_busy',
         });
       }
 
@@ -283,6 +305,9 @@ Return valid JSON only matching:
 }`;
       }
 
+      // True when the AI reader could not answer, which is not the same as a photo it could not read.
+      let aiFailed = !genAI;
+
       if (genAI) {
         try {
           const response = await generateContentWithFallback(
@@ -350,11 +375,18 @@ Return valid JSON only matching:
             },
           });
         } catch (aiErr) {
+          aiFailed = true;
           console.warn(
             'Gemini vision API error during meal analysis:',
             errorMessage(aiErr, String(aiErr)),
           );
         }
+      }
+
+      if (aiFailed) {
+        return res.status(503).json({
+          error: 'The photo reader is busy right now. Try again in a moment.',
+        });
       }
 
       return res.status(422).json({

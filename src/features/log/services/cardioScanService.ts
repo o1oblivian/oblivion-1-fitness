@@ -1,6 +1,7 @@
 ﻿import { parseTelemetryFromOcrText } from '../../../services/ocrTelemetryParser';
 import { apiFetch } from '../../../services/apiBase';
 import { compressAndAnalyzeImage } from '../../../services/imageCompressionService';
+import { SCAN_WAIT_MS } from '../../../services/geminiVisionService';
 
 /** Unread metrics stay null and render as '--'. */
 interface ExtractedCardioData {
@@ -82,7 +83,7 @@ export async function processCardioScanImage(
       const blob = await (await fetch(dataUrl)).blob();
       const { compressedBase64 } = await compressAndAnalyzeImage(blob, 1600, 0.85);
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 40_000);
+      const timer = setTimeout(() => controller.abort(), SCAN_WAIT_MS);
       const res = await apiFetch('/api/vision/cardio-telemetry', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
