@@ -5,6 +5,8 @@ import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistorySto
 import { latestSleepRecord } from '../../report/vitals';
 import { TrainingSafetyInfo } from '../../legal/TrainingSafetyInfo';
 import { BodyStatusCard } from '../../bodyStatus/BodyStatusCard';
+import { ReadinessBreakdown } from './ReadinessBreakdown';
+import { useCountUp } from '../../../hooks/useCountUp';
 import { latestHrv, localDateKey, useHrvStore } from '../../../services/ble/hrv';
 
 interface Props {
@@ -24,6 +26,7 @@ const fmtMinutes = (mins: number): string => {
 export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, score }) => {
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
   const hrvByDate = useHrvStore((s) => s.byDate);
+  const scoreShown = useCountUp(isOpen && typeof score === 'number' ? score : null);
   if (!isOpen) return null;
 
   const hrv = latestHrv(hrvByDate);
@@ -88,7 +91,7 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
             </span>
             <div className="flex items-baseline gap-2 mt-0.5">
               <span className="text-3xl font-mono font-light text-sky-600">
-                {hasScore ? `${score}%` : '--'}
+                {hasScore ? `${scoreShown}%` : '--'}
               </span>
               {!hasScore && (
                 <span className="text-xs font-semibold text-neutral-400">Nothing logged yet</span>
@@ -101,6 +104,8 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
         </div>
 
         <BodyStatusCard />
+
+        <ReadinessBreakdown />
 
         {/* Logged biometrics */}
         <div className="grid grid-cols-2 gap-2.5">

@@ -10,6 +10,7 @@ import type { OblivionReport, LoggedSet, SleepSample } from '../../report/types'
 import { useSimpleMode } from '../../../stores/useDisplayPrefs';
 import { BodyStatusCard } from '../../bodyStatus/BodyStatusCard';
 import { useBodyStatus } from '../../bodyStatus/bodyStatus';
+import { useCountUp } from '../../../hooks/useCountUp';
 import { PLAIN_LOAD } from '../../../utils/acwrMath';
 
 const DECISION_TONE: Record<Decision, Tone> = {
@@ -55,6 +56,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
     () => buildTodayIntel(report, sets, sleep, Date.now(), body),
     [report, sets, sleep, body],
   );
+  const readinessShown = useCountUp(intel.readiness);
   const tone = DECISION_TONE[intel.decision];
   const ratio = report.stats.acwr;
 
@@ -109,7 +111,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-light font-mono tabular-nums leading-none">
-                {intel.readiness === null ? '--' : intel.readiness}
+                {readinessShown === null ? '--' : readinessShown}
               </span>
               <span className="text-o1-label text-o1-muted mt-1">Readiness</span>
             </div>

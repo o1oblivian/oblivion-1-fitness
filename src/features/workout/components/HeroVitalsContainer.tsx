@@ -15,6 +15,7 @@ import { HeroFrontFace } from './HeroFrontFace';
 import { HeroBackFace } from './HeroBackFace';
 import { HeroModals } from './HeroModals';
 import { useBodyStatus } from '../../bodyStatus/bodyStatus';
+import { useTodayIntel } from '../../report/useTodayIntel';
 
 const DAYS_LIST = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -231,11 +232,8 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
   const waterPct = waterGoalL
     ? Math.min(100, Math.round((hydrationCurrentL / waterGoalL) * 100))
     : 0;
-  // Readiness needs a logged sleep quality; hydration is measured against the athlete's own goal.
-  const readinessScore =
-    sleepQuality === null
-      ? null
-      : Math.min(100, Math.round(sleepQuality * 0.6 + (waterPct / 100) * 40));
+  // The same score the Intel panel shows: sleep, training load and time since the last session.
+  const readinessScore = useTodayIntel().readiness;
 
   const {
     isEnabled,
