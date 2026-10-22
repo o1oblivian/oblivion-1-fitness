@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { dayIndex } from '../report/reportEngine';
 import type { TrendPoint } from './weightTrend';
 
