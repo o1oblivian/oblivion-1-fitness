@@ -4,7 +4,7 @@
 export const GOOD = '#10b981';
 const WATCH = '#f7c600';
 const ALERT = '#C4121A';
-const IDLE = '#7A756A';
+const IDLE = '#A39B86';
 
 export type Tone = 'good' | 'watch' | 'alert' | 'idle';
 

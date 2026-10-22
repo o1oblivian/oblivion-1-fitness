@@ -52,7 +52,7 @@ export function PortionRuler({
         x2={x}
         y1={14}
         y2={14 + h}
-        stroke={passed ? '#EAE8DF' : '#8A887F'}
+        stroke={passed ? '#EAE8DF' : '#C4BDA8'}
         strokeOpacity={passed ? (major ? 0.9 : 0.55) : major ? 0.55 : 0.28}
         strokeWidth={major ? 1.6 : 1}
         strokeLinecap="round"
@@ -68,7 +68,7 @@ export function PortionRuler({
           textAnchor="middle"
           fontSize="10"
           fontWeight={600}
-          fill={passed ? '#EAE8DF' : '#8A887F'}
+          fill={passed ? '#EAE8DF' : '#C4BDA8'}
           fillOpacity={passed ? 0.85 : 0.6}
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >

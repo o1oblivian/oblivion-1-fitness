@@ -14,7 +14,7 @@ const SLOT_NOTE: Partial<Record<SlotKey, string>> = {
  * on every side without moving the icon, so the visible gap between two icons stays the row's 12px.
  */
 const ACTION_BUTTON =
-  'p-2 -m-2 flex items-center justify-center text-[#9CA3AF] hover:text-o1-text active:opacity-60 transition-colors cursor-pointer';
+  'p-2 -m-2 flex items-center justify-center text-o1-muted hover:text-o1-text active:opacity-60 transition-colors cursor-pointer';
 
 function g(n: number): string {
   return `${Math.round(n * 10) / 10}`;

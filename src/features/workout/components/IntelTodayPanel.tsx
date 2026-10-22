@@ -123,7 +123,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
               </div>
               <span
                 className="text-sm font-light font-mono shrink-0"
-                style={{ color: sig.value === null ? '#8A887F' : TONE_HEX[sig.tone] }}
+                style={{ color: sig.value === null ? '#C4BDA8' : TONE_HEX[sig.tone] }}
               >
                 {sig.display}
               </span>

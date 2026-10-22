@@ -132,7 +132,7 @@ export const DAY_TOWER_THEME: Record<string, TowerTheme> = {
       '#64625A',
       '#B7B5AA',
       '#4A4842',
-      '#8A887F',
+      '#C4BDA8',
       '#3D3B35',
       '#CFCDC2',
       '#716F66',
@@ -140,8 +140,8 @@ export const DAY_TOWER_THEME: Record<string, TowerTheme> = {
       '#57554E',
       '#7E7C73',
     ],
-    accent: '#8A887F',
-    ramp: ['#D6D3C6', '#8A887F', '#3D3B35'],
+    accent: '#C4BDA8',
+    ramp: ['#D6D3C6', '#C4BDA8', '#3D3B35'],
   },
 };
 

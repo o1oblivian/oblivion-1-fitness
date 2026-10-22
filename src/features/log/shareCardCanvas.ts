@@ -53,7 +53,7 @@ function emptyFrame(
   ctx.strokeStyle = 'rgba(242,239,230,0.18)';
   ctx.lineWidth = 2;
   ctx.stroke();
-  ctx.fillStyle = '#A39E92';
+  ctx.fillStyle = '#C4BDA8';
   ctx.font = '500 28px Manrope, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText(label, x + w / 2, y + h / 2 + 10);
@@ -115,7 +115,7 @@ export async function renderProgressCard(input: ProgressCardInput): Promise<File
   let y = 920;
   ctx.textAlign = 'left';
   input.rows.slice(0, 5).forEach((row) => {
-    ctx.fillStyle = '#A39E92';
+    ctx.fillStyle = '#C4BDA8';
     ctx.font = '500 28px Manrope, sans-serif';
     ctx.fillText(row.label, 72, y);
     ctx.fillStyle = '#F2EFE6';
@@ -126,7 +126,7 @@ export async function renderProgressCard(input: ProgressCardInput): Promise<File
     y += 58;
   });
 
-  ctx.fillStyle = '#A39E92';
+  ctx.fillStyle = '#C4BDA8';
   ctx.font = '500 24px Manrope, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('Oblivion 1 Fitness Club', 72, H - 72);

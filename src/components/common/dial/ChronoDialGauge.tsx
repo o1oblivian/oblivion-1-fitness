@@ -15,7 +15,7 @@ interface ChronoDialGaugeProps {
 }
 
 const INK = '#EAE8DF';
-const MUTED = '#8A887F';
+const MUTED = '#C4BDA8';
 const CX = 140;
 const CY = 140;
 const ARC_R = 104;

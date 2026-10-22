@@ -19,7 +19,7 @@ const TREND: Record<LiftTrend, { simple: string; pro: string; cls: string; strok
     simple: 'Holding',
     pro: 'Steady',
     cls: 'text-o1-muted border-white/[0.12]',
-    stroke: '#8A887F',
+    stroke: '#C4BDA8',
   },
   plateau: {
     simple: 'Stuck',

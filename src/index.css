@@ -74,13 +74,13 @@
   --color-o1-well: #161616;
   --color-o1-line: rgb(255 255 255 / 0.07);
   --color-o1-bone: #f2efe6;
-  --color-o1-stone: #a39e92;
+  --color-o1-stone: #d9d3c1;
 
   /* Coach Hub OLED surfaces */
   --color-o1-surface: #111113;
   --color-o1-sheet: #161618;
   --color-o1-text: #eae8df;
-  --color-o1-muted: #8a887f;
+  --color-o1-muted: #c4bda8;
   --color-o1-ok-wash: #16301f;
   --color-o1-ok-ink: #b7e0c2;
   --color-o1-warn-wash: #2a2300;
@@ -144,10 +144,14 @@
   --color-neutral-50: #f2efe6;
   --color-neutral-100: #f2efe6;
   --color-neutral-200: #d4d0c4;
-  --color-neutral-300: #b8b3a6;
-  --color-neutral-400: #a39e92;
-  --color-neutral-500: #7a756a;
-  --color-neutral-600: #524f48;
+  --color-neutral-300: #d9d3c1;
+  --color-neutral-400: #c4bda8;
+  --color-neutral-500: #a39b86;
+  --color-neutral-600: #7a7466;
+  --color-zinc-300: #d9d3c1;
+  --color-zinc-400: #c4bda8;
+  --color-zinc-500: #a39b86;
+  --color-slate-400: #c4bda8;
   --color-neutral-700: #3a3833;
   --color-neutral-800: #1c1c1c;
   --color-neutral-900: #0e0e0e;
@@ -170,8 +174,8 @@
   --color-blue-500: #4f8f9a;
   --color-indigo-400: #4f8f9a;
   --color-indigo-500: #4f8f9a;
-  --color-violet-400: #7a756a;
-  --color-purple-400: #7a756a;
+  --color-violet-400: #a39b86;
+  --color-purple-400: #a39b86;
   --color-orange-400: #f7c600;
   --color-orange-500: #f7c600;
   --color-rose-300: #c4121a;
@@ -349,7 +353,7 @@ body {
 .o1-chip {
   background-color: #161616;
   border: 1px solid rgb(255 255 255 / 0.07);
-  color: #a39e92;
+  color: #c4bda8;
 }
 
 /* Unified internal sheets — never full-bleed page clones */
