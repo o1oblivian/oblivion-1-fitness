@@ -1,5 +1,5 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
-import { X, Camera, Image as ImageIcon, Activity, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { X, Camera, Image as ImageIcon, ScanLine, Loader2 } from 'lucide-react';
 import {
   analyzeConsoleTelemetry,
   CardioTelemetryResult,
@@ -53,6 +53,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [manualEntry, setManualEntry] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{
     ok: boolean;
     text: string;
@@ -287,42 +288,47 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
       });
   };
 
+  /** The tiles appear once there is a photo to read, or the person chooses to type. */
+  const showMetrics = selectedImage !== null || telemetry !== null || manualEntry;
+
+  const canSave =
+    telemetry !== null &&
+    !isAnalyzing &&
+    ((telemetry.steps || 0) > 0 ||
+      (estimatedSteps || 0) > 0 ||
+      (telemetry.distanceKm || 0) > 0 ||
+      (telemetry.elapsedMinutes || 0) > 0 ||
+      (telemetry.caloriesBurned || 0) > 0 ||
+      (telemetry.avgHeartRateBpm || 0) > 0);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-sm animate-in fade-in duration-200">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="cardio-scan-title"
-        className="o1-sheet-card bg-o1-card overflow-hidden flex flex-col border border-white/[0.07]"
-      >
-        <div className="flex items-start justify-between gap-3 px-3 py-2.5 bg-black border-b border-white/[0.05]">
-          <div className="flex items-start gap-2.5 min-w-0">
-            <div className="w-8 h-8 shrink-0 rounded-xl bg-o1-crimson/10 border border-o1-crimson/20 flex items-center justify-center text-o1-crimson">
-              <Activity className="w-4 h-4" strokeWidth={1.75} />
-            </div>
-            <div className="min-w-0 space-y-0.5">
-              <h2
-                id="cardio-scan-title"
-                className="text-o1-control font-light text-white tracking-wide"
-              >
-                Scan Cardio &amp; Watch
-              </h2>
-              <p className="text-o1-label font-light text-o1-muted leading-snug">
-                Take a photo of your treadmill screen, bike console, or watch dial to auto-sync your
-                metrics.
-              </p>
-            </div>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cardio-scan-title"
+      className="fixed inset-0 z-50 bg-o1-canvas select-none flex flex-col animate-in fade-in duration-150"
+    >
+      <div className="w-full max-w-[420px] mx-auto h-full flex flex-col px-5">
+        <header className="shrink-0 pt-[max(env(safe-area-inset-top),16px)] pb-4 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 id="cardio-scan-title" className="text-2xl font-light tracking-wide text-o1-text">
+              Scan
+            </h2>
+            <p className="mt-0.5 text-o1-caption text-o1-muted">
+              Treadmill, bike or watch. The numbers fill in for you.
+            </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="p-1.5 -mr-1 text-o1-muted hover:text-white rounded-full cursor-pointer"
+            className="w-11 h-11 -mr-1 shrink-0 rounded-full bg-o1-surface text-o1-text flex items-center justify-center cursor-pointer active:scale-95 transition"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
-        </div>
-        <div className="px-3 py-2.5 overflow-y-auto space-y-2.5 flex-1 min-h-0">
+        </header>
+
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain space-y-4 pb-4">
           <input
             ref={cameraInputRef}
             type="file"
@@ -338,77 +344,128 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
             className="hidden"
             onChange={handleFile}
           />
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleCapture('camera')}
-              disabled={isCapturing}
-              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white text-o1-caption font-normal cursor-pointer active:scale-[0.98] transition disabled:opacity-60"
-            >
-              <Camera className="w-3.5 h-3.5" strokeWidth={1.75} />{' '}
-              {isCapturing ? 'Opening camera…' : 'Snap Screen / Dial'}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleCapture('photos')}
-              disabled={isCapturing}
-              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-o1-ink-soft text-o1-caption font-normal cursor-pointer border border-white/[0.07] active:scale-[0.98] transition disabled:opacity-60"
-            >
-              <ImageIcon className="w-3.5 h-3.5" strokeWidth={1.75} /> Choose from Photos
-            </button>
-          </div>
-          {selectedImage && (
-            <div className="relative rounded-2xl overflow-hidden bg-black max-h-48 flex items-center justify-center border border-white/[0.07]">
-              <img src={selectedImage} alt="Cardio display" className="max-h-48 object-contain" />
-              {isAnalyzing && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 text-white text-o1-caption font-light">
-                  <Loader2 className="w-4 h-4 animate-spin text-o1-crimson" /> Reading numbers…
-                </div>
-              )}
-            </div>
-          )}
-          {statusMessage && (
-            <div
-              role="status"
-              className={`px-3 py-2 rounded-xl border text-o1-label font-light leading-snug ${
-                statusMessage.ok
-                  ? 'bg-o1-emerald-deep/10 border-o1-emerald-deep/25 text-o1-emerald'
-                  : 'bg-o1-amber-deep/10 border-o1-amber-deep/25 text-o1-amber'
-              }`}
-            >
-              <p>{statusMessage.text}</p>
-              {statusMessage.retry && selectedImage && !isAnalyzing ? (
+
+          {selectedImage ? (
+            <>
+              <div className="relative rounded-3xl overflow-hidden bg-o1-surface">
+                <img
+                  src={selectedImage}
+                  alt="Your photo of the display"
+                  className={`w-full max-h-64 object-contain transition-opacity ${
+                    isAnalyzing ? 'opacity-50' : ''
+                  }`}
+                />
+                {isAnalyzing && (
+                  <div className="absolute inset-x-0 bottom-3 flex justify-center">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-o1-canvas px-4 py-2 text-o1-caption text-o1-text">
+                      <Loader2 className="w-4 h-4 animate-spin text-o1-yellow" />
+                      Reading numbers. Usually a few seconds.
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2.5">
                 <button
                   type="button"
-                  onClick={() => handleProcessImage(selectedImage)}
-                  className="mt-1.5 min-h-[44px] px-4 rounded-xl border border-o1-amber-deep/40 text-o1-amber font-medium cursor-pointer active:scale-95"
+                  onClick={() => handleCapture('camera')}
+                  disabled={isCapturing || isAnalyzing}
+                  className="h-11 rounded-2xl bg-o1-surface text-o1-text text-o1-caption flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition disabled:opacity-50"
                 >
-                  Try this photo again
+                  <Camera className="w-4 h-4" strokeWidth={1.75} />
+                  {isCapturing ? 'Opening camera…' : 'Retake'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCapture('photos')}
+                  disabled={isCapturing || isAnalyzing}
+                  className="h-11 rounded-2xl bg-o1-surface text-o1-text text-o1-caption flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition disabled:opacity-50"
+                >
+                  <ImageIcon className="w-4 h-4" strokeWidth={1.75} />
+                  Another photo
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="rounded-3xl bg-o1-surface px-6 py-8 text-center">
+                <span className="mx-auto w-14 h-14 rounded-full bg-o1-well text-o1-yellow flex items-center justify-center">
+                  <ScanLine className="w-6 h-6" strokeWidth={1.75} aria-hidden />
+                </span>
+                <h3 className="mt-4 text-o1-control font-medium text-o1-text">
+                  Point at the screen
+                </h3>
+                <ul className="mt-3 space-y-1 text-o1-caption text-o1-muted">
+                  <li>Fill the frame with the display</li>
+                  <li>Hold steady and avoid glare</li>
+                  <li>Keep it straight on, not at an angle</li>
+                </ul>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleCapture('camera')}
+                disabled={isCapturing}
+                className="w-full h-14 rounded-2xl bg-o1-yellow text-black text-o1-body font-semibold flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition disabled:opacity-60"
+              >
+                <Camera className="w-5 h-5" strokeWidth={2} />
+                {isCapturing ? 'Opening camera…' : 'Take photo'}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCapture('photos')}
+                disabled={isCapturing}
+                className="w-full h-12 rounded-2xl bg-o1-surface text-o1-text text-o1-body flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition disabled:opacity-60"
+              >
+                <ImageIcon className="w-4 h-4" strokeWidth={1.75} />
+                Choose from Photos
+              </button>
+              {!showMetrics ? (
+                <button
+                  type="button"
+                  onClick={() => setManualEntry(true)}
+                  className="w-full min-h-[44px] text-o1-caption text-o1-muted cursor-pointer"
+                >
+                  Or type the numbers in yourself
                 </button>
               ) : null}
+            </>
+          )}
+
+          {statusMessage && (
+            <div role="status" className="flex items-start gap-2.5 px-1">
+              <span
+                className={`mt-2 w-2 h-2 rounded-full shrink-0 ${
+                  statusMessage.ok ? 'bg-o1-emerald' : 'bg-o1-amber'
+                }`}
+                aria-hidden
+              />
+              <div className="min-w-0">
+                <p className="text-o1-body text-o1-text leading-snug">{statusMessage.text}</p>
+                {statusMessage.retry && selectedImage && !isAnalyzing ? (
+                  <button
+                    type="button"
+                    onClick={() => handleProcessImage(selectedImage)}
+                    className="min-h-[44px] text-o1-body font-medium text-o1-yellow cursor-pointer"
+                  >
+                    Try this photo again
+                  </button>
+                ) : null}
+              </div>
             </div>
           )}
-          <CardioMetricsGrid metrics={metrics} onUpdateMetric={handleUpdateMetric} />
+
+          {showMetrics ? (
+            <CardioMetricsGrid metrics={metrics} onUpdateMetric={handleUpdateMetric} />
+          ) : null}
         </div>
-        <div className="px-3 py-2.5 bg-black border-t border-white/[0.05]">
+
+        <div className="shrink-0 pt-2 pb-[max(env(safe-area-inset-bottom),16px)]">
           <button
             type="button"
             onClick={handlePost}
-            disabled={
-              !telemetry ||
-              isAnalyzing ||
-              !(
-                (telemetry.steps || 0) > 0 ||
-                (estimatedSteps || 0) > 0 ||
-                (telemetry.distanceKm || 0) > 0 ||
-                (telemetry.elapsedMinutes || 0) > 0 ||
-                (telemetry.caloriesBurned || 0) > 0 ||
-                (telemetry.avgHeartRateBpm || 0) > 0
-              )
-            }
-            className="w-full h-10 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white disabled:opacity-40 font-normal text-o1-body tracking-wide flex items-center justify-center cursor-pointer active:scale-[0.99] transition"
+            disabled={!canSave}
+            className="w-full h-14 rounded-2xl bg-o1-yellow text-black text-o1-body font-semibold flex items-center justify-center cursor-pointer active:scale-[0.99] transition disabled:opacity-30 disabled:cursor-default"
           >
-            Save Cardio Session
+            Save session
           </button>
         </div>
       </div>
