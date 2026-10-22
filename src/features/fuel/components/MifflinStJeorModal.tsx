@@ -6,6 +6,13 @@ import type { BiologicalSex } from '../store/useFuelStore';
 import { MifflinBodyDetailsSection } from './mifflin/MifflinBodyDetailsSection';
 import { MifflinGoalSection, BodyGoal, PaceRate } from './mifflin/MifflinGoalSection';
 import { MifflinMacroSection, MacroSplitKey } from './mifflin/MifflinMacroSection';
+import {
+  CALORIE_FLOOR,
+  dailyBurn,
+  macroGrams,
+  paceKcalPerDay,
+  restingBurn,
+} from '../utils/energyMath';
 
 interface EnergyBody {
   weightKg: number | null;
@@ -68,12 +75,11 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
       // Katch-McArdle: BMR = 370 + (21.6 * LBM)
       return Math.round(370 + 21.6 * leanBodyMassKg);
     }
-    const base = 10 * weightKg + 6.25 * heightCm - 5 * ageYrs;
-    return Math.round(gender === 'male' ? base + 5 : base - 161);
+    return restingBurn(weightKg, heightCm, ageYrs, gender) ?? 0;
   }, [isComplete, useBodyFat, leanBodyMassKg, weightKg, heightCm, ageYrs, gender]);
 
   const tdee = useMemo(() => {
-    return Math.round(bmr * activityFactor);
+    return dailyBurn(bmr, activityFactor);
   }, [bmr, activityFactor]);
 
   const targetDeltaKg = useMemo(() => {
@@ -98,11 +104,11 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
     if (tdee <= 0) return 0;
     if (goal === 'maintain') return tdee;
 
-    const dailyPaceDelta = Math.round((paceRate * 7700) / 7);
+    const dailyPaceDelta = paceKcalPerDay(paceRate);
 
     switch (goal) {
       case 'fat_loss':
-        return Math.max(1200, tdee - dailyPaceDelta);
+        return Math.max(CALORIE_FLOOR, tdee - dailyPaceDelta);
       case 'lean_mass':
         return tdee + 250;
       case 'muscle_bulk':
@@ -116,19 +122,18 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
 
   // Macro Breakdown
   const macroBreakdown = useMemo(() => {
-    const weight = Number.isFinite(weightKg) && weightKg > 0 ? weightKg : 0;
-    const proteinG = Math.round(weight * proteinPerKg);
-    const pKcal = proteinG * 4;
-
     let fRatio = 0.8;
     if (macroKey === 'low_carb') fRatio = 1.3;
     if (macroKey === 'clean_bulk') fRatio = 0.75;
 
-    const fatsG = Math.round(weight * fRatio);
+    const { proteinG, fatsG, carbsG } = macroGrams(
+      weightKg,
+      netTargetCalories,
+      proteinPerKg,
+      fRatio,
+    );
+    const pKcal = proteinG * 4;
     const fKcal = fatsG * 9;
-
-    const remainingKcal = Math.max(0, netTargetCalories - pKcal - fKcal);
-    const carbsG = Math.round(remainingKcal / 4);
     const cKcal = carbsG * 4;
 
     const totalKcal = pKcal + fKcal + cKcal;

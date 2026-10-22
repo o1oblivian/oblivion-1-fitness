@@ -33,20 +33,27 @@ interface WeightCardProps {
   onToast: (message: string) => void;
   /** Opens the screen where a goal weight is set. */
   onSetGoal: () => void;
+  /** Sits at the foot of the card, e.g. the daily calorie line. */
+  footer?: React.ReactNode;
 }
 
 const VERDICT_COPY: Record<PaceVerdict, { text: string; tone: string }> = {
   steady: { text: 'At goal', tone: 'text-o1-olive' },
   'on-track': { text: 'On track', tone: 'text-o1-olive' },
-  'too-fast': { text: 'Too fast to keep up', tone: 'text-o1-caution' },
-  'too-slow': { text: 'Barely moving', tone: 'text-o1-muted' },
-  'wrong-way': { text: 'Off course', tone: 'text-o1-caution' },
+  'too-fast': { text: 'A little fast to hold', tone: 'text-o1-caution' },
+  'too-slow': { text: 'Moving slowly', tone: 'text-o1-muted' },
+  'wrong-way': { text: 'Heading the other way', tone: 'text-o1-caution' },
 };
 
 const signed = (value: number) => (value > 0 ? `+${value}` : `${value}`);
 
 /** Weight at a glance: the smoothed trend, the goal, and a one-tap way to log. Two rows tall. */
-export const WeightCard: React.FC<WeightCardProps> = ({ onSaveWeight, onToast, onSetGoal }) => {
+export const WeightCard: React.FC<WeightCardProps> = ({
+  onSaveWeight,
+  onToast,
+  onSetGoal,
+  footer,
+}) => {
   const entries = useWeighIns();
   const profileKg = useUserStore((s) => s.weightKg);
   const goalKg = useUserStore((s) => s.targetWeightKg);
@@ -246,6 +253,7 @@ export const WeightCard: React.FC<WeightCardProps> = ({ onSaveWeight, onToast, o
           {loggedToday ? 'Update' : 'Log'}
         </button>
       </div>
+      {footer}
     </section>
   );
 };
