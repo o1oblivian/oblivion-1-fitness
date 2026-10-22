@@ -18,6 +18,8 @@ import {
 } from './utils/fuelMath';
 import { FuelWeekSlide } from './components/FuelWeekSlide';
 import { FuelUsualsRow } from './components/FuelUsualsRow';
+import { WeightCard } from '../weight/WeightCard';
+import { logWeighIn } from '../weight/weighInStore';
 import { buildUsuals, slotForHour, Usual } from './utils/fuelUsuals';
 import { useTelemetryHistoryStore } from '../log/store/useTelemetryHistoryStore';
 import { MEAL_SLOT_SHARE, MealSlot, slotBudget } from './data/mealBudget';
@@ -78,6 +80,16 @@ export const FuelView: React.FC = () => {
       if (toastTimer.current) clearTimeout(toastTimer.current);
     },
     [],
+  );
+
+  /** A weigh-in from anywhere on this screen: kept in the history and as the current bodyweight. */
+  const saveWeighIn = useCallback(
+    (kg: number) => {
+      logWeighIn(kg);
+      setWeightKg(kg);
+      setProfileWeight(kg);
+    },
+    [setWeightKg, setProfileWeight],
   );
 
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -225,6 +237,12 @@ export const FuelView: React.FC = () => {
         onOpenSettings={() => setSettingsOpen(true)}
       />
 
+      <WeightCard
+        onSaveWeight={saveWeighIn}
+        onToast={showToast}
+        onSetGoal={() => setCalculatorOpen(true)}
+      />
+
       <FuelUsualsRow
         usuals={usuals}
         slotLabel={
@@ -267,8 +285,7 @@ export const FuelView: React.FC = () => {
         onOpenDiet={() => modals.setIsDietModalOpen(true)}
         onOpenCalculator={() => setCalculatorOpen(true)}
         onSaveWeight={(kg) => {
-          setWeightKg(kg);
-          setProfileWeight(kg);
+          saveWeighIn(kg);
           showToast(`Weight saved · ${kg} kg`);
         }}
         onSaveTargets={(cal, p, c, f) => {

@@ -40,8 +40,11 @@ export function createStore<TState extends object, TActions extends object>(
 
   const storeHook = useZustandStore as unknown as StoreHook<TState, TActions>;
   storeHook.getState = useZustandStore.getState;
+  // The hook and the zustand store are one object: keep the original before replacing it, or the
+  // replacement would call itself forever.
+  const zustandSetState = useZustandStore.setState;
   storeHook.setState = (updater) => {
-    useZustandStore.setState((state) => {
+    zustandSetState((state) => {
       const next = typeof updater === 'function' ? updater(state) : updater;
       return { ...state, ...next };
     });

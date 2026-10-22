@@ -6,6 +6,7 @@ import { FeatureErrorBoundary } from './components/common/FeatureErrorBoundary';
 import { ModalRegistry } from './components/modals/ModalRegistry';
 import { BasementOfflineBanner } from './components/common/BasementOfflineBanner';
 import { armAthleteReminders } from './services/athleteReminderScheduler';
+import { useWeighInCapture } from './features/weight/weighInStore';
 import { startSync } from './services/localFirstSync';
 import { RestTimerBar } from './features/workout/components/RestTimerBar';
 import { useRestTimerStore } from './features/workout/store/useRestTimerStore';
@@ -32,6 +33,7 @@ export const MainAppLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabMode>('tracker');
 
   const restActive = useRestTimerStore((s) => s.timer !== null);
+  useWeighInCapture();
 
   const mainRef = useRef<HTMLElement>(null);
 

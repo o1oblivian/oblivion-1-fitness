@@ -47,6 +47,30 @@ describe('planReminders', () => {
     expect(plan).toEqual([expect.objectContaining({ weekday: 6, hour: 23, minute: 45 })]);
   });
 
+  it('adds a daily weigh-in nudge only when asked for', () => {
+    const base = { ...DEFAULT_REMINDERS, recoveryOn: false };
+    expect(planReminders(on, { ...base, selectedDays: [] })).toEqual([]);
+    const plan = planReminders(on, {
+      ...base,
+      selectedDays: [],
+      weighInOn: true,
+      weighInTime: '06:45',
+    });
+    expect(plan).toEqual([
+      expect.objectContaining({ hour: 6, minute: 45, body: expect.stringContaining('scale') }),
+    ]);
+    expect(plan[0].weekday).toBeUndefined();
+  });
+
+  it('gives every reminder its own id', () => {
+    const plan = planReminders(on, {
+      ...DEFAULT_REMINDERS,
+      weighInOn: true,
+      hydrationOn: true,
+    });
+    expect(new Set(plan.map((p) => p.id)).size).toBe(plan.length);
+  });
+
   it('spreads water reminders from 8am to 8pm with unique ids', () => {
     const plan = planReminders(
       { osPushEnabled: true, preWorkoutReminder: false },

@@ -29,6 +29,9 @@ export interface ReminderConfig {
   recoveryTime: string;
   hydrationOn: boolean;
   hydrationHours: number;
+  /** A morning nudge to step on the scale. Off until the athlete asks for it. */
+  weighInOn: boolean;
+  weighInTime: string;
   selectedDays: string[];
 }
 
@@ -38,6 +41,8 @@ export const DEFAULT_REMINDERS: ReminderConfig = {
   recoveryTime: '21:00',
   hydrationOn: false,
   hydrationHours: 2,
+  weighInOn: false,
+  weighInTime: '07:00',
   selectedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
 };
 
@@ -54,6 +59,8 @@ export function readReminderConfig(): ReminderConfig {
     hydrationOn:
       typeof saved.hydrationOn === 'boolean' ? saved.hydrationOn : DEFAULT_REMINDERS.hydrationOn,
     hydrationHours: hours >= 1 && hours <= 4 ? hours : DEFAULT_REMINDERS.hydrationHours,
+    weighInOn: typeof saved.weighInOn === 'boolean' ? saved.weighInOn : DEFAULT_REMINDERS.weighInOn,
+    weighInTime: time(saved.weighInTime, DEFAULT_REMINDERS.weighInTime),
     selectedDays: Array.isArray(saved.selectedDays)
       ? REMINDER_DAYS.filter((day) => (saved.selectedDays as unknown[]).includes(day))
       : DEFAULT_REMINDERS.selectedDays,
@@ -113,6 +120,15 @@ export function planReminders(
     plan.push({
       id: ID_MIN + 100,
       body: 'Wind down. Log your sleep and how you feel.',
+      hour: Math.floor(at / 60),
+      minute: at % 60,
+    });
+  }
+  if (config.weighInOn) {
+    const at = minutesOf(config.weighInTime);
+    plan.push({
+      id: ID_MIN + 101,
+      body: 'Step on the scale and log your weight.',
       hour: Math.floor(at / 60),
       minute: at % 60,
     });

@@ -7,7 +7,7 @@ import {
 import { useUserStore } from '../../stores/useUserStore';
 import { knownSets } from '../log/liftLedger';
 import { buildReport, toDayKey } from './reportEngine';
-import { readWeighIns } from './weighInLog';
+import { readWeighIns } from '../weight/weighInStore';
 import type { LoggedSet, OblivionReport, SleepSample } from './types';
 
 const HISTORY_DAYS = 120;

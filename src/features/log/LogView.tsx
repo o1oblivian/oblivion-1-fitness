@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ChevronRight, BarChart3 } from 'lucide-react';
 import { OblivionReportModal } from '../report/components/OblivionReportModal';
-import { useWeighInCapture } from '../report/weighInLog';
 import { UnifiedTopBoard } from './components/UnifiedTopBoard';
 import { LogHistoryView } from './components/LogHistoryView';
 import { InviteModal } from './components/InviteModal';
@@ -20,7 +19,6 @@ import { mapAssignedRow } from './todaySession';
 import { athleteLabel } from './athleteLabel';
 export const LogView: React.FC = () => {
   useLogHydration();
-  useWeighInCapture();
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const showToast = useCallback((message: string) => {

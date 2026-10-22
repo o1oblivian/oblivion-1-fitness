@@ -174,6 +174,30 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
 
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
           <div className="space-y-0.5 min-w-0">
+            <span className="text-xs font-tactical font-bold text-white block">Weigh-in</span>
+            <span className="text-o1-label text-neutral-400 block">
+              Every morning: step on the scale and log it
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <input
+              type="time"
+              aria-label="Weigh-in time"
+              value={config.weighInTime}
+              disabled={!config.weighInOn}
+              onChange={(e) => e.target.value && patch({ weighInTime: e.target.value })}
+              className={INPUT}
+            />
+            <CrimsonSwitch
+              label="Weigh-in reminder"
+              checked={config.weighInOn}
+              onChange={(weighInOn) => patch({ weighInOn })}
+            />
+          </div>
+        </div>
+
+        <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
+          <div className="space-y-0.5 min-w-0">
             <span className="text-xs font-tactical font-bold text-white block">Drink water</span>
             <span className="text-o1-label text-neutral-400 block">
               {HYDRATION_START_HOUR}am to {HYDRATION_END_HOUR - 12}pm
