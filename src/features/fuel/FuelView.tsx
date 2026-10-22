@@ -130,7 +130,7 @@ export const FuelView: React.FC = () => {
   );
   const macros: MacroMeter[] = [
     { label: 'Protein', consumed: totals.protein, target: macroTargets.protein, color: '#C4121A' },
-    { label: 'Carbs', consumed: totals.carbs, target: macroTargets.carbs, color: '#d97706' },
+    { label: 'Carbs', consumed: totals.carbs, target: macroTargets.carbs, color: '#f7c600' },
     { label: 'Fats', consumed: totals.fats, target: macroTargets.fats, color: '#059669' },
   ];
   const remainingKcal = Math.max(0, balance.remaining ?? 0);

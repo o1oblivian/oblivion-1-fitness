@@ -62,7 +62,7 @@ export function resolveDialConfig(
   const accentColor = isWeight
     ? '#C4121A'
     : isReps
-      ? '#d97706'
+      ? '#f7c600'
       : isSteps
         ? '#0284c7'
         : isRpe

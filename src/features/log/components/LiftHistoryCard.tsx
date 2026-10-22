@@ -25,7 +25,7 @@ const TREND: Record<LiftTrend, { simple: string; pro: string; cls: string; strok
     simple: 'Stuck',
     pro: 'Plateau',
     cls: 'text-amber-500 border-amber-500/30',
-    stroke: '#d97706',
+    stroke: '#f7c600',
   },
   declining: {
     simple: 'Dropping',

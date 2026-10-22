@@ -146,7 +146,7 @@ try {
     el.innerHTML = `
       <div style="min-height:100dvh;width:100%;background:#000000;color:#fff;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;font-family:sans-serif;padding:24px;box-sizing:border-box;">
         <h1 style="font-size:16px;font-weight:700;letter-spacing:1px;margin:0 0 12px 0;text-transform:uppercase;">Launch error</h1>
-        <pre style="font-size:11px;color:#D4A017;white-space:pre-wrap;word-break:break-word;background:#000;border:1px solid #333;border-radius:12px;padding:12px;overflow:auto;">${message.replace(/</g, '&lt;')}</pre>
+        <pre style="font-size:11px;color:#F7C600;white-space:pre-wrap;word-break:break-word;background:#000;border:1px solid #333;border-radius:12px;padding:12px;overflow:auto;">${message.replace(/</g, '&lt;')}</pre>
         <button onclick="window.location.reload()" style="margin-top:16px;padding:10px 24px;border-radius:12px;background:#C4121A;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;">Retry Launch</button>
       </div>`;
   }

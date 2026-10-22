@@ -104,7 +104,7 @@ export function PortionRuler({
       <svg width={width} height={RULER_H} className="block">
         {ticks}
         {serveMarkX != null && serveMarkX > -8 && serveMarkX < width + 8 && (
-          <circle cx={serveMarkX} cy={7} r={2.5} fill="#D4A017" />
+          <circle cx={serveMarkX} cy={7} r={2.5} fill="#F7C600" />
         )}
         <rect x={width / 2 - 1} y={4} width={2} height={42} rx={1} fill="#C4121A" />
         <path d={`M ${width / 2 - 5} 2 L ${width / 2 + 5} 2 L ${width / 2} 8 Z`} fill="#C4121A" />

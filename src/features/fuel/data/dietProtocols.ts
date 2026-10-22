@@ -73,7 +73,7 @@ export const DIET_OPTIONS: DietProtocol[] = [
     short: 'Ancestral',
     description: 'Meats, fish, eggs, veg and roots — no grains or dairy',
     icon: '🥑',
-    accent: '#d97706',
+    accent: '#f7c600',
     accentSoft: 'bg-o1-warn-wash',
     accentBorder: 'border-amber-900/40',
     accentDark: 'text-amber-500',

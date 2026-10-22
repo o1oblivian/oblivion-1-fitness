@@ -8,7 +8,7 @@ export const MUTED = 'rgba(244,242,234,0.8)';
 export const TRACK = 'rgba(244,242,234,0.3)';
 export const EMERALD = '#10b981';
 export const CRIMSON = '#E0262E';
-export const AMBER = '#f59e0b';
+export const AMBER = '#f7c600';
 export const SKY = '#2aa3e0';
 
 export interface DialPalette {

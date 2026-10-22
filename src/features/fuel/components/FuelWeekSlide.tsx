@@ -16,7 +16,7 @@ type TowerTheme = { slabs: string[]; accent: string };
 
 const STATE_THEME: Record<'on' | 'under' | 'over' | 'today', TowerTheme> = {
   on: { slabs: ['#059669', '#10B981'], accent: '#10B981' },
-  under: { slabs: ['#D97706', '#F59E0B'], accent: '#F59E0B' },
+  under: { slabs: ['#C9A000', '#F7C600'], accent: '#F7C600' },
   over: { slabs: ['#A30F16', '#C4121A'], accent: '#C4121A' },
   today: { slabs: ['#CFCCC1', '#EAE8DF'], accent: '#EAE8DF' },
 };

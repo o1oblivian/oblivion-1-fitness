@@ -14,7 +14,7 @@ const ELECTROLYTE_TARGETS: Array<{
 }> = [
   { key: 'sodium', name: 'Sodium', target: 3000, step: 250, color: '#0284c7' },
   { key: 'potassium', name: 'Potassium', target: 3500, step: 250, color: '#059669' },
-  { key: 'magnesium', name: 'Magnesium', target: 400, step: 50, color: '#d97706' },
+  { key: 'magnesium', name: 'Magnesium', target: 400, step: 50, color: '#f7c600' },
 ];
 
 type Pane = 'today' | 'stack' | 'salts';

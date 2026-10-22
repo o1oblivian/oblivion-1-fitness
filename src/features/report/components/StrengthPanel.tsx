@@ -10,7 +10,7 @@ interface StrengthPanelProps {
 const TREND_STYLE: Record<LiftTrend, { label: string; cls: string; stroke: string }> = {
   rising: { label: 'RISING', cls: 'text-o1-ok border-o1-ok/30', stroke: '#4F8F9A' },
   steady: { label: 'STEADY', cls: 'text-neutral-300 border-white/[0.12]', stroke: '#a3a3a3' },
-  plateau: { label: 'PLATEAU', cls: 'text-amber-500 border-amber-500/30', stroke: '#d97706' },
+  plateau: { label: 'PLATEAU', cls: 'text-amber-500 border-amber-500/30', stroke: '#f7c600' },
   declining: { label: 'DECLINING', cls: 'text-red-500 border-red-500/30', stroke: '#C4121A' },
 };
 

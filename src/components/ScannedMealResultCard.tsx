@@ -125,7 +125,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
               }}
               className={`px-2 py-0.5 rounded-xl font-tactical font-bold transition cursor-pointer border ${
                 dressing === d
-                  ? 'bg-amber-600 text-white border-amber-600'
+                  ? 'bg-amber-600 text-black border-amber-600'
                   : 'bg-white/5 text-neutral-400 border-white/[0.07]'
               }`}
             >

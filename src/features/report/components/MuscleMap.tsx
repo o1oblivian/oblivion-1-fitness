@@ -92,7 +92,7 @@ const BACK: Region[] = [
 
 const STATUS_FILL: Record<VolumeStatus, string> = {
   none: '#1f1f23',
-  under: '#d97706',
+  under: '#f7c600',
   optimal: '#10b981',
   over: '#C4121A',
 };

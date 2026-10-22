@@ -83,8 +83,8 @@
   --color-o1-muted: #8a887f;
   --color-o1-ok-wash: #16301f;
   --color-o1-ok-ink: #b7e0c2;
-  --color-o1-warn-wash: #3a2a10;
-  --color-o1-warn-ink: #f0d7a2;
+  --color-o1-warn-wash: #2a2300;
+  --color-o1-warn-ink: #ffe27a;
   --color-o1-bad-wash: #3a1214;
   --color-o1-bad-ink: #f2b8bb;
 
@@ -92,12 +92,16 @@
   --color-o1-crimson-hover: #a30f16;
   --color-o1-crimson-press: #800c11;
 
+  /* The one yellow: sunflower. Energy, carbs and every caution use it. On solid yellow, text is black. */
+  --color-o1-yellow: #f7c600;
+  --color-o1-yellow-deep: #c9a000;
+
   --color-o1-ok: #4f8f9a;
-  --color-o1-caution: #d4a017;
+  --color-o1-caution: #f7c600;
   --color-o1-error: #c4121a;
   --color-o1-info: #4f8f9a;
   --color-o1-olive: #6b8f5e;
-  --color-o1-gold: #d4a017;
+  --color-o1-gold: #f7c600;
   --color-o1-copper: #c4784a;
   --color-o1-teal: #4f8f9a;
   --color-o1-slate: #6a8ca8;
@@ -121,12 +125,12 @@
   /* Status accents */
   --color-o1-emerald: #10b981;
   --color-o1-emerald-deep: #059669;
-  --color-o1-amber: #f59e0b;
-  --color-o1-amber-deep: #d97706;
+  --color-o1-amber: #f7c600;
+  --color-o1-amber-deep: #c9a000;
   --color-o1-sky: #0284c7;
 
   --color-o1-protein: #c4121a;
-  --color-o1-carbs: #d4a017;
+  --color-o1-carbs: #f7c600;
   --color-o1-fat: #6b8f5e;
 
   --color-red-400: #c4121a;
@@ -156,9 +160,9 @@
   --color-green-500: #6b8f5e;
   --color-sky-400: #4f8f9a;
   --color-sky-500: #4f8f9a;
-  --color-amber-400: #d4a017;
-  --color-amber-500: #d4a017;
-  --color-amber-600: #d4a017;
+  --color-amber-400: #f7c600;
+  --color-amber-500: #f7c600;
+  --color-amber-600: #f7c600;
   --color-cyan-400: #4f8f9a;
   --color-cyan-500: #4f8f9a;
   --color-cyan-950: #16363a;
@@ -168,8 +172,8 @@
   --color-indigo-500: #4f8f9a;
   --color-violet-400: #7a756a;
   --color-purple-400: #7a756a;
-  --color-orange-400: #d4a017;
-  --color-orange-500: #d4a017;
+  --color-orange-400: #f7c600;
+  --color-orange-500: #f7c600;
   --color-rose-300: #c4121a;
   --color-rose-400: #c4121a;
   --color-rose-500: #c4121a;
