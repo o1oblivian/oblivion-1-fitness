@@ -35,7 +35,7 @@ function Bar({
   const f = clamp01(ratio);
   return (
     <>
-      <Txt x={54} y={y} size={9} color={color} anchor="end" spacing="0.12em">
+      <Txt x={54} y={y} size={11} color={color} anchor="end" spacing="0.12em">
         {label}
       </Txt>
       <Line x1={60} y1={y} x2={180} y2={y} opacity={0.3} />

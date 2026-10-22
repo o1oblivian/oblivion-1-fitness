@@ -45,7 +45,7 @@ function Tape({
           <path d={`M ${x + 4} ${level} l 11 -5 v 10 z`} fill={color} />
         </>
       )}
-      <Txt x={x} y={bottom + 14} size={9} weight={600} color={color} spacing="0.16em">
+      <Txt x={x} y={bottom + 14} size={11} weight={600} color={color} spacing="0.16em">
         {label}
       </Txt>
     </>

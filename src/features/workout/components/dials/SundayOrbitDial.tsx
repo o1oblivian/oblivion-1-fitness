@@ -68,13 +68,13 @@ export const SundayOrbitDial: React.FC<DialComponentProps> = (props) => {
       ))}
       <StepsLabel y={CY - 22} color={PALETTE.steps} />
       <HeroSteps y={CY + 4} size={32} steps={props.steps} />
-      <Txt x={CX - 6} y={CY + 30} size={10} color={MUTED} anchor="end">
+      <Txt x={CX - 6} y={CY + 30} size={11} color={MUTED} anchor="end">
         WATER{' '}
         <tspan fill={SKY} fontWeight={600}>
           {water}
         </tspan>
       </Txt>
-      <Txt x={CX + 6} y={CY + 30} size={10} color={MUTED} anchor="start">
+      <Txt x={CX + 6} y={CY + 30} size={11} color={MUTED} anchor="start">
         SLEEP{' '}
         <tspan fill={sleepOk ? EMERALD : AMBER} fontWeight={600}>
           {sleep}

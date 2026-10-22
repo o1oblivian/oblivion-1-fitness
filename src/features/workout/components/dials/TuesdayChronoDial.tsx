@@ -66,7 +66,7 @@ export const TuesdayChronoDial: React.FC<DialComponentProps> = (props) => {
         );
       })}
       <Ring r={R} ratio={f} color={PALETTE.steps} start={START} sweep={SWEEP} />
-      <Txt x={CX} y={CY - 34} size={10} weight={600} color={PALETTE.steps} spacing="0.2em">
+      <Txt x={CX} y={CY - 34} size={11} weight={600} color={PALETTE.steps} spacing="0.2em">
         STEPS
       </Txt>
       <Txt x={CX} y={CY + 40} size={20} weight={300} font="mono">

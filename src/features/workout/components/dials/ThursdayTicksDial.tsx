@@ -72,7 +72,7 @@ export const ThursdayTicksDial: React.FC<DialComponentProps> = (props) => {
       <StepsLabel y={CY - 18} color={PALETTE.steps} />
       <HeroSteps y={CY + 6} size={26} steps={props.steps} />
       {props.stepTarget > 0 && (
-        <Txt x={CX} y={CY + 28} size={9.5} color={MUTED}>{`/ ${fmtInt(props.stepTarget)}`}</Txt>
+        <Txt x={CX} y={CY + 28} size={11} color={MUTED}>{`/ ${fmtInt(props.stepTarget)}`}</Txt>
       )}
     </DialFrame>
   );

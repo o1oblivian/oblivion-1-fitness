@@ -54,7 +54,7 @@ function Gauge({
       ))}
       {f > 0 && <Line x1={x} y1={GAUGE_Y} x2={tip.x} y2={tip.y} color={color} width={1.4} />}
       <circle cx={x} cy={GAUGE_Y} r={2.6} fill={color} />
-      <Txt x={x} y={GAUGE_Y + 56} size={9} weight={600} color={color} spacing="0.18em">
+      <Txt x={x} y={GAUGE_Y + 56} size={11} weight={600} color={color} spacing="0.18em">
         {label}
       </Txt>
     </>
@@ -89,7 +89,7 @@ export const FridayGaugesDial: React.FC<DialComponentProps> = (props) => {
         </>
       )}
       {props.stepTarget > 0 && (
-        <Txt x={BAR_X1} y={90} size={9} color={MUTED} anchor="end">
+        <Txt x={BAR_X1} y={90} size={11} color={MUTED} anchor="end">
           {fmtInt(props.stepTarget)}
         </Txt>
       )}

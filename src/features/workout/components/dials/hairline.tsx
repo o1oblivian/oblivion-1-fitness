@@ -77,7 +77,7 @@ export function Txt({
 
 export function StepsLabel({ x = CX, y, color }: { x?: number; y: number; color: string }) {
   return (
-    <Txt x={x} y={y} size={10} weight={600} color={color} spacing="0.2em">
+    <Txt x={x} y={y} size={11} weight={600} color={color} spacing="0.2em">
       STEPS
     </Txt>
   );
@@ -256,7 +256,7 @@ function Strip({ palette, burnKcal, distKm, intakeKcal }: Omit<FrameProps, 'chil
           <Txt x={it.x} y={240} size={15} weight={500} color={it.color}>
             {it.value}
           </Txt>
-          <Txt x={it.x} y={256} size={9} color={MUTED} spacing="0.16em">
+          <Txt x={it.x} y={256} size={11} color={MUTED} spacing="0.16em">
             {it.unit}
           </Txt>
         </React.Fragment>
