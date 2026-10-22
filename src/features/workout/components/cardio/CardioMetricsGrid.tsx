@@ -59,7 +59,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
         aria-label={
           editing ? undefined : `${m.label}: ${missing ? 'not read' : m.num}. Tap to edit.`
         }
-        className={`relative text-left rounded-2xl bg-o1-surface active:scale-[0.98] transition cursor-pointer ${
+        className={`relative text-left rounded-2xl bg-o1-well active:scale-[0.98] transition cursor-pointer ${
           large ? 'p-4' : 'p-3'
         }`}
       >
