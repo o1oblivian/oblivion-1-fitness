@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Bell, BellRing, Check, Minus, Plus } from 'lucide-react';
+import { Bell, BellRing, Minus, Plus } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 import {
   readReminderConfig,
@@ -10,7 +10,7 @@ import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot
 import { sanitizeNumericInput } from '../../utils/numberInputUtils';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../utils/weightUnits';
 import { useUserStore } from '../../stores/useUserStore';
-import { toDayKey } from '../report/reportEngine';
+import { dayIndex, toDayKey } from '../report/reportEngine';
 import { useWeighIns } from './weighInStore';
 import { WeightSparkline } from './WeightSparkline';
 import {
@@ -24,6 +24,8 @@ import {
 const STEP = 0.1;
 const MIN_KG = 20;
 const MAX_KG = 500;
+/** Weighing a few times a week is plenty. Only after this many days is it worth a mention. */
+const STALE_AFTER_DAYS = 4;
 
 interface WeightCardProps {
   /** Saves a weigh-in everywhere the app keeps bodyweight. */
@@ -34,16 +36,16 @@ interface WeightCardProps {
 }
 
 const VERDICT_COPY: Record<PaceVerdict, { text: string; tone: string }> = {
-  steady: { text: 'At your goal', tone: 'text-o1-olive' },
+  steady: { text: 'At goal', tone: 'text-o1-olive' },
   'on-track': { text: 'On track', tone: 'text-o1-olive' },
-  'too-fast': { text: 'Faster than is easy to keep up', tone: 'text-o1-caution' },
+  'too-fast': { text: 'Too fast to keep up', tone: 'text-o1-caution' },
   'too-slow': { text: 'Barely moving', tone: 'text-o1-muted' },
-  'wrong-way': { text: 'Moving away from your goal', tone: 'text-o1-caution' },
+  'wrong-way': { text: 'Off course', tone: 'text-o1-caution' },
 };
 
 const signed = (value: number) => (value > 0 ? `+${value}` : `${value}`);
 
-/** Weight at a glance: today's number, the smoothed trend, the goal, and a one-tap way to log. */
+/** Weight at a glance: the smoothed trend, the goal, and a one-tap way to log. Two rows tall. */
 export const WeightCard: React.FC<WeightCardProps> = ({ onSaveWeight, onToast, onSetGoal }) => {
   const entries = useWeighIns();
   const profileKg = useUserStore((s) => s.weightKg);
@@ -56,8 +58,8 @@ export const WeightCard: React.FC<WeightCardProps> = ({ onSaveWeight, onToast, o
 
   const series = useMemo(() => trendSeries(entries), [entries]);
   const latest = series[series.length - 1];
-  const todayKey = toDayKey(Date.now());
-  const loggedToday = latest?.day === todayKey;
+  const loggedToday = latest?.day === toDayKey(Date.now());
+  const daysSince = latest ? dayIndex(toDayKey(Date.now())) - dayIndex(latest.day) : null;
   const currentKg = latest ? latest.trendKg : profileKg;
   const rate = useMemo(() => weeklyRateKg(series), [series]);
   const weekChange = useMemo(() => trendChangeKg(series, 7), [series]);
@@ -119,57 +121,32 @@ export const WeightCard: React.FC<WeightCardProps> = ({ onSaveWeight, onToast, o
       }`
     : 'No weigh-ins yet';
 
+  /** Under the number: the week's change, or a quiet note once it has been a few days. */
+  let caption = `${delta(weekChange ?? 0)} ${unitLabel} in 7 days`;
+  let captionTone = 'text-o1-muted';
+  if (latest == null) {
+    caption = 'Log your first weigh-in';
+  } else if (daysSince != null && daysSince >= STALE_AFTER_DAYS) {
+    caption = `Last weighed ${daysSince} days ago`;
+    captionTone = 'text-o1-caution';
+  } else if (weekChange == null) {
+    caption = 'Trend builds as you weigh in';
+  }
+
   return (
     <section
       aria-label="Weight"
-      className="rounded-3xl border border-white/[0.07] bg-o1-surface p-4 space-y-3"
+      className="rounded-2xl border border-white/[0.07] bg-o1-surface px-3 pt-2.5 pb-3"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-o1-body font-semibold text-o1-text">Weight</h2>
-          <p
-            className={`flex items-center gap-1 text-o1-label ${
-              loggedToday ? 'text-o1-olive' : 'text-o1-muted'
-            }`}
-          >
-            {loggedToday ? <Check className="h-3 w-3" aria-hidden /> : null}
-            {loggedToday ? 'Logged today' : 'Not logged today'}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => void toggleReminder()}
-          aria-pressed={reminderOn}
-          className={`flex min-h-[44px] items-center gap-1.5 rounded-full border px-3 text-o1-label cursor-pointer ${
-            reminderOn
-              ? 'border-o1-crimson/40 bg-o1-crimson/10 text-o1-text'
-              : 'border-white/[0.08] text-o1-muted'
-          }`}
-        >
-          {reminderOn ? (
-            <BellRing className="h-3.5 w-3.5 text-o1-crimson" aria-hidden />
-          ) : (
-            <Bell className="h-3.5 w-3.5" aria-hidden />
-          )}
-          {reminderOn ? 'Reminder on' : 'Remind me'}
-        </button>
-      </div>
-
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <div className="shrink-0">
           <div className="flex items-baseline gap-1">
-            <span className="text-o1-display font-bold tabular-nums leading-none text-o1-text">
+            <span className="text-o1-heading font-bold tabular-nums leading-none text-o1-text">
               {currentKg > 0 ? show(currentKg) : '--'}
             </span>
             <span className="text-o1-caption text-o1-muted">{unitLabel}</span>
           </div>
-          <p className="pt-1 text-o1-label text-o1-muted">
-            {series.length === 0
-              ? 'Log your first weigh-in'
-              : weekChange == null
-                ? 'Trend · needs a few days'
-                : `${delta(weekChange)} ${unitLabel} in 7 days`}
-          </p>
+          <p className={`pt-1 text-o1-label ${captionTone}`}>{caption}</p>
         </div>
         <div className="min-w-0 flex-1">
           <WeightSparkline
@@ -178,31 +155,43 @@ export const WeightCard: React.FC<WeightCardProps> = ({ onSaveWeight, onToast, o
             description={description}
           />
         </div>
+        <button
+          type="button"
+          onClick={() => void toggleReminder()}
+          aria-pressed={reminderOn}
+          aria-label={reminderOn ? 'Weigh-in reminder on' : 'Remind me to weigh in'}
+          className="-mr-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-o1-muted cursor-pointer active:bg-o1-sheet"
+        >
+          {reminderOn ? (
+            <BellRing className="h-[18px] w-[18px] text-o1-crimson" aria-hidden />
+          ) : (
+            <Bell className="h-[18px] w-[18px]" aria-hidden />
+          )}
+        </button>
       </div>
 
       {goal ? (
-        <p className="text-o1-caption text-o1-muted">
+        <p className="truncate pt-1 text-o1-caption text-o1-muted">
           {goal.reached ? (
             <span className="text-o1-olive">
-              You are at your goal of {show(goalKg)} {unitLabel}.
+              At your goal of {show(goalKg)} {unitLabel}
             </span>
           ) : (
             <>
               <span className="tabular-nums text-o1-text">
                 {show(Math.abs(goal.remainingKg))} {unitLabel}
               </span>{' '}
-              to {goal.remainingKg < 0 ? 'lose' : 'gain'} to reach {show(goalKg)} {unitLabel}
+              to {goal.remainingKg < 0 ? 'lose' : 'gain'}
               {rate != null ? (
-                <>
+                <span className="tabular-nums">
                   {' · '}
-                  <span className="tabular-nums">
-                    {delta(rate)} {unitLabel}/wk
-                  </span>
-                  {goal.etaWeeks != null ? ` · about ${goal.etaWeeks} wk` : ''}
-                </>
+                  {delta(rate)}/wk
+                  {goal.etaWeeks != null ? ` · ~${goal.etaWeeks} wk` : ''}
+                </span>
               ) : null}
               {goal.verdict ? (
-                <span className={`block pt-0.5 ${VERDICT_COPY[goal.verdict].tone}`}>
+                <span className={VERDICT_COPY[goal.verdict].tone}>
+                  {' · '}
                   {VERDICT_COPY[goal.verdict].text}
                 </span>
               ) : null}
@@ -213,13 +202,13 @@ export const WeightCard: React.FC<WeightCardProps> = ({ onSaveWeight, onToast, o
         <button
           type="button"
           onClick={onSetGoal}
-          className="min-h-[44px] text-left text-o1-caption text-o1-crimson cursor-pointer"
+          className="block min-h-[32px] text-left text-o1-caption text-o1-crimson cursor-pointer"
         >
           Set a goal weight to see your progress
         </button>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 pt-1.5">
         <button
           type="button"
           onClick={() => nudge(-1)}
