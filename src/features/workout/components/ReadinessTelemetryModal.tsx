@@ -4,6 +4,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { useTelemetryHistoryStore } from '../../log/store/useTelemetryHistoryStore';
 import { latestSleepRecord } from '../../report/vitals';
 import { TrainingSafetyInfo } from '../../legal/TrainingSafetyInfo';
+import { BodyStatusCard } from '../../bodyStatus/BodyStatusCard';
 import { latestHrv, localDateKey, useHrvStore } from '../../../services/ble/hrv';
 
 interface Props {
@@ -98,6 +99,8 @@ export const ReadinessTelemetryModal: React.FC<Props> = ({ isOpen, onClose, scor
             <ShieldCheck className="w-5 h-5 text-sky-600" />
           </div>
         </div>
+
+        <BodyStatusCard />
 
         {/* Logged biometrics */}
         <div className="grid grid-cols-2 gap-2.5">

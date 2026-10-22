@@ -47,6 +47,17 @@ describe('planReminders', () => {
     expect(plan).toEqual([expect.objectContaining({ weekday: 6, hour: 23, minute: 45 })]);
   });
 
+  it('stops nudging to train while resting, sick or injured, but keeps the other reminders', () => {
+    const config = {
+      ...DEFAULT_REMINDERS,
+      selectedDays: ['Mon', 'Tue'] as typeof DEFAULT_REMINDERS.selectedDays,
+      recoveryOn: true,
+    };
+    const held = planReminders(on, config, true);
+    expect(planReminders(on, config).length).toBe(held.length + 2);
+    expect(held).toEqual([expect.objectContaining({ body: expect.stringContaining('Wind down') })]);
+  });
+
   it('adds a daily weigh-in nudge only when asked for', () => {
     const base = { ...DEFAULT_REMINDERS, recoveryOn: false };
     expect(planReminders(on, { ...base, selectedDays: [] })).toEqual([]);

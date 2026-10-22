@@ -2,6 +2,7 @@ import { clamp } from '../../utils/mathUtils';
 import { classifyExercise, MUSCLE_BY_ID } from './muscleModel';
 import { acwrScore, dayIndex, toDayKey } from './reportEngine';
 import type { Tone } from './palette';
+import { statusDay, type BodyStatusState } from '../bodyStatus/bodyStatus';
 import type {
   LiftTrend,
   LoggedSet,
@@ -11,7 +12,11 @@ import type {
   VolumeStatus,
 } from './types';
 
-export type Decision = 'PUSH' | 'MAINTAIN' | 'EASE OFF' | 'DELOAD' | 'NO SIGNAL';
+/** REST and PROTECT come from how the athlete says they feel, not from the numbers. */
+export type Decision =
+  'PUSH' | 'MAINTAIN' | 'EASE OFF' | 'DELOAD' | 'NO SIGNAL' | 'REST' | 'PROTECT';
+
+type DataDecision = Exclude<Decision, 'REST' | 'PROTECT'>;
 
 interface ReadinessSignal {
   id: 'sleep' | 'load' | 'rest';
@@ -63,6 +68,8 @@ const RPE_CAP: Record<Decision, number> = {
   'EASE OFF': 7.5,
   DELOAD: 7,
   'NO SIGNAL': 8.5,
+  REST: 6,
+  PROTECT: 7,
 };
 
 function prescribe(lift: OblivionReport['lifts'][number], decision: Decision): LiftPrescription {
@@ -82,6 +89,9 @@ function prescribe(lift: OblivionReport['lifts'][number], decision: Decision): L
       if (weight <= last) weight = toStep(last + 1.25);
       rationale = '+2.5% on the last top set.';
     }
+  } else if (decision === 'PROTECT') {
+    weight = toStep(last * 0.9);
+    rationale = '-10% and pain-free reps only.';
   } else if (decision === 'EASE OFF') {
     weight = toStep(last * 0.9);
     rationale = '-10% while readiness is low.';
@@ -108,11 +118,48 @@ function prescribe(lift: OblivionReport['lifts'][number], decision: Decision): L
   };
 }
 
+/** The athlete's own word beats the numbers: a rest day or illness holds training, an injury protects it. */
+function bodyCall(
+  body: BodyStatusState,
+  nowMs: number,
+): { decision: Decision; headline: string; detail: string } | null {
+  const day = statusDay(body, nowMs);
+  switch (body.status) {
+    case 'rest':
+      return {
+        decision: 'REST',
+        headline: 'Rest day, on purpose',
+        detail: 'Recovery is where training lands. Walk, eat well, sleep early.',
+      };
+    case 'sick':
+      return {
+        decision: 'REST',
+        headline: 'Rest and get well',
+        detail:
+          day <= 2
+            ? 'Skip training. Sleep and fluids will do more for you than a session.'
+            : `Day ${day}. Once you feel normal for a full day, ease back in at about 70%.`,
+      };
+    case 'injured':
+      return {
+        decision: 'PROTECT',
+        headline: body.area
+          ? `Train around your ${body.area.toLowerCase()}`
+          : 'Train around the injury',
+        detail:
+          'Skip anything that irritates it. Keep the rest light and pain-free, and see a clinician if it does not settle.',
+      };
+    default:
+      return null;
+  }
+}
+
 export function buildTodayIntel(
   report: OblivionReport,
   sets: LoggedSet[],
   sleep: SleepSample[],
   nowMs: number,
+  body?: BodyStatusState,
 ): TodayIntel {
   const todayIdx = dayIndex(toDayKey(nowMs));
 
@@ -194,7 +241,7 @@ export function buildTodayIntel(
     ? Math.round(live.reduce((a, s) => a + s.value, 0) / live.length)
     : null;
 
-  let decision: Decision;
+  let decision: DataDecision;
   if (ratio !== null && ratio > 1.5) decision = 'DELOAD';
   else if (readiness === null) decision = 'NO SIGNAL';
   else if (readiness >= 75) decision = 'PUSH';
@@ -211,7 +258,7 @@ export function buildTodayIntel(
     capReason = `${Math.round(latestSleep.hours * 10) / 10}h of sleep is under 6.5h, so no added load today.`;
   }
 
-  const copy: Record<Decision, { headline: string; detail: string }> = {
+  const copy: Record<DataDecision, { headline: string; detail: string }> = {
     PUSH: {
       headline: 'Green light to progress',
       detail: 'Recovery signals support adding load today.',
@@ -249,16 +296,22 @@ export function buildTodayIntel(
     };
   });
 
-  const prescriptions = report.lifts
-    .filter((l) => l.lastWeightKg > 0)
-    .slice(0, 4)
-    .map((l) => prescribe(l, decision));
+  const override = body ? bodyCall(body, nowMs) : null;
+  const finalDecision: Decision = override?.decision ?? decision;
+
+  const prescriptions =
+    finalDecision === 'REST'
+      ? []
+      : report.lifts
+          .filter((l) => l.lastWeightKg > 0)
+          .slice(0, 4)
+          .map((l) => prescribe(l, finalDecision));
 
   return {
     readiness,
-    decision,
-    headline: copy[decision].headline,
-    detail: capReason || copy[decision].detail,
+    decision: finalDecision,
+    headline: override?.headline ?? copy[decision].headline,
+    detail: override?.detail ?? (capReason || copy[decision].detail),
     signals,
     muscles,
     prescriptions,

@@ -14,6 +14,7 @@ import { getSystemTodayCode } from '../services/dayRoutineService';
 import { HeroFrontFace } from './HeroFrontFace';
 import { HeroBackFace } from './HeroBackFace';
 import { HeroModals } from './HeroModals';
+import { useBodyStatus } from '../../bodyStatus/bodyStatus';
 
 const DAYS_LIST = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -53,6 +54,7 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
     'hydration' | 'biosync' | 'supplements' | 'sleep' | null
   >(null);
   const [isReadinessOpen, setIsReadinessOpen] = useState(false);
+  const bodyStatus = useBodyStatus();
 
   // Active day auto-initializes to today's real-time calendar day
   const [activeDay, setActiveDay] = useState<string>(() => {
@@ -336,7 +338,7 @@ export const HeroVitalsContainer: React.FC<HeroVitalsContainerProps> = ({
             }}
             onOpenCardio={onOpenCardioModal || onCardioClick}
             onOpenReadiness={() => {
-              if (readinessScore == null) setActiveModal('sleep');
+              if (readinessScore == null && bodyStatus.status === 'ready') setActiveModal('sleep');
               else setIsReadinessOpen(true);
             }}
             onOpenSettings={onOptionsClick}

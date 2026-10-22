@@ -8,6 +8,8 @@ import { titleCase } from '../../../utils/displayCase';
 import { SectionCard, ToneChip, ZoneGauge } from '../../report/components/IntelParts';
 import type { OblivionReport, LoggedSet, SleepSample } from '../../report/types';
 import { useSimpleMode } from '../../../stores/useDisplayPrefs';
+import { BodyStatusCard } from '../../bodyStatus/BodyStatusCard';
+import { useBodyStatus } from '../../bodyStatus/bodyStatus';
 import { PLAIN_LOAD } from '../../../utils/acwrMath';
 
 const DECISION_TONE: Record<Decision, Tone> = {
@@ -16,6 +18,8 @@ const DECISION_TONE: Record<Decision, Tone> = {
   'EASE OFF': 'watch',
   DELOAD: 'alert',
   'NO SIGNAL': 'idle',
+  REST: 'good',
+  PROTECT: 'watch',
 };
 
 const shortDay = (key: string) => {
@@ -46,9 +50,10 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
   const setExercises = useWorkoutStore((s) => s.setExercises);
   const [noMatch, setNoMatch] = useState(false);
   const simple = useSimpleMode();
+  const body = useBodyStatus();
   const intel = useMemo(
-    () => buildTodayIntel(report, sets, sleep, Date.now()),
-    [report, sets, sleep],
+    () => buildTodayIntel(report, sets, sleep, Date.now(), body),
+    [report, sets, sleep, body],
   );
   const tone = DECISION_TONE[intel.decision];
   const ratio = report.stats.acwr;
@@ -81,6 +86,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
 
   return (
     <>
+      <BodyStatusCard />
       <section className="w-full rounded-2xl bg-o1-surface border border-white/[0.07] p-4 space-y-3">
         <div className="flex items-center gap-4">
           <div className="relative w-[84px] h-[84px] shrink-0">
@@ -135,7 +141,9 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
       <SectionCard title="Today's load targets" subtitle="From your last top set of each lift">
         {intel.prescriptions.length === 0 ? (
           <p className="text-xs text-o1-muted leading-relaxed">
-            Log two sessions of a lift (1–12 reps with load) and a load target for it appears here.
+            {intel.decision === 'REST'
+              ? 'Load targets are paused while you recover. They return when you set yourself back to Good.'
+              : 'Log two sessions of a lift (1–12 reps with load) and a load target for it appears here.'}
           </p>
         ) : (
           <>

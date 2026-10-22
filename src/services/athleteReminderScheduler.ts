@@ -6,6 +6,7 @@ import {
 } from '../utils/athleteSettingsSnapshot';
 import { NATIVE_PROMPT_TIMEOUT_MS, withNativeTimeout } from '../utils/nativeTimeout';
 import { safeStorage } from '../utils/safeStorage';
+import { BODY_STATUS_EVENT, readBodyStatus } from '../features/bodyStatus/bodyStatus';
 
 /** Reminders are scheduled by the phone itself. Nothing is sent to a server. */
 const REMINDERS_KEY = 'o1fc_scheduled_reminders_v1';
@@ -94,10 +95,12 @@ const minutesOf = (hhmm: string) => {
 export function planReminders(
   settings: Pick<AthleteSettingsSnapshot, 'osPushEnabled' | 'preWorkoutReminder'>,
   config: ReminderConfig,
+  /** True while the athlete is resting, sick or injured: no nudge to train. */
+  holdWorkouts = false,
 ): PlannedReminder[] {
   if (!settings.osPushEnabled) return [];
   const plan: PlannedReminder[] = [];
-  if (settings.preWorkoutReminder) {
+  if (settings.preWorkoutReminder && !holdWorkouts) {
     for (const day of config.selectedDays) {
       let weekday = SUNDAY_FIRST.indexOf(day);
       if (weekday < 0) continue;
@@ -289,7 +292,12 @@ export function armAthleteReminders(): () => void {
   const apply = () => {
     timers.forEach((id) => window.clearTimeout(id));
     timers = [];
-    const plan = planReminders(readAthleteSettingsSnapshot(), readReminderConfig());
+    const body = readBodyStatus();
+    const plan = planReminders(
+      readAthleteSettingsSnapshot(),
+      readReminderConfig(),
+      body.status !== 'ready',
+    );
     if (native) void queueNative(plan);
     else timers = applyWeb(plan);
   };
@@ -299,10 +307,12 @@ export function armAthleteReminders(): () => void {
 
   apply();
   window.addEventListener(CHANGED_EVENT, apply);
+  window.addEventListener(BODY_STATUS_EVENT, apply);
   document.addEventListener('visibilitychange', onVisible);
   return () => {
     timers.forEach((id) => window.clearTimeout(id));
     window.removeEventListener(CHANGED_EVENT, apply);
+    window.removeEventListener(BODY_STATUS_EVENT, apply);
     document.removeEventListener('visibilitychange', onVisible);
   };
 }
