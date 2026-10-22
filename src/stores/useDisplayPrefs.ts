@@ -2,6 +2,7 @@ import { createStore } from '../utils/createStore';
 import { safeStorage } from '../utils/safeStorage';
 import { useConsultationStore } from '../features/induction/useConsultationStore';
 import type { AgeBand, TrainingAge } from '../features/induction/consultationTypes';
+import { readSystemTextSize, type SystemTextSize } from '../utils/systemTextSize';
 
 export type TextSizePref = 'auto' | 'standard' | 'large' | 'xlarge';
 export type DetailPref = 'auto' | 'simple' | 'pro';
@@ -20,11 +21,14 @@ const SCALE: Record<TextSize, { text: number; display: number }> = {
 interface DisplayPrefsState {
   textSize: TextSizePref;
   detail: DetailPref;
+  /** The phone's own text size setting, when the phone has one the app can read. Never saved. */
+  systemTextSize: SystemTextSize | null;
 }
 
 interface DisplayPrefsActions {
   setTextSize: (textSize: TextSizePref) => void;
   setDetail: (detail: DetailPref) => void;
+  setSystemTextSize: (size: SystemTextSize | null) => void;
 }
 
 function readPrefs(): DisplayPrefsState {
@@ -32,6 +36,7 @@ function readPrefs(): DisplayPrefsState {
   return {
     textSize: saved?.textSize && saved.textSize in SCALE ? saved.textSize : 'auto',
     detail: saved?.detail === 'simple' || saved?.detail === 'pro' ? saved.detail : 'auto',
+    systemTextSize: null,
   };
 }
 
@@ -44,14 +49,26 @@ const store = createStore<DisplayPrefsState, DisplayPrefsActions>(readPrefs(), (
     set({ detail });
     safeStorage.setItem(KEY, { textSize: get().textSize, detail });
   },
+  setSystemTextSize: (systemTextSize) => set({ systemTextSize }),
 }));
 
 export const useDisplayPrefs = store.useStore;
 
-/** Over-60s start on large text. */
-export function resolveTextSize(pref: TextSizePref, ageBand: AgeBand | ''): TextSize {
+const SIZE_ORDER: readonly TextSize[] = ['standard', 'large', 'xlarge'];
+
+/**
+ * Automatic size: the larger of the phone's own text size and the age-band default (over-60s start
+ * on large). A size chosen in Settings always wins.
+ */
+export function resolveTextSize(
+  pref: TextSizePref,
+  ageBand: AgeBand | '',
+  system: SystemTextSize | null = null,
+): TextSize {
   if (pref !== 'auto') return pref;
-  return ageBand === '60+' ? 'large' : 'standard';
+  const byAge: TextSize = ageBand === '60+' ? 'large' : 'standard';
+  const fromPhone: TextSize = system ?? 'standard';
+  return SIZE_ORDER.indexOf(fromPhone) > SIZE_ORDER.indexOf(byAge) ? fromPhone : byAge;
 }
 
 /** Beginners, teenagers and over-60s start on Simple: plain words and fewer numbers. */
@@ -68,8 +85,9 @@ export function resolveDetail(
 
 export function useTextSize(): TextSize {
   const pref = useDisplayPrefs((s) => s.textSize);
+  const system = useDisplayPrefs((s) => s.systemTextSize);
   const ageBand = useConsultationStore((s) => s.ageBand);
-  return resolveTextSize(pref, ageBand);
+  return resolveTextSize(pref, ageBand, system);
 }
 
 export function useDetail(): Detail {
@@ -83,7 +101,8 @@ export const useSimpleMode = (): boolean => useDetail() === 'simple';
 
 function applyTextSize(): void {
   if (typeof document === 'undefined') return;
-  const size = resolveTextSize(store.getState().textSize, useConsultationStore.getState().ageBand);
+  const { textSize, systemTextSize } = store.getState();
+  const size = resolveTextSize(textSize, useConsultationStore.getState().ageBand, systemTextSize);
   const root = document.documentElement;
   if (size === 'standard') {
     delete root.dataset.textSize;
@@ -98,8 +117,21 @@ function applyTextSize(): void {
 
 applyTextSize();
 store.useStore.subscribe((next, prev) => {
-  if (next.textSize !== prev.textSize) applyTextSize();
+  if (next.textSize !== prev.textSize || next.systemTextSize !== prev.systemTextSize) {
+    applyTextSize();
+  }
 });
 useConsultationStore.subscribe((next, prev) => {
   if (next.ageBand !== prev.ageBand) applyTextSize();
 });
+
+/** Reads the phone's text size now and again each time the app comes back to the front. */
+function followSystemTextSize(): void {
+  if (typeof document === 'undefined') return;
+  const refresh = () => void readSystemTextSize().then(store.getState().setSystemTextSize);
+  refresh();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refresh();
+  });
+}
+followSystemTextSize();

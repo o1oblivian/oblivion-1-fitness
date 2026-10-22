@@ -31,6 +31,7 @@
     "@capacitor/local-notifications": "^8.3.1",
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/share": "^8.0.3",
+    "@capacitor/text-zoom": "^8.0.1",
     "@capgo/capacitor-social-login": "^8.5.18",
     "@google/genai": "^2.4.0",
     "@revenuecat/purchases-capacitor": "^13.7.0",

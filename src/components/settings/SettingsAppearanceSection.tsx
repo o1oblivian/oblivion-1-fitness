@@ -98,6 +98,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
   const setTextSize = useDisplayPrefs((s) => s.setTextSize);
   const setDetail = useDisplayPrefs((s) => s.setDetail);
   const textSize = useTextSize();
+  const systemTextSize = useDisplayPrefs((s) => s.systemTextSize);
   const detail = useDetail();
 
   return (
@@ -111,7 +112,11 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
           title="Text size"
           subtitle={
             textSizePref === 'auto'
-              ? `Auto · ${TEXT_SIZE_LABEL[textSize]} for your age`
+              ? `Auto · ${TEXT_SIZE_LABEL[textSize]} ${
+                  systemTextSize === textSize && textSize !== 'standard'
+                    ? "from your phone's text size"
+                    : 'for your age'
+                }`
               : 'Applies across the whole app'
           }
           options={TEXT_SIZE_OPTIONS}

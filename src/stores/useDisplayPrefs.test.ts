@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolveDetail, resolveTextSize } from './useDisplayPrefs';
+import { textSizeForZoom } from '../utils/systemTextSize';
 
 describe('resolveTextSize', () => {
   it('starts over-60s on large text and everyone else on standard', () => {
@@ -11,6 +12,28 @@ describe('resolveTextSize', () => {
   it('always honours an explicit choice', () => {
     expect(resolveTextSize('standard', '60+')).toBe('standard');
     expect(resolveTextSize('xlarge', '18-39')).toBe('xlarge');
+    expect(resolveTextSize('standard', '18-39', 'xlarge')).toBe('standard');
+  });
+
+  it('follows the phone when it is set larger than the age default', () => {
+    expect(resolveTextSize('auto', '18-39', 'xlarge')).toBe('xlarge');
+    expect(resolveTextSize('auto', '60+', 'xlarge')).toBe('xlarge');
+    expect(resolveTextSize('auto', '', 'large')).toBe('large');
+  });
+
+  it('never goes smaller than the age default because of the phone', () => {
+    expect(resolveTextSize('auto', '60+', 'standard')).toBe('large');
+    expect(resolveTextSize('auto', '60+', null)).toBe('large');
+  });
+});
+
+describe('textSizeForZoom', () => {
+  it('maps the phone multiplier onto the three sizes', () => {
+    expect(textSizeForZoom(1)).toBe('standard');
+    expect(textSizeForZoom(1.1)).toBe('large');
+    expect(textSizeForZoom(1.29)).toBe('large');
+    expect(textSizeForZoom(1.3)).toBe('xlarge');
+    expect(textSizeForZoom(2.4)).toBe('xlarge');
   });
 });
 
