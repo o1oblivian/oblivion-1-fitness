@@ -63,7 +63,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
     >
       <div className="w-full max-w-[420px] mx-auto space-y-3">
         <div className="flex flex-wrap items-center min-h-11">
-          <div className="flex-1 text-o1-label font-mono tracking-wider text-neutral-500">
+          <div className="flex-1 text-o1-label font-num tracking-wider text-o1-faint">
             {loading
               ? 'Loading history…'
               : source === 'cloud'
@@ -78,7 +78,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
               onClose();
             }}
             aria-label="Close report"
-            className="w-11 h-11 -mr-2 flex items-center justify-center text-neutral-300"
+            className="w-11 h-11 -mr-2 flex items-center justify-center text-o1-stone"
           >
             <X className="w-5 h-5" />
           </button>
@@ -92,12 +92,10 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
           aria-checked={shared}
           className="w-full min-h-[56px] rounded-2xl bg-black border border-white/[0.07] px-4 py-2.5 flex items-center gap-3 text-left active:scale-[0.99] transition-transform disabled:opacity-60"
         >
-          <ShieldCheck
-            className={`w-5 h-5 shrink-0 ${shared ? 'text-o1-ok' : 'text-neutral-500'}`}
-          />
+          <ShieldCheck className={`w-5 h-5 shrink-0 ${shared ? 'text-o1-ok' : 'text-o1-faint'}`} />
           <div className="flex-1 min-w-0">
             <div className="text-sm font-bold text-white">Share with my coach</div>
-            <div className="text-o1-label text-neutral-500 leading-snug">
+            <div className="text-o1-label text-o1-faint leading-snug">
               {syncState === 'error'
                 ? 'Could not update sharing. Check your connection and try again.'
                 : shared
@@ -126,7 +124,7 @@ export const OblivionReportModal: React.FC<OblivionReportModalProps> = ({ isOpen
 
         <DexaPanel />
 
-        <p className="text-o1-label font-mono text-neutral-600 text-center leading-relaxed pt-2">
+        <p className="text-o1-label font-num text-o1-dim text-center leading-relaxed pt-2">
           Computed on this device from your logs. Metrics without data show --.
         </p>
       </div>

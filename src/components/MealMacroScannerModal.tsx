@@ -57,14 +57,14 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             </div>
             <div>
               <h2 className="text-sm font-bold text-white">Meal Macro Scanner</h2>
-              <p className="text-o1-label text-neutral-500">Vision · barcode · plate</p>
+              <p className="text-o1-label text-o1-faint">Vision · barcode · plate</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close meal scanner"
-            className="p-1.5 rounded-full hover:bg-white/[0.06] text-neutral-400 hover:text-white"
+            className="p-1.5 rounded-full hover:bg-white/[0.06] text-o1-muted hover:text-white"
           >
             <X className="w-4 h-4" />
           </button>
@@ -94,7 +94,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
             </div>
           ) : scanMode !== 'barcode' && !scannedMeal && !imageFile && !isLoading && !isScanning ? (
             <div className="rounded-xl border border-white/[0.07] bg-black px-3 py-4 text-center">
-              <p className="text-o1-label text-neutral-500">Your photo shows here.</p>
+              <p className="text-o1-label text-o1-faint">Your photo shows here.</p>
             </div>
           ) : null}
 

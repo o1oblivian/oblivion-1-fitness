@@ -73,22 +73,22 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
         : 'Included in coach pro';
 
   return (
-    <div className="space-y-3 pt-2 text-neutral-200">
+    <div className="space-y-3 pt-2 text-o1-ink-soft">
       <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
-        <span className="text-o1-label font-bold font-mono tracking-wider text-white">
+        <span className="text-o1-label font-bold font-num tracking-wider text-white">
           {headingText}
         </span>
-        <span className="text-o1-label font-mono text-neutral-400">Compare Plans</span>
+        <span className="text-o1-label font-num text-o1-muted">Compare Plans</span>
       </div>
 
       <div className="divide-y divide-white/[0.05]">
         {displayList.map((item, idx) => (
           <div key={idx} className="flex items-center justify-between py-2 text-xs">
-            <div className="flex items-center gap-1.5 text-neutral-300">
+            <div className="flex items-center gap-1.5 text-o1-stone">
               <span>{item.label}</span>
-              <Info className="w-3 h-3 text-neutral-500" />
+              <Info className="w-3 h-3 text-o1-faint" />
             </div>
-            <span className="font-mono font-bold text-white text-o1-label">{item.value}</span>
+            <span className="font-num font-bold text-white text-o1-label">{item.value}</span>
           </div>
         ))}
       </div>
@@ -99,7 +99,7 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
           tactileEngine.triggerSelectionBuzz();
           setShowExt(!showExt);
         }}
-        className="w-full flex items-center justify-center gap-1 text-xs text-neutral-400 hover:text-white py-1 transition cursor-pointer font-mono"
+        className="w-full flex items-center justify-center gap-1 text-xs text-o1-muted hover:text-white py-1 transition cursor-pointer font-num"
       >
         <ChevronDown
           className={`w-3.5 h-3.5 transition-transform ${showExt ? 'rotate-180' : ''}`}
@@ -111,16 +111,16 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
       <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
         <div>
           <p className="text-xs font-bold text-white">Progress insights</p>
-          <p className="text-o1-label text-neutral-400">
+          <p className="text-o1-label text-o1-muted">
             Smart recovery, nutrition &amp; volume periodization
           </p>
         </div>
-        <span className="text-o1-label font-sans font-semibold text-neutral-400">
+        <span className="text-o1-label font-sans font-semibold text-o1-muted">
           Included with Pro
         </span>
       </div>
 
-      <div className="flex items-center justify-center gap-3 text-o1-label text-neutral-400 underline pt-1">
+      <div className="flex items-center justify-center gap-3 text-o1-label text-o1-muted underline pt-1">
         <a
           href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
           target="_blank"

@@ -243,8 +243,8 @@ const SUPPLEMENT_LIBRARY: LibrarySupplement[] = [
 ];
 
 export const EVIDENCE_COPY: Record<SupplementEvidence, { label: string; className: string }> = {
-  strong: { label: 'Strong evidence', className: 'text-emerald-500 border-emerald-600/40' },
-  moderate: { label: 'Moderate evidence', className: 'text-amber-500 border-amber-600/40' },
+  strong: { label: 'Strong evidence', className: 'text-o1-olive border-o1-olive/40' },
+  moderate: { label: 'Moderate evidence', className: 'text-o1-yellow border-o1-yellow/40' },
   limited: { label: 'Limited evidence', className: 'text-o1-muted border-white/[0.12]' },
 };
 

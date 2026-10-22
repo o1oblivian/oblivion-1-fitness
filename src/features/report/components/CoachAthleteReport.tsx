@@ -49,7 +49,7 @@ export const CoachAthleteReport: React.FC<CoachAthleteReportProps> = ({
 
   if (state.phase === 'loading') {
     return (
-      <div className="rounded-2xl bg-black border border-white/[0.07] p-4 text-o1-label font-mono text-neutral-500 text-center">
+      <div className="rounded-2xl bg-black border border-white/[0.07] p-4 text-o1-label font-num text-o1-faint text-center">
         Loading {athleteName}&apos;s report…
       </div>
     );
@@ -59,10 +59,10 @@ export const CoachAthleteReport: React.FC<CoachAthleteReportProps> = ({
     const copy = EMPTY_COPY[state.result.status];
     return (
       <div className="rounded-2xl bg-black border border-white/[0.07] p-4 flex items-start gap-3">
-        <Lock className="w-4 h-4 mt-0.5 text-neutral-500 shrink-0" />
+        <Lock className="w-4 h-4 mt-0.5 text-o1-faint shrink-0" />
         <div className="space-y-1">
           <div className="text-sm font-bold text-white">{copy.title}</div>
-          <p className="text-o1-label leading-relaxed text-neutral-500">{copy.body}</p>
+          <p className="text-o1-label leading-relaxed text-o1-faint">{copy.body}</p>
         </div>
       </div>
     );

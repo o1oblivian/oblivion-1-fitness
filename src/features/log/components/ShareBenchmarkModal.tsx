@@ -134,7 +134,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
       className={`h-8 px-3 rounded-full text-o1-label font-semibold border cursor-pointer ${
         on
           ? 'bg-o1-well text-white border-white/30'
-          : 'bg-transparent text-neutral-500 border-white/[0.07]'
+          : 'bg-transparent text-o1-faint border-white/[0.07]'
       }`}
     >
       {label}
@@ -155,7 +155,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-10 h-10 rounded-full text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer"
+            className="w-10 h-10 rounded-full text-o1-muted hover:text-white flex items-center justify-center cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -164,7 +164,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
         <div className="rounded-2xl bg-black border border-white/[0.07] p-3.5 text-white space-y-3">
           <div className="flex items-baseline justify-between">
             <span className="text-2xl font-extrabold tracking-tight text-o1-text">O1FC</span>
-            <span className="text-o1-label text-neutral-500 truncate max-w-[50%]">
+            <span className="text-o1-label text-o1-faint truncate max-w-[50%]">
               {metrics.handle}
             </span>
           </div>
@@ -175,7 +175,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             <button
               type="button"
               onClick={() => beforeRef.current?.click()}
-              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-o1-label text-neutral-400 cursor-pointer"
+              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-o1-label text-o1-muted cursor-pointer"
             >
               {beforeUrl ? (
                 <img src={beforeUrl} alt="Before" className="w-full h-full object-cover" />
@@ -186,7 +186,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             <button
               type="button"
               onClick={() => afterRef.current?.click()}
-              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-o1-label text-neutral-400 cursor-pointer"
+              className="aspect-[3/4] rounded-xl bg-o1-well border border-white/[0.14] overflow-hidden flex items-center justify-center text-o1-label text-o1-muted cursor-pointer"
             >
               {afterUrl ? (
                 <img src={afterUrl} alt="After" className="w-full h-full object-cover" />
@@ -198,15 +198,15 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
           <div className="space-y-1.5">
             {rows.map((row) => (
               <div key={row.label} className="flex items-baseline justify-between text-o1-caption">
-                <span className="text-neutral-500">{row.label}</span>
+                <span className="text-o1-faint">{row.label}</span>
                 <span className="font-semibold tabular-nums">{row.value}</span>
               </div>
             ))}
           </div>
-          <div className="text-o1-label text-neutral-500">Oblivion 1 Fitness Club</div>
+          <div className="text-o1-label text-o1-faint">Oblivion 1 Fitness Club</div>
         </div>
 
-        <p className="text-o1-label text-neutral-500 leading-snug">
+        <p className="text-o1-label text-o1-faint leading-snug">
           Empty frames and -- stay empty until a photo or a number exists. This is the post
           reviewers and athletes see.
         </p>
@@ -240,7 +240,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             value={lift}
             onChange={(e) => setLift(e.target.value)}
             placeholder="Lift, for example Bench 100 kg"
-            className="w-full h-10 px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-white placeholder:text-neutral-500"
+            className="w-full h-10 px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs text-white placeholder:text-o1-faint"
           />
         )}
 
@@ -262,7 +262,7 @@ export const ShareBenchmarkModal: React.FC<ShareBenchmarkModalProps> = ({
             Share
           </button>
         </div>
-        {status && <p className="text-o1-label text-neutral-400 text-center">{status}</p>}
+        {status && <p className="text-o1-label text-o1-muted text-center">{status}</p>}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import type { MuscleId, MuscleVolume, VolumeStatus } from '../types';
+import { COLOR } from '../../../theme/colors';
 
 type View = 'front' | 'back';
 
@@ -91,10 +92,10 @@ const BACK: Region[] = [
 ];
 
 const STATUS_FILL: Record<VolumeStatus, string> = {
-  none: '#1f1f23',
-  under: '#f7c600',
-  optimal: '#10b981',
-  over: '#C4121A',
+  none: COLOR.track,
+  under: COLOR.yellow,
+  optimal: COLOR.emerald,
+  over: COLOR.crimson,
 };
 
 const STATUS_LABEL: Record<VolumeStatus, string> = {
@@ -115,7 +116,7 @@ const STATUS_TEXT: Record<VolumeStatus, string> = {
   none: 'text-o1-muted border-white/[0.1]',
   under: 'text-o1-amber border-o1-amber-deep/40',
   optimal: 'text-o1-emerald border-o1-emerald/40',
-  over: 'text-[#e5484d] border-o1-crimson/50',
+  over: 'text-o1-alert border-o1-crimson/50',
 };
 
 const fmtSets = (v: number) => (v > 0 ? String(Math.round(v * 10) / 10) : '—');
@@ -141,7 +142,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
         d={r.d}
         fill={STATUS_FILL[status]}
         fillOpacity={status === 'none' ? 1 : isSelected ? 0.95 : 0.72}
-        stroke={isSelected ? '#EAE8DF' : 'rgba(255,255,255,0.1)'}
+        stroke={isSelected ? COLOR.text : 'rgba(255,255,255,0.1)'}
         strokeWidth={isSelected ? 1.4 : 0.6}
         strokeLinejoin="round"
         role="button"
@@ -204,17 +205,17 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
           cy="30"
           rx="14"
           ry="17"
-          fill="#111113"
+          fill={COLOR.surface}
           stroke="rgba(255,255,255,0.16)"
           strokeWidth="0.8"
         />
-        <path d="M93 44 L107 44 L108 58 L92 58 Z" fill="#111113" />
+        <path d="M93 44 L107 44 L108 58 L92 58 Z" fill={COLOR.surface} />
         {[false, true].map((mirrored) => (
           <g
             key={mirrored ? 'r' : 'l'}
             transform={mirrored ? 'translate(200 0) scale(-1 1)' : undefined}
           >
-            <path d={SILHOUETTE} fill="#111113" stroke="none" />
+            <path d={SILHOUETTE} fill={COLOR.surface} stroke="none" />
             <path
               d={SILHOUETTE.replace(/\s*Z$/, '')}
               fill="none"
@@ -274,7 +275,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
 
           <div className="space-y-1.5">
             <div className="flex items-baseline justify-between">
-              <span className="text-xl font-mono font-black text-o1-text">
+              <span className="text-xl font-num font-black text-o1-text">
                 {fmtSets(current.sets)}
                 <span className="ml-1 text-o1-label font-sans font-medium text-o1-muted">
                   sets this week
@@ -316,7 +317,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
                 </div>
               ))}
             </div>
-            <div className="flex gap-1.5 text-o1-label font-mono text-o1-muted">
+            <div className="flex gap-1.5 text-o1-label font-num text-o1-muted">
               {current.weekly.map((v, i) => (
                 <span key={i} className="flex-1 text-center">
                   {fmtSets(v)}
@@ -330,7 +331,7 @@ export const MuscleMap: React.FC<MuscleMapProps> = ({ muscles }) => {
               {current.topExercises.map((ex) => (
                 <li key={ex.name} className="flex items-center justify-between text-xs">
                   <span className="text-o1-text/85 truncate pr-3">{ex.name}</span>
-                  <span className="font-mono text-o1-muted shrink-0">{ex.sets} sets</span>
+                  <span className="font-num text-o1-muted shrink-0">{ex.sets} sets</span>
                 </li>
               ))}
             </ul>

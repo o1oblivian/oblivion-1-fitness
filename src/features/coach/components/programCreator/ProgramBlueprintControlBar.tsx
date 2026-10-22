@@ -49,7 +49,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             <button
               type="button"
               onClick={onAutoProgramWeek}
-              className="text-o1-label text-amber-400 hover:text-amber-300 flex items-center gap-1 font-semibold cursor-pointer"
+              className="text-o1-label text-o1-yellow hover:text-o1-yellow-soft flex items-center gap-1 font-semibold cursor-pointer"
               title="Auto-generate database workouts for all days of the current week"
             >
               <Zap className="w-3.5 h-3.5" />
@@ -61,7 +61,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             <button
               type="button"
               onClick={onSyncSplit}
-              className="text-o1-label text-slate-400 hover:text-o1-text flex items-center gap-1 font-semibold cursor-pointer"
+              className="text-o1-label text-o1-muted hover:text-o1-text flex items-center gap-1 font-semibold cursor-pointer"
               title={`Sync schedule focus to ${selectedMuscleTag || category}`}
             >
               <Sliders className="w-3.5 h-3.5" />
@@ -86,7 +86,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-o1-crimson text-white font-bold'
-                  : 'bg-white/[0.08] text-o1-muted hover:text-o1-text hover:bg-neutral-700'
+                  : 'bg-white/[0.08] text-o1-muted hover:text-o1-text hover:bg-o1-edge'
               }`}
             >
               {t}
@@ -111,7 +111,7 @@ export const ProgramBlueprintControlBar: React.FC<Props> = ({
             key={qa}
             type="button"
             onClick={() => onQuickAdd(qa)}
-            className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-o1-text text-o1-label font-medium truncate max-w-[170px] active:scale-95 transition-all cursor-pointer border border-white/[0.07]"
+            className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-o1-edge text-o1-text text-o1-label font-medium truncate max-w-[170px] active:scale-95 transition-all cursor-pointer border border-white/[0.07]"
             title={`Quick add ${qa}`}
           >
             + {qa}

@@ -96,7 +96,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
     <div className="space-y-3.5">
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">
             Sleep Duration (HOURS)
           </label>
           <input
@@ -105,12 +105,12 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
             value={sleepHours}
             onFocus={(e) => e.target.select()}
             onChange={(e) => setSleepHours(sanitizeNumericInput(e.target.value))}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-sky-400 font-bold focus:border-sky-500 focus:outline-none text-sm"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-o1-teal font-bold focus:border-o1-teal focus:outline-none text-sm"
             placeholder="7.8"
           />
         </div>
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">
             Recovery Score (%)
           </label>
           <input
@@ -118,7 +118,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
             value={sleepRecovery}
             onFocus={(e) => e.target.select()}
             onChange={(e) => setSleepRecovery(sanitizeNumericInput(e.target.value))}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none text-sm"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-teal focus:outline-none text-sm"
             placeholder="92"
           />
         </div>
@@ -126,7 +126,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
 
       <div className="grid grid-cols-3 gap-2">
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">Deep (MIN)</label>
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">Deep (MIN)</label>
           <input
             type="number"
             value={sleepDeep}
@@ -137,7 +137,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
           />
         </div>
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">Rem (Min)</label>
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">Rem (Min)</label>
           <input
             type="number"
             value={sleepRem}
@@ -148,7 +148,7 @@ export function SleepLogFields({ form }: { form: SleepLogForm }) {
           />
         </div>
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">RHR (BPM)</label>
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">RHR (BPM)</label>
           <input
             type="number"
             value={sleepHeartRate}

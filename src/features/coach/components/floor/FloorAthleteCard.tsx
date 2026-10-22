@@ -92,8 +92,8 @@ export const FloorAthleteCard: React.FC<FloorAthleteCardProps> = ({
           role="status"
           className={`mt-2 inline-flex items-center rounded-full border px-2.5 py-1 text-o1-caption font-bold ${
             badge.tone === 'ok'
-              ? 'border-emerald-500/40 bg-o1-ok-wash text-o1-ok-ink'
-              : 'border-amber-500/40 bg-o1-warn-wash text-o1-warn-ink'
+              ? 'border-o1-olive/40 bg-o1-ok-wash text-o1-ok-ink'
+              : 'border-o1-yellow/40 bg-o1-warn-wash text-o1-warn-ink'
           }`}
         >
           {badge.label}

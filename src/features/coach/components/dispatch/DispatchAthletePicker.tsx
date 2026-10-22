@@ -11,8 +11,8 @@ interface DispatchAthletePickerProps {
 }
 
 function statusTone(status: Athlete['status']): string {
-  if (status === 'Active') return 'bg-emerald-500/10 text-emerald-400';
-  if (status === 'Need Routine') return 'bg-amber-500/10 text-amber-400';
+  if (status === 'Active') return 'bg-o1-olive/10 text-o1-olive';
+  if (status === 'Need Routine') return 'bg-o1-yellow/10 text-o1-yellow';
   return 'bg-white/[0.08] text-o1-muted';
 }
 
@@ -101,7 +101,7 @@ export const DispatchAthletePicker: React.FC<DispatchAthletePickerProps> = ({
                 Clear
               </button>
             </div>
-            <span className="text-o1-label text-o1-muted font-mono">
+            <span className="text-o1-label text-o1-muted font-num">
               {count} of {athletes.length}
             </span>
           </div>

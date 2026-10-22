@@ -14,7 +14,7 @@ function badgeTone(badge: string): string {
   if (key.includes('POPULAR') || key.includes('FOUNDER')) return 'text-o1-gold border-o1-gold/40';
   if (key.includes('PRO')) return 'text-o1-teal border-o1-teal/40';
   if (key.includes('ALL')) return 'text-o1-olive border-o1-olive/40';
-  return 'text-neutral-300 border-white/[0.14]';
+  return 'text-o1-stone border-white/[0.14]';
 }
 
 export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSelect }) => {
@@ -47,7 +47,7 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
           <div
             className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
               isSelected
-                ? 'border-white/40 bg-white text-neutral-950'
+                ? 'border-white/40 bg-white text-o1-canvas'
                 : 'border-white/[0.07] bg-o1-card'
             }`}
           >
@@ -59,16 +59,16 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
         <h3 className="font-bold text-xs sm:text-sm text-white leading-tight">{product.name}</h3>
 
         {/* Description / Subtitle */}
-        <p className="text-o1-label sm:text-o1-label text-neutral-400 mt-1 line-clamp-2 leading-snug">
+        <p className="text-o1-label sm:text-o1-label text-o1-muted mt-1 line-clamp-2 leading-snug">
           {product.description}
         </p>
       </div>
 
       {/* Price */}
       <div className="mt-2.5 pt-2 border-t border-white/[0.05] flex items-baseline gap-1">
-        <span className="font-mono font-black text-xs sm:text-sm text-white">{product.price}</span>
+        <span className="font-num font-black text-xs sm:text-sm text-white">{product.price}</span>
         {product.periodText && (
-          <span className="text-o1-label font-mono text-neutral-400">{product.periodText}</span>
+          <span className="text-o1-label font-num text-o1-muted">{product.periodText}</span>
         )}
       </div>
     </div>

@@ -220,7 +220,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
         {/* Header */}
         <div className="flex items-center justify-between pb-2 border-b border-white/[0.05]">
           <div className="flex items-center gap-2">
-            <Globe className="w-5 h-5 text-sky-600 shrink-0" />
+            <Globe className="w-5 h-5 text-o1-blue shrink-0" />
             <h3 className="font-semibold text-sm text-o1-text">Food market</h3>
           </div>
           <button
@@ -277,7 +277,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                   }}
                   className={`h-10 rounded-xl text-lg flex items-center justify-center border transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-sky-600 bg-transparent'
+                      ? 'border-o1-blue bg-transparent'
                       : 'border-white/[0.08] bg-o1-surface'
                   }`}
                 >
@@ -308,7 +308,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                   }}
                   className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl transition-all text-left cursor-pointer active:scale-98 ${
                     isSelected
-                      ? 'bg-transparent text-o1-text font-semibold border border-sky-600/40'
+                      ? 'bg-transparent text-o1-text font-semibold border border-o1-blue/40'
                       : 'text-o1-text hover:bg-white/[0.06] font-medium'
                   }`}
                 >
@@ -320,7 +320,7 @@ export const ClientCountryMarketModal: React.FC<ClientCountryMarketModalProps> =
                     </span>
                   </div>
                   {isSelected && (
-                    <div className="w-5 h-5 rounded-full bg-sky-600 flex items-center justify-center text-o1-text shrink-0 ml-2">
+                    <div className="w-5 h-5 rounded-full bg-o1-blue flex items-center justify-center text-o1-text shrink-0 ml-2">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   )}

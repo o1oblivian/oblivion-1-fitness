@@ -47,7 +47,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
           onClick={() => setUseBodyFat(!useBodyFat)}
           className={`text-o1-label tabular-nums font-bold px-2.5 py-1 rounded-xl border transition-colors cursor-pointer ${
             useBodyFat
-              ? 'bg-transparent border-sky-600 text-sky-600'
+              ? 'bg-transparent border-o1-blue text-o1-blue'
               : 'bg-o1-surface border-white/[0.08] text-o1-muted hover:text-o1-text'
           }`}
         >
@@ -104,7 +104,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
       {useBodyFat && (
         <div className="p-2.5 border border-white/[0.08] rounded-2xl grid grid-cols-2 gap-2 animate-in fade-in duration-150">
           <div>
-            <label className="text-o1-label tabular-nums text-sky-600 block font-bold mb-1">
+            <label className="text-o1-label tabular-nums text-o1-blue block font-bold mb-1">
               Body Fat %
             </label>
             <input
@@ -114,7 +114,7 @@ export const MifflinBodyDetailsSection: React.FC<MifflinBodyDetailsSectionProps>
               value={bodyFatPct === 0 ? '' : bodyFatPct}
               onFocus={(e) => e.target.select()}
               onChange={(e) => setBodyFatPct(parseCleanNumber(e.target.value))}
-              className="w-full bg-o1-surface border border-white/[0.08] rounded-xl px-2 py-1 text-xs tabular-nums font-bold text-o1-text focus:outline-none focus:border-sky-600"
+              className="w-full bg-o1-surface border border-white/[0.08] rounded-xl px-2 py-1 text-xs tabular-nums font-bold text-o1-text focus:outline-none focus:border-o1-blue"
             />
           </div>
           <div>

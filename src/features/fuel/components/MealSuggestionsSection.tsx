@@ -37,8 +37,8 @@ function slotForNow(logged: readonly MealSlot[]): MealSlot {
 }
 
 function fitTone(fit: number): string {
-  if (fit >= 90) return 'text-emerald-500 border-emerald-600/40';
-  if (fit >= 75) return 'text-amber-500 border-amber-600/40';
+  if (fit >= 90) return 'text-o1-olive border-o1-olive/40';
+  if (fit >= 75) return 'text-o1-yellow border-o1-yellow/40';
   return 'text-o1-muted border-white/[0.08]';
 }
 
@@ -53,9 +53,9 @@ const Macros: React.FC<{ kcal: number; protein: number; carbs: number; fats: num
     <span className="text-o1-muted"> · </span>
     <span className="text-o1-crimson">{protein}g P</span>
     <span className="text-o1-muted"> · </span>
-    <span className="text-amber-500">{carbs}g C</span>
+    <span className="text-o1-yellow">{carbs}g C</span>
     <span className="text-o1-muted"> · </span>
-    <span className="text-emerald-500">{fats}g F</span>
+    <span className="text-o1-olive">{fats}g F</span>
   </>
 );
 
@@ -84,7 +84,7 @@ const MealOption: React.FC<{
         disabled={isLogged}
         className={`shrink-0 h-9 px-3 rounded-full text-o1-body font-semibold flex items-center gap-1 transition-colors active:scale-95 cursor-pointer ${
           isLogged
-            ? 'bg-emerald-600 text-white'
+            ? 'bg-o1-olive text-white'
             : 'bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white'
         }`}
       >
@@ -216,7 +216,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
       >
         <span className="min-w-0">
           <span className="flex items-center gap-2 text-o1-control font-semibold text-o1-text">
-            <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+            <Sparkles className="w-4 h-4 text-o1-olive shrink-0" />
             Eat Insight
           </span>
           <span className="mt-0.5 block text-o1-label text-o1-muted tabular-nums">
@@ -307,7 +307,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
                       }`}
                     >
                       {s.label}
-                      {done && <Check className="w-3 h-3 text-emerald-500" aria-label="logged" />}
+                      {done && <Check className="w-3 h-3 text-o1-olive" aria-label="logged" />}
                     </button>
                   );
                 })}

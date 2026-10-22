@@ -60,13 +60,13 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
               <h3 className="text-xs font-bold text-white font-tactical">
                 Direct Message with {coach.name}
               </h3>
-              <p className="text-o1-label text-neutral-400 font-mono">{coach.handle}</p>
+              <p className="text-o1-label text-o1-muted font-num">{coach.handle}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={close}
-            className="w-11 h-11 shrink-0 -mr-2 rounded-full flex items-center justify-center text-neutral-400 hover:text-white cursor-pointer"
+            className="w-11 h-11 shrink-0 -mr-2 rounded-full flex items-center justify-center text-o1-muted hover:text-white cursor-pointer"
             aria-label="Close message"
           >
             <X className="w-5 h-5" />
@@ -79,7 +79,7 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
               <Check className="w-5 h-5" />
             </div>
             <h4 className="text-xs font-bold text-o1-teal font-tactical">Message Delivered</h4>
-            <p className="text-o1-label text-neutral-300">
+            <p className="text-o1-label text-o1-stone">
               Sent to {coach.name}. Replies show on your Coach tab.
             </p>
           </div>
@@ -91,9 +91,9 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
               placeholder={`Send a training or mobility inquiry to ${coach.name}...`}
               rows={3}
               aria-label={`Message to ${coach.name}`}
-              className="w-full p-3 bg-black border border-white/[0.07] rounded-xl text-o1-body text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson resize-none"
+              className="w-full p-3 bg-black border border-white/[0.07] rounded-xl text-o1-body text-white placeholder-o1-faint focus:outline-none focus:border-o1-crimson resize-none"
             />
-            {sendError ? <p className="text-o1-caption text-[#f0d7a2]">{sendError}</p> : null}
+            {sendError ? <p className="text-o1-caption text-o1-sand">{sendError}</p> : null}
             <button
               type="button"
               disabled={!messageText.trim() || sending}
@@ -133,14 +133,14 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
           </div>
         )}
         {safetyNote ? (
-          <p role="status" className="text-center text-o1-caption text-neutral-300">
+          <p role="status" className="text-center text-o1-caption text-o1-stone">
             {safetyNote}
           </p>
         ) : null}
         <button
           type="button"
           onClick={() => setReportOpen(true)}
-          className="mx-auto h-9 px-3 text-o1-caption font-semibold text-neutral-400"
+          className="mx-auto h-9 px-3 text-o1-caption font-semibold text-o1-muted"
         >
           Report or block {coach.name}
         </button>

@@ -38,7 +38,7 @@ export const LogChannelRow: React.FC<LogChannelRowProps> = ({
           <span className="block text-o1-label text-o1-muted truncate">{headline.caption}</span>
         )}
       </span>
-      <span className="shrink-0 font-mono text-o1-title leading-none tabular-nums text-o1-text">
+      <span className="shrink-0 font-num text-o1-title leading-none tabular-nums text-o1-text">
         {headline.value}
         <span className="ml-1 font-sans text-o1-label text-o1-muted">{headline.unit}</span>
       </span>
@@ -74,7 +74,7 @@ export const LogStillToLog: React.FC<{ actions: LogQuickAction[] }> = ({ actions
             className={`o1-pill border text-xs font-semibold ${
               index === 0
                 ? 'bg-o1-crimson border-o1-crimson text-white'
-                : 'bg-o1-well border-white/[0.07] text-neutral-200'
+                : 'bg-o1-well border-white/[0.07] text-o1-ink-soft'
             }`}
           >
             {action.icon}

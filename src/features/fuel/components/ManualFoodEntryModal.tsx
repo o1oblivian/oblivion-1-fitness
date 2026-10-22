@@ -26,10 +26,10 @@ interface ManualFoodEntryModalProps {
 
 const CATEGORY_OPTIONS: { id: FoodCategoryType; label: string; icon: React.ReactNode }[] = [
   { id: 'protein', label: 'Protein', icon: <Beef className="w-3.5 h-3.5 text-o1-crimson" /> },
-  { id: 'carbs', label: 'Carbs', icon: <Wheat className="w-3.5 h-3.5 text-amber-500" /> },
-  { id: 'fats', label: 'Fats', icon: <Apple className="w-3.5 h-3.5 text-emerald-500" /> },
-  { id: 'fastfood', label: 'Fast Food', icon: <Utensils className="w-3.5 h-3.5 text-amber-700" /> },
-  { id: 'drinks', label: 'Drinks', icon: <Coffee className="w-3.5 h-3.5 text-sky-500" /> },
+  { id: 'carbs', label: 'Carbs', icon: <Wheat className="w-3.5 h-3.5 text-o1-yellow" /> },
+  { id: 'fats', label: 'Fats', icon: <Apple className="w-3.5 h-3.5 text-o1-olive" /> },
+  { id: 'fastfood', label: 'Fast Food', icon: <Utensils className="w-3.5 h-3.5 text-o1-brown" /> },
+  { id: 'drinks', label: 'Drinks', icon: <Coffee className="w-3.5 h-3.5 text-o1-teal" /> },
 ];
 
 export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
@@ -138,7 +138,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-white/[0.05]">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-red-950/40 text-o1-crimson flex items-center justify-center shrink-0 border border-red-900/60 shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-o1-crimson-wash/40 text-o1-crimson flex items-center justify-center shrink-0 border border-o1-crimson-deep/60 shadow-2xs">
               <Plus className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
@@ -161,7 +161,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
         </div>
 
         {errorMsg && (
-          <div className="p-2.5 rounded-xl bg-o1-bad-wash border border-red-900/60 text-xs text-o1-crimson font-medium">
+          <div className="p-2.5 rounded-xl bg-o1-bad-wash border border-o1-crimson-deep/60 text-xs text-o1-crimson font-medium">
             {errorMsg}
           </div>
         )}
@@ -305,13 +305,13 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setProtein(sanitizeNumericInput(e.target.value))}
                 placeholder="0"
-                className="w-full h-9 px-2 text-center rounded-xl bg-o1-sheet border border-red-950/60 text-xs tabular-nums font-bold text-o1-crimson focus:outline-none focus:border-o1-crimson"
+                className="w-full h-9 px-2 text-center rounded-xl bg-o1-sheet border border-o1-crimson-wash/60 text-xs tabular-nums font-bold text-o1-crimson focus:outline-none focus:border-o1-crimson"
               />
             </div>
 
             {/* Carbs */}
             <div>
-              <label className="block text-o1-label tabular-nums font-bold text-amber-500 mb-1 text-center">
+              <label className="block text-o1-label tabular-nums font-bold text-o1-yellow mb-1 text-center">
                 Carbs (g)
               </label>
               <input
@@ -322,13 +322,13 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setCarbs(sanitizeNumericInput(e.target.value))}
                 placeholder="0"
-                className="w-full h-9 px-2 text-center rounded-xl bg-o1-sheet border border-amber-950/60 text-xs tabular-nums font-bold text-amber-500 focus:outline-none focus:border-amber-500"
+                className="w-full h-9 px-2 text-center rounded-xl bg-o1-sheet border border-o1-brown-wash/60 text-xs tabular-nums font-bold text-o1-yellow focus:outline-none focus:border-o1-yellow"
               />
             </div>
 
             {/* Fats */}
             <div>
-              <label className="block text-o1-label tabular-nums font-bold text-sky-600 mb-1 text-center">
+              <label className="block text-o1-label tabular-nums font-bold text-o1-blue mb-1 text-center">
                 Fats (g)
               </label>
               <input
@@ -339,7 +339,7 @@ export const ManualFoodEntryModal: React.FC<ManualFoodEntryModalProps> = ({
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setFats(sanitizeNumericInput(e.target.value))}
                 placeholder="0"
-                className="w-full h-9 px-2 text-center rounded-xl bg-o1-sheet border border-sky-600/40 text-xs tabular-nums font-bold text-sky-600 focus:outline-none focus:border-sky-500"
+                className="w-full h-9 px-2 text-center rounded-xl bg-o1-sheet border border-o1-blue/40 text-xs tabular-nums font-bold text-o1-blue focus:outline-none focus:border-o1-teal"
               />
             </div>
           </div>

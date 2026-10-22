@@ -98,7 +98,7 @@ export const ProgramBuilderStep: React.FC<{
           <Layers className="w-4 h-4 text-o1-text" />
           <h3 className="text-sm font-bold text-o1-text">Curriculum Builder</h3>
         </div>
-        <span className="text-xs font-mono font-medium text-o1-muted">
+        <span className="text-xs font-num font-medium text-o1-muted">
           {data.weeks.length}w · {totalDays}d · {totalExercises} exercises
         </span>
       </div>
@@ -133,7 +133,7 @@ export const ProgramBuilderStep: React.FC<{
                   onChange({ weeks: remaining });
                   setActiveWeekIdx(Math.max(0, activeWeekIdx - 1));
                 }}
-                className="p-1 hover:text-red-500 transition-colors cursor-pointer"
+                className="p-1 hover:text-o1-crimson transition-colors cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -162,7 +162,7 @@ export const ProgramBuilderStep: React.FC<{
               >
                 <span>Week {w.weekNumber}</span>
                 <span
-                  className={`text-o1-label font-mono ${isActive ? 'opacity-80' : 'text-o1-muted'}`}
+                  className={`text-o1-label font-num ${isActive ? 'opacity-80' : 'text-o1-muted'}`}
                 >
                   {exCount} ex
                 </span>
@@ -213,7 +213,7 @@ export const ProgramBuilderStep: React.FC<{
             >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-xs text-o1-text">{d.dayName}</span>
-                <span className="text-o1-label font-mono text-o1-muted">
+                <span className="text-o1-label font-num text-o1-muted">
                   {d.exercises.length} ex
                 </span>
               </div>
@@ -244,7 +244,7 @@ export const ProgramBuilderStep: React.FC<{
             <h4 className="text-xs font-bold text-o1-text">
               {currentDay?.dayName} — {currentDay?.splitFocus}
             </h4>
-            <span className="text-o1-label font-mono text-o1-muted">
+            <span className="text-o1-label font-num text-o1-muted">
               {currentDay?.exercises.length || 0} exercises programmed
             </span>
           </div>
@@ -253,7 +253,7 @@ export const ProgramBuilderStep: React.FC<{
             <button
               type="button"
               onClick={handleApplyBlueprint}
-              className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-o1-text text-o1-label font-semibold flex items-center gap-1 transition-colors cursor-pointer border border-white/[0.07]"
+              className="px-2.5 py-1.5 rounded-xl bg-white/[0.08] hover:bg-o1-edge text-o1-text text-o1-label font-semibold flex items-center gap-1 transition-colors cursor-pointer border border-white/[0.07]"
               title="Apply real-time blueprint to this day"
             >
               <Sparkles className="w-3 h-3 text-o1-crimson" />

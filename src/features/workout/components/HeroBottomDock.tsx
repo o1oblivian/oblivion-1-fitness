@@ -12,7 +12,7 @@ export interface HeroBottomDockProps {
 }
 
 const SIDE_PILL =
-  'h-11 px-4 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-neutral-200 flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-o1-body font-sans font-normal shrink-0 hover:border-white/25 hover:bg-black/60 disabled:opacity-40 disabled:cursor-not-allowed';
+  'h-11 px-4 rounded-full bg-black/45 backdrop-blur-md border border-white/15 text-o1-ink-soft flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all text-o1-body font-sans font-normal shrink-0 hover:border-white/25 hover:bg-black/60 disabled:opacity-40 disabled:cursor-not-allowed';
 
 export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
   activeDay,

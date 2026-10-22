@@ -132,7 +132,7 @@ export const ProgramCreatorModal: React.FC<{
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-semibold text-o1-text">
+            <span className="px-2.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.07] text-xs font-num font-semibold text-o1-text">
               Step {currentStep} of 4
             </span>
             <button
@@ -172,7 +172,7 @@ export const ProgramCreatorModal: React.FC<{
                 }`}
               >
                 <span className="flex items-center justify-center gap-1">
-                  {isCompleted && <Check size={12} className="text-emerald-500 stroke-[3]" />}
+                  {isCompleted && <Check size={12} className="text-o1-olive stroke-[3]" />}
                   <span>{s}</span>
                 </span>
                 {isActive && (

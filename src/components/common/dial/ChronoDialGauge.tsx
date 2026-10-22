@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { DialConfig, generateScaleMarkers } from './dialTypes';
+import { COLOR } from '../../../theme/colors';
 
 interface ChronoDialGaugeProps {
   value: number;
@@ -14,8 +15,8 @@ interface ChronoDialGaugeProps {
   onCenterClick?: () => void;
 }
 
-const INK = '#EAE8DF';
-const MUTED = '#C4BDA8';
+const INK = COLOR.text;
+const MUTED = COLOR.muted;
 const CX = 140;
 const CY = 140;
 const ARC_R = 104;
@@ -109,7 +110,7 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
               fontSize="11"
               fontWeight="400"
               fill={MUTED}
-              className="font-mono pointer-events-none"
+              className="font-num pointer-events-none"
             >
               {m.label}
             </text>
@@ -127,7 +128,7 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
           className="w-32 h-32 rounded-full flex flex-col items-center justify-center text-center cursor-pointer pointer-events-auto active:scale-95 transition-transform"
         >
           <span className="text-o1-label font-normal tracking-[0.16em] text-o1-muted">{unit}</span>
-          <span className="text-5xl font-mono font-light text-o1-text tracking-tight leading-none my-1.5 tabular-nums">
+          <span className="text-5xl font-num font-light text-o1-text tracking-tight leading-none my-1.5 tabular-nums">
             {value}
           </span>
           <span className="text-o1-label font-normal text-o1-muted">tap for numpad</span>

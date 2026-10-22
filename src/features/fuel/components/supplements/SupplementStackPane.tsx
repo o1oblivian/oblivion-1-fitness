@@ -306,7 +306,7 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
             onClick={() => openComposer({ mode: 'add', draft: draftFromOnline(result) })}
             className="w-full p-2.5 rounded-2xl border border-white/[0.08] flex items-center gap-2.5 text-left cursor-pointer disabled:opacity-50 hover:border-white/20"
           >
-            <Globe className="w-4 h-4 text-sky-600 shrink-0" aria-hidden />
+            <Globe className="w-4 h-4 text-o1-blue shrink-0" aria-hidden />
             <span className="min-w-0 flex-1">
               <span className="block text-xs font-semibold text-o1-text truncate">
                 {result.name}
@@ -341,9 +341,9 @@ export const SupplementStackPane: React.FC<SupplementStackPaneProps> = ({
             <button
               type="button"
               onClick={() => void searchOnline()}
-              className="h-10 rounded-xl border border-white/[0.08] text-xs font-medium text-o1-text flex items-center justify-center gap-1.5 cursor-pointer hover:border-sky-600/60"
+              className="h-10 rounded-xl border border-white/[0.08] text-xs font-medium text-o1-text flex items-center justify-center gap-1.5 cursor-pointer hover:border-o1-blue/60"
             >
-              <Globe className="w-3.5 h-3.5 text-sky-600" />
+              <Globe className="w-3.5 h-3.5 text-o1-blue" />
               Search online
             </button>
           ) : (

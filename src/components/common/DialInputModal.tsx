@@ -60,7 +60,7 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="o1-dial-shell relative w-full max-w-[340px] bg-o1-card text-neutral-100 rounded-2xl shadow-2xl border border-white/[0.07] flex flex-col items-center"
+        className="o1-dial-shell relative w-full max-w-[340px] bg-o1-card text-o1-bone rounded-2xl shadow-2xl border border-white/[0.07] flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-full flex items-center justify-between">
@@ -75,7 +75,7 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
                 className={`p-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   mode === 'dial'
                     ? 'bg-white/[0.08] text-white shadow-xs'
-                    : 'text-neutral-400 hover:text-white'
+                    : 'text-o1-muted hover:text-white'
                 }`}
               >
                 <Gauge className="w-3.5 h-3.5" />
@@ -86,7 +86,7 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
                 className={`p-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   mode === 'numpad'
                     ? 'bg-white/[0.08] text-white shadow-xs'
-                    : 'text-neutral-400 hover:text-white'
+                    : 'text-o1-muted hover:text-white'
                 }`}
               >
                 <Hash className="w-3.5 h-3.5" />
@@ -95,7 +95,7 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-7 h-7 rounded-full bg-o1-well hover:bg-white/[0.06] flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
+              className="w-7 h-7 rounded-full bg-o1-well hover:bg-white/[0.06] flex items-center justify-center text-o1-muted hover:text-white transition cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
             </button>

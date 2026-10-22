@@ -32,10 +32,10 @@ export const OblivionReportView: React.FC<OblivionReportViewProps> = ({
 }) => (
   <div className="space-y-3">
     <div className="flex items-center justify-between px-0.5">
-      <span className="text-o1-label font-mono font-bold tracking-[0.22em] text-neutral-500">
+      <span className="text-o1-label font-num font-bold tracking-[0.22em] text-o1-faint">
         The Oblivion Report
       </span>
-      <span className="text-o1-label font-mono text-neutral-600">
+      <span className="text-o1-label font-num text-o1-dim">
         Updated {relativeTime(report.generatedAt)}
       </span>
     </div>

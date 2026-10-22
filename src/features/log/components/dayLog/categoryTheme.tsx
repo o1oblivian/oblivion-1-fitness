@@ -15,30 +15,30 @@ export function getCategoryTheme(category: TelemetryCategory) {
     case 'cardio':
       return {
         title: 'Log cardio',
-        color: 'text-sky-400',
-        bg: 'bg-sky-600',
-        icon: <Activity className="w-5 h-5 text-sky-400" />,
+        color: 'text-o1-teal',
+        bg: 'bg-o1-blue',
+        icon: <Activity className="w-5 h-5 text-o1-teal" />,
       };
     case 'nutrition':
       return {
         title: 'Log food',
-        color: 'text-amber-400',
-        bg: 'bg-amber-600',
-        icon: <Apple className="w-5 h-5 text-amber-400" />,
+        color: 'text-o1-yellow',
+        bg: 'bg-o1-yellow',
+        icon: <Apple className="w-5 h-5 text-o1-yellow" />,
       };
     case 'sleep':
       return {
         title: 'Log sleep',
-        color: 'text-sky-400',
-        bg: 'bg-sky-600',
-        icon: <Moon className="w-5 h-5 text-sky-400" />,
+        color: 'text-o1-teal',
+        bg: 'bg-o1-blue',
+        icon: <Moon className="w-5 h-5 text-o1-teal" />,
       };
     case 'meditation':
       return {
         title: 'Log mindful',
-        color: 'text-emerald-500',
-        bg: 'bg-emerald-600',
-        icon: <Sparkles className="w-5 h-5 text-emerald-500" />,
+        color: 'text-o1-olive',
+        bg: 'bg-o1-olive',
+        icon: <Sparkles className="w-5 h-5 text-o1-olive" />,
       };
   }
 }

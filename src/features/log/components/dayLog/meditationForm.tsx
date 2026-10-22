@@ -77,7 +77,7 @@ export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
     <div className="space-y-3.5">
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">
             Mindful Time (MIN)
           </label>
           <input
@@ -85,18 +85,18 @@ export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
             value={meditationMinutes}
             onFocus={(e) => e.target.select()}
             onChange={(e) => setMeditationMinutes(sanitizeNumericInput(e.target.value))}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-emerald-400 font-bold focus:border-emerald-600 focus:outline-none text-sm"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-o1-olive font-bold focus:border-o1-olive focus:outline-none text-sm"
             placeholder="15"
           />
         </div>
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">
             Brainwave Coherence
           </label>
           <select
             value={meditationCoherence}
             onChange={(e) => setMeditationCoherence(e.target.value)}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2 py-2 text-white font-bold focus:border-emerald-600 focus:outline-none text-xs"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2 py-2 text-white font-bold focus:border-o1-olive focus:outline-none text-xs"
           >
             <option value="">Optional</option>
             <option value="Alpha Wave">Alpha Wave (Coherence)</option>
@@ -107,7 +107,7 @@ export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
       </div>
 
       <div>
-        <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+        <label className="text-o1-label text-o1-muted font-bold block mb-1">
           Resonance Protocol
         </label>
         <div className="space-y-1.5">
@@ -122,8 +122,8 @@ export function MeditationLogFields({ form }: { form: MeditationLogForm }) {
               onClick={() => setMeditationProtocol(p)}
               className={`w-full py-2 px-3 text-left rounded-xl text-xs font-bold transition-all ${
                 meditationProtocol === p
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
+                  ? 'bg-o1-olive text-white'
+                  : 'bg-o1-well border border-white/[0.07] text-o1-muted hover:text-white'
               }`}
             >
               {p}

@@ -13,7 +13,7 @@ const STOCK_ASSETS = O1_PRESETS.map((p) => ({ id: p.id, title: p.label, url: p.u
 export const PresetsArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImage }) => {
   return (
     <div className="space-y-1.5">
-      <div className="text-o1-label font-mono text-o1-muted tracking-wider px-0.5">
+      <div className="text-o1-label font-num text-o1-muted tracking-wider px-0.5">
         Curated Stock Photography &amp; Presets
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">

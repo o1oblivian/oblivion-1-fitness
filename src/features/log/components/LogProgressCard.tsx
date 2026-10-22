@@ -71,7 +71,7 @@ export const LogProgressCard: React.FC<LogProgressCardProps> = ({
               className={`px-0.5 py-1.5 rounded-full border text-o1-caption font-semibold text-center truncate ${
                 channel === entry.id
                   ? 'bg-o1-text text-o1-surface border-o1-text'
-                  : 'bg-o1-well border-white/[0.07] text-neutral-200'
+                  : 'bg-o1-well border-white/[0.07] text-o1-ink-soft'
               }`}
             >
               {entry.title}
@@ -89,7 +89,7 @@ export const LogProgressCard: React.FC<LogProgressCardProps> = ({
                   tactileEngine.triggerSelectionBuzz();
                   onSpanChange(entry.id);
                 }}
-                className={`px-3 py-1 rounded-full text-o1-label font-semibold ${span === entry.id ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+                className={`px-3 py-1 rounded-full text-o1-label font-semibold ${span === entry.id ? 'bg-o1-crimson text-white' : 'text-o1-muted'}`}
               >
                 {entry.label}
               </button>

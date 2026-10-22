@@ -20,12 +20,10 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <Lock className="w-4 h-4 text-o1-teal" />
             </div>
             <div>
-              <h2 className="text-sm font-black tracking-wider text-neutral-100">
+              <h2 className="text-sm font-black tracking-wider text-o1-bone">
                 Privacy &amp; Data Sanctuary Policy
               </h2>
-              <p className="text-o1-label font-mono text-neutral-400">
-                Local-first · Private backup
-              </p>
+              <p className="text-o1-label font-num text-o1-muted">Local-first · Private backup</p>
             </div>
           </div>
           <button
@@ -34,20 +32,20 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-o1-card border border-white/[0.07] cursor-pointer"
+            className="p-1.5 text-o1-muted hover:text-white rounded-full bg-o1-card border border-white/[0.07] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="overflow-y-auto no-scrollbar py-3 space-y-0 text-xs font-mono text-neutral-300 leading-relaxed">
+        <div className="overflow-y-auto no-scrollbar py-3 space-y-0 text-xs font-num text-o1-stone leading-relaxed">
           {/* Section 1: Local-first storage and private backup */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-teal font-bold text-o1-label">
               <Lock className="w-3.5 h-3.5" />
               <span>1. Local-First Storage &amp; Private Backup</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Workout logs, sets, reps, bodyweight, nutrition and hydration records are saved on
               your device first. When you are signed in, they are{' '}
               <strong>backed up to your private Oblivion 1 account</strong> so they survive a lost
@@ -58,11 +56,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
 
           {/* Section 2: Zero Outbound Analytics & No Ad Tracking */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-olive font-bold text-o1-label">
               <Activity className="w-3.5 h-3.5" />
               <span>2. Zero Third-Party Trackers, Pixels, or Data Brokers</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               In full compliance with Apple App Tracking Transparency (ATT) and Google Play User
               Data policies, this application contains{' '}
               <strong>
@@ -75,11 +73,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
 
           {/* Section 3: Camera scans */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-yellow font-bold text-o1-label">
               <Camera className="w-3.5 h-3.5" />
               <span>3. Camera Scans</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Cardio console, watch and meal scan photos, and barcode scans, are sent securely to
               our scanning service, and to Google's Gemini image-analysis service, only to read the
               numbers on them. Scan photos are not saved to your account. Profile photos and reels
@@ -88,11 +86,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-yellow font-bold text-o1-label">
               <Activity className="w-3.5 h-3.5" />
               <span>Bluetooth, Purchases &amp; Payments</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               The app never asks for or collects your location. Bluetooth is used only to read a
               heart-rate sensor you choose to connect. Club Pass purchases are processed by Apple or
               Google and RevenueCat; we receive your subscription status, not your card. Coaching
@@ -102,11 +100,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-yellow font-bold text-o1-label">
               <Activity className="w-3.5 h-3.5" />
               <span>4. No Medical Records</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Oblivion 1 is not a medical app. We do not ask for, collect or store diagnoses,
               injuries, medications or medical history. Sleep and heart rate you choose to log are
               used only to show your own readiness and reports, and are never shared with insurers,
@@ -116,11 +114,11 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
 
           {/* Section 4: User-owned export */}
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-teal font-bold text-o1-label">
               <Lock className="w-3.5 h-3.5" />
               <span>5. Your Data Export (.o1fc)</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               You own your data completely. Athletes can export a full, unencrypted or encrypted
               archive of their training history at any time via Settings &rarr; GDPR Vault Export.
               The exported file lives wherever you save it. Oblivion 1 never sees or touches it.
@@ -133,7 +131,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <Trash2 className="w-3.5 h-3.5" />
               <span>6. Unconditional Account &amp; Telemetry Erasure (GDPR / CCPA)</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               You can delete your account at any time in Settings &rarr; Delete account. Our server
               then permanently deletes your profile, logs, messages, photos, reels and sign-in, and
               the app clears everything stored on your phone. Payment records for coaching sales are
@@ -147,7 +145,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
                   onClose();
                   onDeleteRequest();
                 }}
-                className="mt-1 text-o1-label text-o1-crimson underline font-bold hover:text-red-400 cursor-pointer"
+                className="mt-1 text-o1-label text-o1-crimson underline font-bold hover:text-o1-crimson cursor-pointer"
               >
                 Initiate Account Deletion Protocol &rarr;
               </button>
@@ -162,7 +160,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-full py-3 rounded-2xl bg-o1-card hover:bg-white/[0.06] border border-white/[0.07] text-white font-mono text-xs font-black tracking-wider cursor-pointer transition active:scale-95"
+            className="w-full py-3 rounded-2xl bg-o1-card hover:bg-white/[0.06] border border-white/[0.07] text-white font-num text-xs font-black tracking-wider cursor-pointer transition active:scale-95"
           >
             Understood &amp; Close
           </button>

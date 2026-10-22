@@ -33,7 +33,7 @@ const CITATIONS: CitationItem[] = [
       'Ainsworth, B. E., et al. (2011). Compendium of Physical Activities: a second update of codes and MET values. Med Sci Sports Exerc, 43(8), 1575-1581.',
     application: 'Used for exercise caloric burn and metabolic flux calculations.',
     icon: Activity,
-    accentColor: 'text-sky-600',
+    accentColor: 'text-o1-blue',
   },
   {
     id: 'brzycki-formula',
@@ -42,7 +42,7 @@ const CITATIONS: CitationItem[] = [
       'Brzycki, M. (1993). Strength testing—predicting a one-rep max from repetitions-to-fatigue. JOPERD, 64(1), 88-90.',
     application: 'Powers submaximal mechanical tonnage and 1RM progression tracking.',
     icon: Dumbbell,
-    accentColor: 'text-neutral-900',
+    accentColor: 'text-o1-card',
   },
   {
     id: 'acwr-model',
@@ -51,7 +51,7 @@ const CITATIONS: CitationItem[] = [
       'Gabbett, T. J. (2016). The training—injury prevention paradox: should athletes be training smarter and harder? Br J Sports Med, 50(5), 273-280.',
     application: 'Informs the Microcycle 5-Axis Spider Chart and the 0.8–1.3x sweet-spot index.',
     icon: Zap,
-    accentColor: 'text-amber-600',
+    accentColor: 'text-o1-yellow',
   },
 ];
 
@@ -73,7 +73,7 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
       onClick={handleClose}
     >
       <div
-        className="o1-sheet-card bg-o1-card text-neutral-100 border border-white/[0.07] w-full overflow-y-auto p-4 shadow-xl relative select-none"
+        className="o1-sheet-card bg-o1-card text-o1-bone border border-white/[0.07] w-full overflow-y-auto p-4 shadow-xl relative select-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -85,14 +85,14 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
                 Scientific Sources &amp; Medical Citations
               </h3>
             </div>
-            <p className="text-xs text-neutral-400 font-mono mt-1">
+            <p className="text-xs text-o1-muted font-num mt-1">
               Peer-Reviewed Physiological Models &amp; Mathematical Frameworks
             </p>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="w-8 h-8 rounded-full bg-o1-well hover:bg-white/[0.06] text-neutral-400 hover:text-white flex items-center justify-center transition-colors -mr-1 -mt-1 cursor-pointer border border-white/[0.07]"
+            className="w-8 h-8 rounded-full bg-o1-well hover:bg-white/[0.06] text-o1-muted hover:text-white flex items-center justify-center transition-colors -mr-1 -mt-1 cursor-pointer border border-white/[0.07]"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -115,13 +115,13 @@ export const ScientificCitationsModal: React.FC<ScientificCitationsModalProps> =
                   </h4>
                 </div>
 
-                <div className="text-o1-label text-neutral-300 font-mono bg-black border border-white/[0.07] rounded-xl p-2.5 my-2">
-                  <span className="font-semibold text-neutral-100">Citation: </span>
+                <div className="text-o1-label text-o1-stone font-num bg-black border border-white/[0.07] rounded-xl p-2.5 my-2">
+                  <span className="font-semibold text-o1-bone">Citation: </span>
                   {c.citation}
                 </div>
 
-                <div className="text-xs text-neutral-400 flex items-baseline gap-1.5 mt-1">
-                  <span className="font-semibold text-neutral-200 shrink-0">Application:</span>
+                <div className="text-xs text-o1-muted flex items-baseline gap-1.5 mt-1">
+                  <span className="font-semibold text-o1-ink-soft shrink-0">Application:</span>
                   <span>{c.application}</span>
                 </div>
               </div>

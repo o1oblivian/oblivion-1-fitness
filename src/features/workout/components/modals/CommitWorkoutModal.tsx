@@ -54,7 +54,7 @@ const DAYS: DayCode[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const Stat: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className="bg-black rounded-2xl px-2 py-2.5 border border-white/[0.07] text-center">
     <span className="text-o1-label uppercase tracking-[0.12em] text-o1-muted block">{label}</span>
-    <span className="font-mono font-light text-o1-control text-o1-text">{value}</span>
+    <span className="font-num font-light text-o1-control text-o1-text">{value}</span>
   </div>
 );
 
@@ -184,7 +184,7 @@ export const CommitWorkoutModal: React.FC<CommitWorkoutModalProps> = ({
                   <p className={`text-o1-label leading-snug ${TREND_TONE[h.trend]}`}>{h.note}</p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="font-mono text-o1-caption text-o1-text">{h.top}</p>
+                  <p className="font-num text-o1-caption text-o1-text">{h.top}</p>
                   {h.best && (
                     <p className="text-o1-label text-o1-emerald">{simple ? 'New best' : 'PR'}</p>
                   )}

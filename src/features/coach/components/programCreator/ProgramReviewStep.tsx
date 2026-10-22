@@ -44,7 +44,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
               <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-o1-text text-o1-label font-bold tracking-wider border border-white/[0.07]">
                 {data.category}
               </span>
-              <span className="px-3 py-1 rounded-xl bg-o1-crimson text-o1-text text-xs font-mono font-bold shadow-xs">
+              <span className="px-3 py-1 rounded-xl bg-o1-crimson text-o1-text text-xs font-num font-bold shadow-xs">
                 {data.isFreeCommunity ? 'Free Access' : `$${data.priceUsd.toFixed(2)}`}
               </span>
             </div>
@@ -83,7 +83,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             <span className="text-o1-label tracking-wider text-o1-muted block font-semibold">
               Volume
             </span>
-            <span className="text-xs font-bold text-o1-text font-mono">
+            <span className="text-xs font-bold text-o1-text font-num">
               {totalExercises} Exercises
             </span>
           </div>
@@ -122,7 +122,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
             </button>
 
             {showFullMethodology && (
-              <div className="p-3.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs text-o1-text font-mono whitespace-pre-wrap leading-relaxed max-h-52 overflow-y-auto">
+              <div className="p-3.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs text-o1-text font-num whitespace-pre-wrap leading-relaxed max-h-52 overflow-y-auto">
                 {methodologyText}
               </div>
             )}
@@ -150,7 +150,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-o1-text">Week {w.weekNumber}</span>
-                    <span className="text-o1-label font-mono text-o1-muted">
+                    <span className="text-o1-label font-num text-o1-muted">
                       · {weekExCount} total exercises
                     </span>
                   </div>
@@ -172,12 +172,12 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
                           <span className="text-xs font-bold text-o1-text">
                             {d.dayName} — {d.splitFocus}
                           </span>
-                          <span className="text-o1-label font-mono text-o1-muted">
+                          <span className="text-o1-label font-num text-o1-muted">
                             {d.exercises.length} exercises
                           </span>
                         </div>
                         {d.exercises.length === 0 ? (
-                          <div className="text-o1-label text-o1-muted font-mono">
+                          <div className="text-o1-label text-o1-muted font-num">
                             Rest or Active Recovery
                           </div>
                         ) : (
@@ -190,7 +190,7 @@ export const ProgramReviewStep: React.FC<{ data: ProgramFormData }> = ({ data })
                                 <span className="truncate pr-2 font-medium">
                                   {idx + 1}. {ex.name || 'Unnamed Exercise'}
                                 </span>
-                                <span className="text-o1-label font-mono text-o1-muted shrink-0">
+                                <span className="text-o1-label font-num text-o1-muted shrink-0">
                                   {ex.sets}×{ex.reps} ({ex.restSeconds}s rest)
                                 </span>
                               </div>

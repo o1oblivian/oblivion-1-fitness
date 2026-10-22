@@ -111,9 +111,9 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
                   {' · '}
                   <span className="text-o1-crimson">{g(Number(item.protein) || 0)}g P</span>
                   {' · '}
-                  <span className="text-amber-500">{g(Number(item.carbs) || 0)}g C</span>
+                  <span className="text-o1-yellow">{g(Number(item.carbs) || 0)}g C</span>
                   {' · '}
-                  <span className="text-emerald-500">{g(Number(item.fats) || 0)}g F</span>
+                  <span className="text-o1-olive">{g(Number(item.fats) || 0)}g F</span>
                 </span>
               </div>
               <button

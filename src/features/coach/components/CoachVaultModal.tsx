@@ -241,7 +241,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
           className={`flex items-center gap-2 rounded-xl border p-2.5 text-o1-caption font-semibold ${
             notice.tone === 'error'
               ? 'border-o1-crimson/40 bg-o1-crimson/10 text-o1-text'
-              : 'border-emerald-600/30 bg-emerald-600/10 text-emerald-500'
+              : 'border-o1-olive/30 bg-o1-olive/10 text-o1-olive'
           }`}
         >
           <Check className="h-4 w-4 shrink-0" />

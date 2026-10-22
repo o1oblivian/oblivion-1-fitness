@@ -30,8 +30,8 @@ interface FuelSettingsSheetProps {
 const MACRO_FIELDS = [
   { key: 'calories' as const, label: 'Calories', unit: 'kcal', focus: 'focus:border-white/30' },
   { key: 'protein' as const, label: 'Protein', unit: 'g', focus: 'focus:border-o1-crimson' },
-  { key: 'carbs' as const, label: 'Carbs', unit: 'g', focus: 'focus:border-amber-600' },
-  { key: 'fats' as const, label: 'Fats', unit: 'g', focus: 'focus:border-emerald-600' },
+  { key: 'carbs' as const, label: 'Carbs', unit: 'g', focus: 'focus:border-o1-yellow' },
+  { key: 'fats' as const, label: 'Fats', unit: 'g', focus: 'focus:border-o1-olive' },
 ];
 
 export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
@@ -219,7 +219,7 @@ export const FuelSettingsSheet: React.FC<FuelSettingsSheetProps> = ({
             }}
             className="h-11 rounded-2xl border border-white/[0.08] text-o1-text text-sm font-medium flex items-center justify-center gap-2 cursor-pointer hover:border-white/20"
           >
-            <Calculator className="w-4 h-4 text-sky-600" />
+            <Calculator className="w-4 h-4 text-o1-blue" />
             Energy calculator
           </button>
           <button

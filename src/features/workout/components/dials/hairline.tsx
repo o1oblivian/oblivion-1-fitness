@@ -1,15 +1,16 @@
 import React from 'react';
 import { DialComponentProps, describeArc, polarToCartesian } from './dialTypes';
 import { fmtInt, fmtKm, pct } from './dialFormat';
+import { COLOR } from '../../../../theme/colors';
 
 /** Hairline dial kit: flat ink, 1 px rules, coloured data. No plates, blur or text outlines. */
-export const INK = '#F4F2EA';
+export const INK = COLOR.dialInk;
 export const MUTED = 'rgba(244,242,234,0.8)';
 export const TRACK = 'rgba(244,242,234,0.3)';
-export const EMERALD = '#10b981';
-export const CRIMSON = '#E0262E';
-export const AMBER = '#f7c600';
-export const SKY = '#2aa3e0';
+export const EMERALD = COLOR.emerald;
+export const CRIMSON = COLOR.dialCrimson;
+export const AMBER = COLOR.yellow;
+export const SKY = COLOR.dialSky;
 
 export interface DialPalette {
   steps: string;

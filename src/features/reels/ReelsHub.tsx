@@ -192,7 +192,7 @@ export const ReelsHub: React.FC<ReelsHubProps> = ({
   return (
     <div
       id="elite-reels-hub-modal"
-      className="fixed inset-0 z-50 bg-black text-neutral-100 flex flex-col font-sans select-none overflow-hidden"
+      className="fixed inset-0 z-50 bg-black text-o1-bone flex flex-col font-sans select-none overflow-hidden"
     >
       {viewMode === 'player' && activeReel ? (
         <ReelPlayerView

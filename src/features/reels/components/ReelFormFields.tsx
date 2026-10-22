@@ -16,7 +16,7 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
     <>
       <div className="space-y-3">
         <div className="space-y-1">
-          <label className="text-o1-label font-bold font-mono tracking-wider text-neutral-300">
+          <label className="text-o1-label font-bold font-num tracking-wider text-o1-stone">
             4. Reel Title
           </label>
           <input
@@ -24,11 +24,11 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Low-Bar Squat Scapular Depress Cue"
-            className="w-full px-3.5 py-2.5 bg-o1-well border border-white/[0.07] rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson"
+            className="w-full px-3.5 py-2.5 bg-o1-well border border-white/[0.07] rounded-xl text-xs text-white placeholder-o1-faint focus:outline-none focus:border-o1-crimson"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-o1-label font-bold font-mono tracking-wider text-neutral-300">
+          <label className="text-o1-label font-bold font-num tracking-wider text-o1-stone">
             5. Biomechanical Directives / Cues
           </label>
           <textarea
@@ -36,7 +36,7 @@ export const ReelFormFields: React.FC<ReelFormFieldsProps> = ({
             onChange={(e) => setCues(e.target.value)}
             rows={2}
             placeholder="Reels play without sound, so write the cues here: elbow angle, breathing, tempo..."
-            className="w-full px-3.5 py-2 bg-o1-well border border-white/[0.07] rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson resize-none"
+            className="w-full px-3.5 py-2 bg-o1-well border border-white/[0.07] rounded-xl text-xs text-white placeholder-o1-faint focus:outline-none focus:border-o1-crimson resize-none"
           />
         </div>
       </div>

@@ -135,13 +135,13 @@ export const DispatchBlueprintsTab: React.FC<DispatchBlueprintsTabProps> = ({ on
             >
               <div className="flex items-center justify-between">
                 <span className="font-bold text-o1-text truncate">{ex.name}</span>
-                <span className="font-mono text-o1-muted font-bold shrink-0 ml-2">
+                <span className="font-num text-o1-muted font-bold shrink-0 ml-2">
                   {ex.sets}x · {ex.reps} @ {ex.targetWeightKg > 0 ? `${ex.targetWeightKg}kg` : 'BW'}
                 </span>
               </div>
               <div className="flex items-center justify-between text-o1-label text-o1-muted">
                 <span className="truncate">{ex.muscle}</span>
-                <span className="font-mono">
+                <span className="font-num">
                   RPE {ex.rpe} · Tempo {ex.tempo}
                 </span>
               </div>

@@ -183,7 +183,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
             <span className="min-w-0 text-sm font-medium tracking-tight text-white leading-snug truncate py-0.5">
               {exercise.name}
             </span>
-            <span className="ml-auto shrink-0 font-mono text-o1-label text-o1-muted">
+            <span className="ml-auto shrink-0 font-num text-o1-label text-o1-muted">
               {done}/{setsList.length}
             </span>
             {isExpanded ? (
@@ -204,7 +204,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                 : `Personal best for ${exercise.name}`
             }
             aria-expanded={showBest}
-            className={`h-6 px-2 shrink-0 rounded-lg border font-mono text-o1-label cursor-pointer transition-colors ${
+            className={`h-6 px-2 shrink-0 rounded-lg border font-num text-o1-label cursor-pointer transition-colors ${
               isPrToday
                 ? 'border-o1-emerald/60 text-o1-emerald'
                 : showBest
@@ -231,7 +231,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
           {lastTime && (
             <p className="px-1 text-o1-label text-o1-muted leading-snug">
               Last time · {shortDate(lastTime.dateKey)}:{' '}
-              <span className="font-mono text-o1-text">
+              <span className="font-num text-o1-text">
                 {lastTimeText(lastTime.sets, weightUnit)}
               </span>
             </p>

@@ -17,7 +17,7 @@ export const AutoModeFooter: React.FC<AutoModeFooterProps> = ({
 }) => {
   return (
     <div className="flex items-center justify-between pt-3">
-      <span className="text-xs text-neutral-400 font-medium" title={`${totalKcal} kcal`}>
+      <span className="text-xs text-o1-muted font-medium" title={`${totalKcal} kcal`}>
         {totalMins} min · {exerciseCount} moves · {totalSets} sets
       </span>
       <button

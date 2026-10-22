@@ -412,7 +412,7 @@ export const LogHistoryView: React.FC<LogHistoryViewProps> = ({ showToast }) => 
         onSelectDate={selectDate}
       />
 
-      <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden text-neutral-100">
+      <div className="rounded-2xl bg-o1-card border border-white/[0.07] overflow-hidden text-o1-bone">
         <LogProgressCard
           open={towersOpen}
           onToggle={() => setTowersOpen(!towersOpen)}

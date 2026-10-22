@@ -265,21 +265,21 @@ export const MifflinStJeorModal: React.FC<MifflinStJeorModalProps> = ({
               />
               <div
                 style={{ width: `${isComplete ? macroBreakdown.cPct : 0}%` }}
-                className="bg-amber-600 h-full"
+                className="bg-o1-yellow h-full"
               />
               <div
                 style={{ width: `${isComplete ? macroBreakdown.fPct : 0}%` }}
-                className="bg-emerald-600 h-full"
+                className="bg-o1-olive h-full"
               />
             </div>
             <div className="grid grid-cols-3 gap-1 text-center tabular-nums mt-2">
               <span className="text-o1-label text-o1-crimson">
                 {isComplete ? `${macroBreakdown.proteinG}g P` : '-- P'}
               </span>
-              <span className="text-o1-label text-amber-500">
+              <span className="text-o1-label text-o1-yellow">
                 {isComplete ? `${macroBreakdown.carbsG}g C` : '-- C'}
               </span>
-              <span className="text-o1-label text-emerald-500">
+              <span className="text-o1-label text-o1-olive">
                 {isComplete ? `${macroBreakdown.fatsG}g F` : '-- F'}
               </span>
             </div>

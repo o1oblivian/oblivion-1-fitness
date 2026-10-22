@@ -73,7 +73,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
                   className={`w-[18px] h-[18px] transition-colors ${
                     isActive
                       ? 'text-o1-crimson stroke-[2.4]'
-                      : 'text-neutral-400 stroke-[1.9] group-hover:text-neutral-100'
+                      : 'text-o1-muted stroke-[1.9] group-hover:text-o1-bone'
                   }`}
                 />
               </div>
@@ -83,7 +83,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({ currentMode, onS
                 className={`text-o1-label mt-0.5 tracking-tight leading-none select-none transition-colors ${
                   isActive
                     ? 'text-o1-crimson font-bold'
-                    : 'text-neutral-400 font-medium group-hover:text-neutral-100'
+                    : 'text-o1-muted font-medium group-hover:text-o1-bone'
                 }`}
               >
                 {tab.label}

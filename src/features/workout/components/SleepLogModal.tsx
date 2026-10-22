@@ -128,7 +128,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         {/* Header - Crystal Clear, Zero Dark Fog */}
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3.5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-600">
+            <div className="w-9 h-9 rounded-xl bg-o1-teal/10 border border-o1-teal/30 flex items-center justify-center text-o1-blue">
               <Moon className="w-4 h-4" />
             </div>
             <div>
@@ -136,11 +136,11 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                 <h3 className="font-tactical font-medium text-sm tracking-wider text-white">
                   Sleep Architecture Log
                 </h3>
-                <span className="px-1.5 py-0.5 rounded text-o1-label font-mono font-medium bg-white/10 text-sky-600">
+                <span className="px-1.5 py-0.5 rounded text-o1-label font-num font-medium bg-white/10 text-o1-blue">
                   Circadian
                 </span>
               </div>
-              <p className="text-o1-label font-mono text-neutral-400">
+              <p className="text-o1-label font-num text-o1-muted">
                 Nocturnal Restoration &amp; REM Depth
               </p>
             </div>
@@ -149,7 +149,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/[0.07] flex items-center justify-center text-o1-muted hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -159,16 +159,16 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div className="space-y-0.5">
-              <span className="text-o1-label font-mono tracking-wider text-neutral-400 font-medium block">
+              <span className="text-o1-label font-num tracking-wider text-o1-muted font-medium block">
                 Total Duration Recorded
               </span>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-mono font-light text-white tracking-tight">
+                <span className="text-3xl font-num font-light text-white tracking-tight">
                   {h}h {m > 0 ? `${m}m` : ''}
                 </span>
-                <span className="text-xs font-mono text-neutral-400">({hours}h total)</span>
+                <span className="text-xs font-num text-o1-muted">({hours}h total)</span>
               </div>
-              <span className="text-o1-label font-mono font-medium text-sky-600 tracking-wider block">
+              <span className="text-o1-label font-num font-medium text-o1-blue tracking-wider block">
                 {hours >= 8
                   ? 'Optimal Anabolic Restoration'
                   : hours >= 7
@@ -178,11 +178,11 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
             </div>
 
             {/* Quality Score Badge */}
-            <div className="px-3 py-1.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-right">
-              <span className="text-lg font-mono font-light text-sky-600 leading-none block">
+            <div className="px-3 py-1.5 rounded-xl bg-o1-teal/10 border border-o1-teal/30 text-right">
+              <span className="text-lg font-num font-light text-o1-blue leading-none block">
                 {qualityScore === null ? '--' : `${qualityScore}%`}
               </span>
-              <span className="text-o1-label font-mono text-neutral-400 block mt-0.5">Quality</span>
+              <span className="text-o1-label font-num text-o1-muted block mt-0.5">Quality</span>
             </div>
           </div>
 
@@ -191,28 +191,28 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
             <button
               type="button"
               onClick={() => adjustHours(-0.5)}
-              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-medium text-neutral-300 active:scale-95 transition-all cursor-pointer"
+              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-num font-medium text-o1-stone active:scale-95 transition-all cursor-pointer"
             >
               -30m
             </button>
             <button
               type="button"
               onClick={() => adjustHours(-0.25)}
-              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-medium text-neutral-300 active:scale-95 transition-all cursor-pointer"
+              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-num font-medium text-o1-stone active:scale-95 transition-all cursor-pointer"
             >
               -15m
             </button>
             <button
               type="button"
               onClick={() => adjustHours(0.25)}
-              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-medium text-neutral-300 active:scale-95 transition-all cursor-pointer"
+              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-num font-medium text-o1-stone active:scale-95 transition-all cursor-pointer"
             >
               +15m
             </button>
             <button
               type="button"
               onClick={() => adjustHours(0.5)}
-              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-mono font-medium text-neutral-300 active:scale-95 transition-all cursor-pointer"
+              className="flex-1 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.07] text-xs font-num font-medium text-o1-stone active:scale-95 transition-all cursor-pointer"
             >
               +30m
             </button>
@@ -221,7 +221,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
 
         {/* 4 Fast Athletic Presets */}
         <div className="space-y-1.5">
-          <span className="text-o1-label font-mono tracking-wider text-neutral-400">
+          <span className="text-o1-label font-num tracking-wider text-o1-muted">
             Athletic Sleep Protocols
           </span>
           <div className="grid grid-cols-2 gap-2">
@@ -240,7 +240,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                   }`}
                 >
                   <span className="flex items-start justify-between gap-2 min-w-0">
-                    <span className="text-base font-mono font-light text-o1-text leading-none">
+                    <span className="text-base font-num font-light text-o1-text leading-none">
                       {p.label}
                     </span>
                     {isSelected && (
@@ -259,7 +259,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         </div>
 
         <div className="space-y-1.5">
-          <span className="text-o1-label font-mono tracking-wider text-neutral-400">
+          <span className="text-o1-label font-num tracking-wider text-o1-muted">
             How rested do you feel?
           </span>
           <div className="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="Sleep quality">
@@ -291,20 +291,18 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         {/* Circadian Timestamps & Resting Heart Rate */}
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-o1-label font-mono text-neutral-400 block font-medium">
-              Bedtime
-            </span>
+            <span className="text-o1-label font-num text-o1-muted block font-medium">Bedtime</span>
             <input
               type="time"
               value={bedtime}
               aria-label="Bedtime"
               onChange={(e) => setClock(e.target.value, wakeTime)}
-              className="w-full bg-transparent text-xs font-mono font-medium text-white focus:outline-none cursor-pointer"
+              className="w-full bg-transparent text-xs font-num font-medium text-white focus:outline-none cursor-pointer"
             />
           </div>
 
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-o1-label font-mono text-neutral-400 block font-medium">
+            <span className="text-o1-label font-num text-o1-muted block font-medium">
               Wake Time
             </span>
             <input
@@ -312,12 +310,12 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
               value={wakeTime}
               aria-label="Wake time"
               onChange={(e) => setClock(bedtime, e.target.value)}
-              className="w-full bg-transparent text-xs font-mono font-medium text-white focus:outline-none cursor-pointer"
+              className="w-full bg-transparent text-xs font-num font-medium text-white focus:outline-none cursor-pointer"
             />
           </div>
 
           <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-2.5 space-y-1">
-            <span className="text-o1-label font-mono text-neutral-400 block font-medium">
+            <span className="text-o1-label font-num text-o1-muted block font-medium">
               Resting Hr
             </span>
             <div className="flex items-baseline gap-1">
@@ -330,9 +328,9 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setRestingHr(parseCleanInt(e.target.value) || null)}
                 onBlur={() => setRestingHr((v) => (v !== null && v >= 25 && v <= 220 ? v : null))}
-                className="w-12 bg-transparent text-xs font-mono font-medium text-white focus:outline-none"
+                className="w-12 bg-transparent text-xs font-num font-medium text-white focus:outline-none"
               />
-              <span className="text-o1-label font-mono text-neutral-400">bpm</span>
+              <span className="text-o1-label font-num text-o1-muted">bpm</span>
             </div>
           </div>
         </div>
@@ -354,7 +352,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
               setWakeTime('');
               setRestingHr(null);
             }}
-            className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.07] text-xs font-mono font-medium text-neutral-400 hover:text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+            className="flex-1 py-2.5 px-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:bg-white/[0.07] text-xs font-num font-medium text-o1-muted hover:text-white flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>

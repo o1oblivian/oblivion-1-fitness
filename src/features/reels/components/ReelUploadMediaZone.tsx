@@ -45,7 +45,7 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
             <span className="text-xs font-bold text-white group-hover:text-o1-crimson transition-colors">
               Tap to Choose Video from Device
             </span>
-            <p className="text-o1-label text-neutral-400 mt-0.5">
+            <p className="text-o1-label text-o1-muted mt-0.5">
               MP4, MOV or WebM · up to 60 seconds · plays without sound
             </p>
           </div>
@@ -90,13 +90,13 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
 
       {isCompressing && (
         <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
-          <div className="flex items-center justify-between text-o1-label font-mono text-neutral-400">
+          <div className="flex items-center justify-between text-o1-label font-num text-o1-muted">
             <span>Preparing video…</span>
-            <span className="text-emerald-400 font-bold">{compressionProgress}%</span>
+            <span className="text-o1-olive font-bold">{compressionProgress}%</span>
           </div>
           <div className="w-full h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
             <div
-              className="h-full bg-emerald-500 transition-all duration-300 rounded-full"
+              className="h-full bg-o1-olive transition-all duration-300 rounded-full"
               style={{ width: `${compressionProgress}%` }}
             />
           </div>

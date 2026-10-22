@@ -26,6 +26,7 @@ import { buildUsuals, slotForHour, Usual } from './utils/fuelUsuals';
 import { useTelemetryHistoryStore } from '../log/store/useTelemetryHistoryStore';
 import { MEAL_SLOT_SHARE, MealSlot, slotBudget } from './data/mealBudget';
 import { restingBurn } from './utils/energyMath';
+import { COLOR } from '../../theme/colors';
 
 function gramsLeft(target: number | null, eaten: number): number {
   return target != null ? Math.max(0, target - eaten) : 0;
@@ -122,9 +123,14 @@ export const FuelView: React.FC = () => {
     weightKg,
   );
   const macros: MacroMeter[] = [
-    { label: 'Protein', consumed: totals.protein, target: macroTargets.protein, color: '#C4121A' },
-    { label: 'Carbs', consumed: totals.carbs, target: macroTargets.carbs, color: '#f7c600' },
-    { label: 'Fats', consumed: totals.fats, target: macroTargets.fats, color: '#059669' },
+    {
+      label: 'Protein',
+      consumed: totals.protein,
+      target: macroTargets.protein,
+      color: COLOR.crimson,
+    },
+    { label: 'Carbs', consumed: totals.carbs, target: macroTargets.carbs, color: COLOR.yellow },
+    { label: 'Fats', consumed: totals.fats, target: macroTargets.fats, color: COLOR.emeraldDeep },
   ];
   const remainingKcal = Math.max(0, balance.remaining ?? 0);
   const remainingProtein = gramsLeft(macroTargets.protein, totals.protein);

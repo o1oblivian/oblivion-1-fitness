@@ -97,7 +97,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
   if (postItems.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.07] bg-o1-card text-neutral-500 shadow-sm">
+        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.07] bg-o1-card text-o1-faint shadow-sm">
           <Play className="h-5 w-5 opacity-40" />
         </div>
         <h4 className="text-o1-body text-o1-muted">No reels here yet</h4>

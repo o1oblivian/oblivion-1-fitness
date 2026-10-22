@@ -44,7 +44,7 @@ export const TrainingSafetyInfo: React.FC<Props> = ({ topic }) => {
           tactileEngine.selection();
           setOpen((v) => !v);
         }}
-        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors ${open ? 'text-white' : 'text-neutral-400 hover:text-white'}`}
+        className={`w-11 h-11 flex items-center justify-center rounded-full transition-colors ${open ? 'text-white' : 'text-o1-muted hover:text-white'}`}
       >
         <Info className="w-4 h-4" />
       </button>

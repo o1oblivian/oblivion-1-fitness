@@ -44,7 +44,7 @@ const Tile: React.FC<TileProps> = ({ label, icon, tone, value, sub, onOpen }) =>
       {icon}
       {label}
     </span>
-    <span className="text-base font-mono font-light text-white tracking-tight mt-0.5">{value}</span>
+    <span className="text-base font-num font-light text-white tracking-tight mt-0.5">{value}</span>
     <span className="text-o1-label font-sans font-medium text-white/75">{sub}</span>
   </button>
 );
@@ -130,7 +130,7 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           }}
           className="flex-1 flex flex-col items-center justify-center my-auto z-10 text-center bg-transparent border-0 cursor-pointer active:scale-[0.98] transition-transform"
         >
-          <span className="text-6xl sm:text-7xl font-mono font-light text-white tracking-tight">
+          <span className="text-6xl sm:text-7xl font-num font-light text-white tracking-tight">
             {readinessScore === null ? '--' : `${readinessScore}%`}
           </span>
           <span className="text-o1-crimson font-sans font-semibold text-o1-body mt-1">
@@ -146,7 +146,7 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
         <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 z-10 w-full px-1">
           <Tile
             label="Hydration"
-            tone="text-sky-600"
+            tone="text-o1-blue"
             icon={<Droplet className="w-3.5 h-3.5 stroke-[2.6]" />}
             value={hasWater ? `${hydrationCurrentL.toFixed(1)} L` : '--'}
             sub={hasWater ? `${Math.round(waterPct)}% of goal` : 'Not logged'}
@@ -154,7 +154,7 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           />
           <Tile
             label="Biosync"
-            tone="text-emerald-500"
+            tone="text-o1-olive"
             icon={<Activity className="w-3.5 h-3.5 stroke-[2.6]" />}
             value={restingHr === null ? '--' : `${restingHr} BPM`}
             sub={restingHr === null ? 'No wearable data' : 'Resting HR'}
@@ -162,7 +162,7 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           />
           <Tile
             label="Supplements"
-            tone="text-amber-400"
+            tone="text-o1-yellow"
             icon={<Pill className="w-3.5 h-3.5 stroke-[2.6]" />}
             value={supplementsTotal === 0 ? '--' : `${supplementsTaken}/${supplementsTotal}`}
             sub={supplementSub}
@@ -170,7 +170,7 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           />
           <Tile
             label="Sleep"
-            tone="text-sky-600"
+            tone="text-o1-blue"
             icon={<Moon className="w-3.5 h-3.5 stroke-[2.6]" />}
             value={sleepHours === null ? '--' : `${sleepHours} h`}
             sub={sleepQuality === null ? 'Not logged' : `${sleepQuality}% restful`}

@@ -47,8 +47,8 @@ function Segmented<T extends string>({
   return (
     <div>
       <div className="mb-2">
-        <span className="text-xs font-tactical font-semibold text-neutral-100 block">{title}</span>
-        <span className="text-o1-label font-sans text-neutral-400 block">{subtitle}</span>
+        <span className="text-xs font-tactical font-semibold text-o1-bone block">{title}</span>
+        <span className="text-o1-label font-sans text-o1-muted block">{subtitle}</span>
       </div>
       <div
         role="radiogroup"
@@ -69,7 +69,7 @@ function Segmented<T extends string>({
             className={`h-8 rounded-lg text-xs font-tactical transition-all cursor-pointer ${
               value === option.value
                 ? 'bg-o1-crimson text-white font-bold'
-                : 'text-neutral-400 hover:text-neutral-200'
+                : 'text-o1-muted hover:text-o1-ink-soft'
             }`}
           >
             {option.label}
@@ -103,7 +103,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1">
         Display &amp; controls
       </h3>
 
@@ -141,10 +141,10 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
         {/* Input Style Segmented Control */}
         <div className="pt-2.5 border-t border-white/[0.05]">
           <div className="mb-2">
-            <span className="text-xs font-tactical font-semibold text-neutral-100 block">
+            <span className="text-xs font-tactical font-semibold text-o1-bone block">
               Input Style
             </span>
-            <span className="text-o1-label font-sans text-neutral-400 block">
+            <span className="text-o1-label font-sans text-o1-muted block">
               Workout entry dial or keypad
             </span>
           </div>
@@ -160,7 +160,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
                 className={`h-8 rounded-lg text-xs font-tactical transition-all cursor-pointer ${
                   inputStyle === style
                     ? 'bg-o1-crimson text-white font-bold'
-                    : 'text-neutral-400 hover:text-neutral-200'
+                    : 'text-o1-muted hover:text-o1-ink-soft'
                 }`}
               >
                 {style}
@@ -173,10 +173,10 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
         <div className="pt-2.5 border-t border-white/[0.05]">
           <div className="flex items-center justify-between gap-3 min-h-[44px]">
             <div className="min-w-0">
-              <span className="text-xs font-tactical font-semibold text-neutral-100 block">
+              <span className="text-xs font-tactical font-semibold text-o1-bone block">
                 Workout wallpaper
               </span>
-              <span className="text-o1-label font-sans text-neutral-400 block truncate">
+              <span className="text-o1-label font-sans text-o1-muted block truncate">
                 {isEnabled
                   ? `${wallpaperTopicLabel(topic)} · ${isPaused ? 'Paused' : `${intervalSeconds}s`} · ${pool.length || 'live'} frames`
                   : 'Off — battery saver'}
@@ -189,7 +189,7 @@ export const SettingsAppearanceSection: React.FC<AppearanceSectionProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setShowWallpaperModal(true);
               }}
-              className="o1-pill bg-o1-well hover:bg-o1-crimson text-neutral-200 hover:text-white border border-white/[0.07] text-xs font-sans font-semibold cursor-pointer active:scale-95"
+              className="o1-pill bg-o1-well hover:bg-o1-crimson text-o1-ink-soft hover:text-white border border-white/[0.07] text-xs font-sans font-semibold cursor-pointer active:scale-95"
             >
               <Images className="w-3.5 h-3.5" />
               <span>Change</span>

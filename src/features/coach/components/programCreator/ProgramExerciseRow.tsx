@@ -19,7 +19,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
     <div className="p-3.5 rounded-2xl bg-o1-surface border border-white/[0.07] space-y-2.5 shadow-2xs transition-all hover:border-white/[0.07]">
       {/* Top Header: Index + Exercise Name + Remove */}
       <div className="flex items-center gap-2">
-        <span className="w-5 h-5 rounded-full bg-white/[0.08] text-o1-label font-bold flex items-center justify-center text-o1-muted shrink-0 font-mono">
+        <span className="w-5 h-5 rounded-full bg-white/[0.08] text-o1-label font-bold flex items-center justify-center text-o1-muted shrink-0 font-num">
           {index + 1}
         </span>
         <input
@@ -32,7 +32,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
         <button
           type="button"
           onClick={onRemove}
-          className="p-1.5 text-o1-muted hover:text-red-500 rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer shrink-0"
+          className="p-1.5 text-o1-muted hover:text-o1-crimson rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer shrink-0"
           title="Remove exercise"
         >
           <Trash2 className="w-3.5 h-3.5" />
@@ -50,7 +50,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
             min={1}
             value={exercise.sets}
             onChange={(e) => onChange({ sets: Math.max(1, Number(e.target.value) || 1) })}
-            className="w-full bg-transparent text-xs font-bold text-o1-text text-center font-mono focus:outline-none"
+            className="w-full bg-transparent text-xs font-bold text-o1-text text-center font-num focus:outline-none"
           />
         </div>
         <div className="bg-o1-sheet border border-white/[0.07] rounded-xl p-1.5 text-center">
@@ -62,7 +62,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
             value={exercise.reps}
             onChange={(e) => onChange({ reps: e.target.value })}
             placeholder="8-10"
-            className="w-full bg-transparent text-xs font-bold text-o1-text text-center font-mono focus:outline-none"
+            className="w-full bg-transparent text-xs font-bold text-o1-text text-center font-num focus:outline-none"
           />
         </div>
         <div className="bg-o1-sheet border border-white/[0.07] rounded-xl p-1.5 text-center">
@@ -75,7 +75,7 @@ export const ProgramExerciseRow: React.FC<ProgramExerciseRowProps> = ({
             min={0}
             value={exercise.restSeconds}
             onChange={(e) => onChange({ restSeconds: Math.max(0, Number(e.target.value) || 0) })}
-            className="w-full bg-transparent text-xs font-bold text-o1-text text-center font-mono focus:outline-none"
+            className="w-full bg-transparent text-xs font-bold text-o1-text text-center font-num focus:outline-none"
           />
         </div>
       </div>

@@ -61,7 +61,7 @@ export const LogMonthGrid: React.FC<LogMonthGridProps> = ({
               }`}
             >
               <span
-                className={`font-mono text-o1-body leading-none ${
+                className={`font-num text-o1-body leading-none ${
                   item.trained
                     ? 'font-semibold text-o1-emerald'
                     : item.isToday

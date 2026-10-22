@@ -83,7 +83,7 @@ export const LiveVaultArtworkGrid: React.FC<Props> = ({ coverImage, onSelectImag
         onChange={(e) => void handleFileUpload(e)}
         className="hidden"
       />
-      <div className="text-o1-label font-mono text-o1-muted tracking-wider px-0.5">
+      <div className="text-o1-label font-num text-o1-muted tracking-wider px-0.5">
         Coach Media Vault ({vaultItems.length})
       </div>
       {failure}

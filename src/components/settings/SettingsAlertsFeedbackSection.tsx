@@ -82,7 +82,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1">
         Alerts, Audio &amp; Haptics
       </h3>
 
@@ -95,7 +95,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
                 <span className="text-xs font-sans font-semibold text-white block">
                   Allow reminders
                 </span>
-                <span className="text-o1-label font-sans text-neutral-400 block leading-tight">
+                <span className="text-o1-label font-sans text-o1-muted block leading-tight">
                   {permission === 'denied'
                     ? BLOCKED_COPY
                     : 'Workout and recovery reminders on your lock screen'}
@@ -124,7 +124,7 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
                 onSetRemindersEnabled(false);
                 onShowToast?.('Reminders off.');
               }}
-              className="o1-pill min-h-[44px] bg-black border border-white/[0.07] text-neutral-300 hover:text-white text-xs font-sans font-semibold cursor-pointer active:scale-95"
+              className="o1-pill min-h-[44px] bg-black border border-white/[0.07] text-o1-stone hover:text-white text-xs font-sans font-semibold cursor-pointer active:scale-95"
             >
               Turn off
             </button>
@@ -140,26 +140,26 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
           className="w-full min-h-[44px] flex items-center justify-between gap-3 cursor-pointer group text-left"
         >
           <div className="flex items-center gap-2">
-            <Bell className="w-4 h-4 text-neutral-400 group-hover:text-o1-crimson" />
+            <Bell className="w-4 h-4 text-o1-muted group-hover:text-o1-crimson" />
             <div className="min-w-0">
-              <span className="text-xs font-tactical font-semibold text-neutral-100 group-hover:text-white block">
+              <span className="text-xs font-tactical font-semibold text-o1-bone group-hover:text-white block">
                 Scheduled Session Reminders
               </span>
-              <span className="text-o1-label text-neutral-400 font-sans block">
+              <span className="text-o1-label text-o1-muted font-sans block">
                 Pre-workout, evening recovery &amp; water
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
+          <ChevronRight className="w-4 h-4 text-o1-muted group-hover:text-white shrink-0" />
         </button>
 
         <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">
+              <span className="text-xs font-sans font-medium text-o1-ink-soft block">
                 Pre-Workout Reminder
               </span>
-              <span className="text-o1-label text-neutral-400 block">
+              <span className="text-o1-label text-o1-muted block">
                 30 minutes before your training time
               </span>
             </div>
@@ -175,10 +175,10 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
 
           <div className="flex items-center justify-between gap-3 pt-1">
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">
+              <span className="text-xs font-sans font-medium text-o1-ink-soft block">
                 Coach Routine Updates
               </span>
-              <span className="text-o1-label text-neutral-400 block">
+              <span className="text-o1-label text-o1-muted block">
                 Show a note in the app when your coach sends a routine
               </span>
             </div>
@@ -196,12 +196,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
         <div className="pt-3 border-t border-white/[0.05] space-y-3">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Vibrate className="w-4 h-4 text-neutral-400" />
+              <Vibrate className="w-4 h-4 text-o1-muted" />
               <div>
-                <span className="text-xs font-sans font-medium text-neutral-200 block">
+                <span className="text-xs font-sans font-medium text-o1-ink-soft block">
                   Tactile Haptic Vibration
                 </span>
-                <span className="text-o1-label text-neutral-400 block">
+                <span className="text-o1-label text-o1-muted block">
                   Physical buzz on weight dials, timers &amp; PRs
                 </span>
               </div>
@@ -218,12 +218,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
 
           <div className="flex items-center justify-between gap-3 pt-1">
             <div className="flex items-center gap-2">
-              <Volume2 className="w-4 h-4 text-neutral-400" />
+              <Volume2 className="w-4 h-4 text-o1-muted" />
               <div>
-                <span className="text-xs font-sans font-medium text-neutral-200 block">
+                <span className="text-xs font-sans font-medium text-o1-ink-soft block">
                   Audio Effects &amp; Chimes
                 </span>
-                <span className="text-o1-label text-neutral-400 block">
+                <span className="text-o1-label text-o1-muted block">
                   Dial ticks, rest countdown &amp; PR celebrations
                 </span>
               </div>
@@ -241,12 +241,12 @@ export const SettingsAlertsFeedbackSection: React.FC<AlertsFeedbackSectionProps>
 
         <div className="pt-3 border-t border-white/[0.05] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-neutral-400" />
+            <ShieldCheck className="w-4 h-4 text-o1-muted" />
             <div>
-              <span className="text-xs font-sans font-medium text-neutral-200 block">
+              <span className="text-xs font-sans font-medium text-o1-ink-soft block">
                 On-device crash log
               </span>
-              <span className="text-o1-label text-neutral-400 block">
+              <span className="text-o1-label text-o1-muted block">
                 Store the last render crash on this device. Nothing is sent remotely.
               </span>
             </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trophy } from 'lucide-react';
 import type { LiftProgress, LiftTrend, PersonalBest } from '../types';
+import { COLOR } from '../../../theme/colors';
 
 interface StrengthPanelProps {
   lifts: LiftProgress[];
@@ -8,10 +9,14 @@ interface StrengthPanelProps {
 }
 
 const TREND_STYLE: Record<LiftTrend, { label: string; cls: string; stroke: string }> = {
-  rising: { label: 'RISING', cls: 'text-o1-ok border-o1-ok/30', stroke: '#4F8F9A' },
-  steady: { label: 'STEADY', cls: 'text-neutral-300 border-white/[0.12]', stroke: '#c4bda8' },
-  plateau: { label: 'PLATEAU', cls: 'text-amber-500 border-amber-500/30', stroke: '#f7c600' },
-  declining: { label: 'DECLINING', cls: 'text-red-500 border-red-500/30', stroke: '#C4121A' },
+  rising: { label: 'RISING', cls: 'text-o1-ok border-o1-ok/30', stroke: COLOR.teal },
+  steady: { label: 'STEADY', cls: 'text-o1-stone border-white/[0.12]', stroke: COLOR.muted },
+  plateau: { label: 'PLATEAU', cls: 'text-o1-yellow border-o1-yellow/30', stroke: COLOR.yellow },
+  declining: {
+    label: 'DECLINING',
+    cls: 'text-o1-crimson border-o1-crimson/30',
+    stroke: COLOR.crimson,
+  },
 };
 
 const Sparkline: React.FC<{ series: LiftProgress['series']; stroke: string }> = ({
@@ -57,16 +62,16 @@ const shortDay = (key: string) => {
 export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBests }) => (
   <section className="w-full rounded-2xl bg-black border border-white/[0.07] p-4 space-y-4">
     <div>
-      <h3 className="text-o1-label font-mono font-bold tracking-[0.18em] text-neutral-400">
+      <h3 className="text-o1-label font-num font-bold tracking-[0.18em] text-o1-muted">
         Strength &amp; Progression
       </h3>
-      <p className="text-o1-label text-neutral-500 mt-0.5">
+      <p className="text-o1-label text-o1-faint mt-0.5">
         Estimated 1RM (Epley), best set per session
       </p>
     </div>
 
     {lifts.length === 0 ? (
-      <p className="text-xs text-neutral-500 leading-relaxed py-2">
+      <p className="text-xs text-o1-faint leading-relaxed py-2">
         Log at least two sessions of a lift (1–12 reps with load) and its estimated 1RM curve, PBs
         and plateau detection appear here.
       </p>
@@ -83,24 +88,24 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-white truncate">{lift.name}</span>
                   <span
-                    className={`shrink-0 px-2 py-0.5 rounded-full border text-o1-label font-mono font-bold tracking-wider ${style.cls}`}
+                    className={`shrink-0 px-2 py-0.5 rounded-full border text-o1-label font-num font-bold tracking-wider ${style.cls}`}
                   >
                     {style.label}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-o1-label font-mono text-neutral-500">
+                <div className="flex items-center gap-3 text-o1-label font-num text-o1-faint">
                   <span>
-                    e1RM <span className="text-neutral-200 font-bold">{lift.currentE1rm}</span> kg
+                    e1RM <span className="text-o1-ink-soft font-bold">{lift.currentE1rm}</span> kg
                   </span>
                   <span>
                     vs prior 4w{' '}
                     <span
                       className={
                         lift.changePct === null
-                          ? 'text-neutral-500'
+                          ? 'text-o1-faint'
                           : lift.changePct >= 0
                             ? 'text-o1-ok'
-                            : 'text-red-500'
+                            : 'text-o1-crimson'
                       }
                     >
                       {lift.changePct === null
@@ -109,7 +114,7 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
                     </span>
                   </span>
                 </div>
-                <div className="text-o1-label font-mono text-neutral-600">
+                <div className="text-o1-label font-num text-o1-dim">
                   Best {lift.bestE1rm} kg · {shortDay(lift.bestDay)} · {lift.sessions} sessions
                 </div>
               </div>
@@ -121,12 +126,12 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
     )}
 
     <div className="space-y-2 pt-1 border-t border-white/[0.05]">
-      <h4 className="pt-3 text-o1-label font-mono font-bold tracking-[0.18em] text-neutral-400 flex items-center gap-1.5">
+      <h4 className="pt-3 text-o1-label font-num font-bold tracking-[0.18em] text-o1-muted flex items-center gap-1.5">
         <Trophy className="w-3.5 h-3.5 text-o1-crimson" />
         Personal bests · 60 days
       </h4>
       {personalBests.length === 0 ? (
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-o1-faint">
           No new bests yet. Beat your estimated max on any lift and it shows here.
         </p>
       ) : (
@@ -137,12 +142,12 @@ export const StrengthPanel: React.FC<StrengthPanelProps> = ({ lifts, personalBes
               className="flex items-center justify-between gap-3 min-h-[36px] text-xs"
             >
               <div className="min-w-0">
-                <div className="text-neutral-200 font-semibold truncate">{pb.exercise}</div>
-                <div className="text-o1-label font-mono text-neutral-500">
+                <div className="text-o1-ink-soft font-semibold truncate">{pb.exercise}</div>
+                <div className="text-o1-label font-num text-o1-faint">
                   {pb.weightKg} kg × {pb.reps} · {shortDay(pb.day)}
                 </div>
               </div>
-              <span className="font-mono font-black text-white shrink-0">{pb.e1rm} kg</span>
+              <span className="font-num font-black text-white shrink-0">{pb.e1rm} kg</span>
             </li>
           ))}
         </ul>

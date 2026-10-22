@@ -66,7 +66,7 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
           </span>
           {tracksCaffeine && (
             <span
-              className={`inline-flex items-center gap-1 text-o1-label tabular-nums ${overCaffeine ? 'text-amber-500' : 'text-o1-muted'}`}
+              className={`inline-flex items-center gap-1 text-o1-label tabular-nums ${overCaffeine ? 'text-o1-yellow' : 'text-o1-muted'}`}
             >
               <Coffee className="w-3 h-3" aria-hidden />
               {caffeineToday} / {CAFFEINE_DAILY_LIMIT_MG} mg caffeine
@@ -75,12 +75,12 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
         </div>
         <div className="h-1 rounded-full bg-white/[0.08] overflow-hidden">
           <div
-            className="h-full rounded-full bg-emerald-600 transition-[width] duration-300"
+            className="h-full rounded-full bg-o1-olive transition-[width] duration-300"
             style={{ width: `${(takenCount / stack.length) * 100}%` }}
           />
         </div>
         {overCaffeine && (
-          <p className="text-o1-label text-amber-500">
+          <p className="text-o1-label text-o1-yellow">
             Above the 400 mg daily guidance for healthy adults.
           </p>
         )}
@@ -123,9 +123,7 @@ export const SupplementTodayPane: React.FC<SupplementTodayPaneProps> = ({
                 >
                   <span
                     className={`w-5 h-5 rounded-lg flex items-center justify-center border shrink-0 ${
-                      isTaken
-                        ? 'bg-emerald-600 border-emerald-600 text-o1-text'
-                        : 'border-white/[0.14]'
+                      isTaken ? 'bg-o1-olive border-o1-olive text-o1-text' : 'border-white/[0.14]'
                     }`}
                   >
                     {isTaken && <Check className="w-3.5 h-3.5 stroke-[3]" />}

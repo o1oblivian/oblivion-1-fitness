@@ -5,6 +5,7 @@ import { useSimpleMode } from '../../../stores/useDisplayPrefs';
 import { useOblivionReport } from '../../report/useOblivionReport';
 import { analyseAllLifts } from '../../report/reportEngine';
 import type { LiftProgress, LiftTrend } from '../../report/types';
+import { COLOR } from '../../../theme/colors';
 
 type View = 'lifts' | 'bests' | 'stuck';
 
@@ -12,31 +13,31 @@ const TREND: Record<LiftTrend, { simple: string; pro: string; cls: string; strok
   rising: {
     simple: 'Going up',
     pro: 'Rising',
-    cls: 'text-emerald-500 border-emerald-500/30',
-    stroke: '#10b981',
+    cls: 'text-o1-olive border-o1-olive/30',
+    stroke: COLOR.emerald,
   },
   steady: {
     simple: 'Holding',
     pro: 'Steady',
     cls: 'text-o1-muted border-white/[0.12]',
-    stroke: '#C4BDA8',
+    stroke: COLOR.muted,
   },
   plateau: {
     simple: 'Stuck',
     pro: 'Plateau',
-    cls: 'text-amber-500 border-amber-500/30',
-    stroke: '#f7c600',
+    cls: 'text-o1-yellow border-o1-yellow/30',
+    stroke: COLOR.yellow,
   },
   declining: {
     simple: 'Dropping',
     pro: 'Declining',
     cls: 'text-o1-crimson border-o1-crimson/40',
-    stroke: '#C4121A',
+    stroke: COLOR.crimson,
   },
 };
 
-const PILL_OFF = 'bg-o1-canvas text-[#FFFFFF] border border-white/[0.14]';
-const PILL_ON = 'bg-[#FFFFFF] text-o1-surface border border-[#FFFFFF]';
+const PILL_OFF = 'bg-o1-canvas text-o1-pure border border-white/[0.14]';
+const PILL_ON = 'bg-o1-pure text-o1-surface border border-o1-pure';
 
 function dayOf(key: string): Date {
   const [y, m, d] = key.split('-').map(Number);

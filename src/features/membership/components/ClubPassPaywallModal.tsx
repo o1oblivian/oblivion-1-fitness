@@ -111,7 +111,7 @@ export const ClubPassPaywallModal: React.FC = () => {
       <div className="o1-sheet-card o1-sheet-tall bg-o1-card border border-white/[0.07] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] bg-o1-card">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-zinc-400">
+            <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-muted">
               <Sparkles className="w-4 h-4" />
             </div>
             <h2 className="text-sm font-sans font-semibold text-white">Club Pass</h2>
@@ -119,7 +119,7 @@ export const ClubPassPaywallModal: React.FC = () => {
           <button
             onClick={closePaywall}
             aria-label="Close"
-            className="p-1.5 text-neutral-400 hover:text-white rounded-full cursor-pointer transition"
+            className="p-1.5 text-o1-muted hover:text-white rounded-full cursor-pointer transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -137,10 +137,10 @@ export const ClubPassPaywallModal: React.FC = () => {
                 role="tab"
                 aria-selected={audience === tab}
                 onClick={() => switchAudience(tab)}
-                className={`py-2 rounded-lg text-o1-label font-mono font-bold uppercase tracking-wider cursor-pointer transition ${
+                className={`py-2 rounded-lg text-o1-label font-num font-bold uppercase tracking-wider cursor-pointer transition ${
                   audience === tab
                     ? 'bg-o1-card text-white border border-white/[0.07]'
-                    : 'text-neutral-400 hover:text-white'
+                    : 'text-o1-muted hover:text-white'
                 }`}
               >
                 {tab}
@@ -151,8 +151,8 @@ export const ClubPassPaywallModal: React.FC = () => {
           {audience === 'athletes' && (
             <div className="space-y-1.5 py-0.5">
               {PERKS.map((p) => (
-                <div key={p} className="flex items-center gap-2 text-xs font-mono text-neutral-200">
-                  <Check className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                <div key={p} className="flex items-center gap-2 text-xs font-num text-o1-ink-soft">
+                  <Check className="w-3.5 h-3.5 text-o1-muted shrink-0" />
                   <span>{p}</span>
                 </div>
               ))}
@@ -176,22 +176,20 @@ export const ClubPassPaywallModal: React.FC = () => {
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold font-mono text-white">{plan.name}</span>
+                    <span className="text-xs font-bold font-num text-white">{plan.name}</span>
                     {plan.badge && (
-                      <span className="text-o1-label font-mono px-2 py-0.5 rounded-full bg-o1-well text-zinc-400 border border-white/[0.07] font-bold">
+                      <span className="text-o1-label font-num px-2 py-0.5 rounded-full bg-o1-well text-o1-muted border border-white/[0.07] font-bold">
                         {plan.badge}
                       </span>
                     )}
                   </div>
-                  <span className="text-o1-label font-mono text-neutral-400 block mt-0.5">
+                  <span className="text-o1-label font-num text-o1-muted block mt-0.5">
                     {plan.description}
                   </span>
                 </div>
-                <span className="text-sm font-black font-mono text-white shrink-0 text-right">
+                <span className="text-sm font-black font-num text-white shrink-0 text-right">
                   {priceOf(plan)}
-                  <span className="text-o1-label font-normal text-neutral-400">
-                    {plan.periodText}
-                  </span>
+                  <span className="text-o1-label font-normal text-o1-muted">{plan.periodText}</span>
                 </span>
               </button>
             ))}
@@ -199,7 +197,7 @@ export const ClubPassPaywallModal: React.FC = () => {
           {notice && (
             <div
               role="alert"
-              className="p-3 rounded-2xl bg-o1-warn-wash border border-amber-500/30 text-o1-warn-ink text-xs font-mono text-center flex items-center justify-center gap-2"
+              className="p-3 rounded-2xl bg-o1-warn-wash border border-o1-yellow/30 text-o1-warn-ink text-xs font-num text-center flex items-center justify-center gap-2"
             >
               <ShieldCheck className="w-4 h-4 shrink-0" />
               <span>{notice}</span>
@@ -227,12 +225,12 @@ export const ClubPassPaywallModal: React.FC = () => {
           </button>
 
           {storePlans.detail ? (
-            <p className="text-o1-label font-mono text-neutral-500 text-center break-words">
+            <p className="text-o1-label font-num text-o1-faint text-center break-words">
               {storePlans.detail}
             </p>
           ) : null}
 
-          <div className="flex items-center justify-center gap-3 text-o1-label font-sans text-neutral-400">
+          <div className="flex items-center justify-center gap-3 text-o1-label font-sans text-o1-muted">
             <button
               type="button"
               onClick={() => void openLegalUrl('terms')}
@@ -250,19 +248,19 @@ export const ClubPassPaywallModal: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-o1-label font-mono text-neutral-400 px-1">
+          <div className="flex items-center justify-between text-o1-label font-num text-o1-muted px-1">
             <button
               onClick={handleRestore}
               disabled={isRestoring}
-              className="text-zinc-400 hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
+              className="text-o1-muted hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
             >
-              <RotateCcw className={`w-3 h-3 text-zinc-400 ${isRestoring ? 'animate-spin' : ''}`} />
+              <RotateCcw className={`w-3 h-3 text-o1-muted ${isRestoring ? 'animate-spin' : ''}`} />
               <span>{isRestoring ? 'Restoring...' : 'Restore Purchases'}</span>
             </button>
             <span>{kind === 'lifetime' ? 'One-time payment' : 'Cancel anytime in Store'}</span>
           </div>
 
-          <p className="text-o1-label font-mono text-neutral-500 text-center leading-tight">
+          <p className="text-o1-label font-num text-o1-faint text-center leading-tight">
             {kind === 'lifetime'
               ? 'Founder Pass is a one-time, non-recurring purchase. Billed via Apple App Store or Google Play.'
               : 'Subscriptions auto-renew unless cancelled 24h before period end. Billed via Apple App Store or Google Play.'}

@@ -54,7 +54,7 @@ export const RestTimerBar: React.FC = () => {
     >
       <div className="flex items-center gap-3 pl-4 pr-1.5 h-12">
         <span
-          className={`font-mono font-light text-o1-heading tabular-nums leading-none ${warning ? 'text-o1-crimson' : 'text-o1-text'}`}
+          className={`font-num font-light text-o1-heading tabular-nums leading-none ${warning ? 'text-o1-crimson' : 'text-o1-text'}`}
         >
           {clock(remaining)}
         </span>

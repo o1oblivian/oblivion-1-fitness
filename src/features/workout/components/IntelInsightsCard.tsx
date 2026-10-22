@@ -33,7 +33,7 @@ export const IntelInsightsCard: React.FC = () => {
         />
 
         <span className="relative min-w-0 flex-1">
-          <span className="block text-o1-control font-light tracking-wide text-[#FFFFFF] leading-tight">
+          <span className="block text-o1-control font-light tracking-wide text-o1-pure leading-tight">
             Oblivion Intel Insights
           </span>
           <span className="flex flex-wrap items-center gap-x-1.5 mt-1.5 text-o1-label text-o1-muted leading-none">

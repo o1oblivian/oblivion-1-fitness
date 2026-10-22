@@ -64,7 +64,7 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
 
   const head = (
     <thead>
-      <tr className="text-o1-label text-neutral-500">
+      <tr className="text-o1-label text-o1-faint">
         <th className="text-left font-medium py-1.5 pr-2 border-b border-white/[0.07]">
           {nameLabel}
         </th>
@@ -97,7 +97,7 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
                 tactileEngine.triggerSelectionBuzz();
                 setOpenNameId(nameOpen ? null : row.id);
               }}
-              className={`w-full min-h-[36px] text-left bg-transparent border-0 p-0 text-o1-label text-neutral-200 ${nameOpen ? 'whitespace-normal' : 'truncate'} ${canExpandName ? 'cursor-pointer' : 'cursor-default'}`}
+              className={`w-full min-h-[36px] text-left bg-transparent border-0 p-0 text-o1-label text-o1-ink-soft ${nameOpen ? 'whitespace-normal' : 'truncate'} ${canExpandName ? 'cursor-pointer' : 'cursor-default'}`}
             >
               {nameOpen ? row.name : short}
             </button>
@@ -107,7 +107,7 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
             return (
               <td
                 key={`${row.id}-${columns[index]?.label || index}`}
-                className="p-0 text-right text-neutral-300 tabular-nums align-middle"
+                className="p-0 text-right text-o1-stone tabular-nums align-middle"
               >
                 {opensSets ? (
                   <button
@@ -118,7 +118,7 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
                       tactileEngine.triggerSelectionBuzz();
                       setOpenSetsId(setsOpen ? null : row.id);
                     }}
-                    className={`w-full min-h-[36px] px-1 text-right bg-transparent border-0 tabular-nums touch-manipulation ${index === row.cells.length - 1 ? 'pr-1' : ''} ${setsOpen && index === 0 ? 'text-white underline decoration-white/40 underline-offset-4' : 'text-neutral-100'}`}
+                    className={`w-full min-h-[36px] px-1 text-right bg-transparent border-0 tabular-nums touch-manipulation ${index === row.cells.length - 1 ? 'pr-1' : ''} ${setsOpen && index === 0 ? 'text-white underline decoration-white/40 underline-offset-4' : 'text-o1-bone'}`}
                   >
                     {cell}
                   </button>
@@ -136,11 +136,11 @@ export const LogLedger: React.FC<LogLedgerProps> = ({ nameLabel, columns, rows, 
         {setsOpen &&
           details.map((detail) => (
             <tr key={detail.id} className="border-b border-white/[0.04]">
-              <td className="py-1 pr-2 pl-3 text-neutral-500 tabular-nums">{detail.name}</td>
+              <td className="py-1 pr-2 pl-3 text-o1-faint tabular-nums">{detail.name}</td>
               {detail.cells.map((cell, index) => (
                 <td
                   key={`${detail.id}-${index}`}
-                  className={`py-1 pl-1 text-right text-neutral-400 tabular-nums ${index === detail.cells.length - 1 ? 'pr-1' : ''}`}
+                  className={`py-1 pl-1 text-right text-o1-muted tabular-nums ${index === detail.cells.length - 1 ? 'pr-1' : ''}`}
                 >
                   {cell}
                 </td>

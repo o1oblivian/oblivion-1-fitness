@@ -57,7 +57,7 @@ const MetricField: React.FC<MetricFieldProps> = ({
     <div className="min-w-0">
       <label
         htmlFor={id}
-        className="block text-o1-label font-tactical text-neutral-400 font-semibold tracking-wide mb-1"
+        className="block text-o1-label font-tactical text-o1-muted font-semibold tracking-wide mb-1"
       >
         {label}
       </label>
@@ -81,10 +81,10 @@ const MetricField: React.FC<MetricFieldProps> = ({
           }}
           onBlur={() => setEditing(false)}
           onChange={(e) => change(e.target.value)}
-          className="min-w-0 flex-1 bg-transparent text-lg font-mono font-bold text-white placeholder:text-neutral-600 focus:outline-none p-0"
+          className="min-w-0 flex-1 bg-transparent text-lg font-num font-bold text-white placeholder:text-o1-dim focus:outline-none p-0"
         />
         {unitLabel ? (
-          <span className="ml-1.5 shrink-0 text-xs font-mono font-semibold text-neutral-400">
+          <span className="ml-1.5 shrink-0 text-xs font-num font-semibold text-o1-muted">
             {unitLabel}
           </span>
         ) : null}
@@ -154,7 +154,7 @@ export const BodyMetricsEditor: React.FC<BodyMetricsEditorProps> = ({
         enterKeyHint="done"
       />
     </div>
-    <p className="text-o1-label text-neutral-500 leading-snug px-0.5">
+    <p className="text-o1-label text-o1-faint leading-snug px-0.5">
       Used for your calorie target and training load. Change units in Settings.
     </p>
   </div>

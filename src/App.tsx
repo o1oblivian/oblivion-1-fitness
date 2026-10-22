@@ -327,19 +327,19 @@ export default function App() {
             {membershipSuccessBanner && (
               <div className="fixed top-[max(1rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-full max-w-[420px] px-4 bg-o1-card border border-white/[0.07] rounded-2xl p-4 shadow-lg flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-200">
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-5 h-5 text-zinc-300 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-o1-stone shrink-0" />
                   <div>
                     <p className="text-xs font-tactical font-black text-white tracking-wider">
                       Membership Activated
                     </p>
-                    <p className="text-o1-label font-mono text-zinc-400">
+                    <p className="text-o1-label font-num text-o1-muted">
                       Revenuecat IN-APP purchase verified
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setMembershipSuccessBanner(false)}
-                  className="p-1 text-neutral-400 hover:text-white rounded-full cursor-pointer"
+                  className="p-1 text-o1-muted hover:text-white rounded-full cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>

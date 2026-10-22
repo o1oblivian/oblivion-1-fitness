@@ -72,7 +72,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
               : 'border-white/[0.08] bg-o1-surface text-o1-muted hover:text-o1-text'
           }`}
         >
-          <Scale className="w-4 h-4 mx-auto mb-1 text-sky-600" />
+          <Scale className="w-4 h-4 mx-auto mb-1 text-o1-blue" />
           <span className="text-xs block font-bold">Maintain / Recomp</span>
           <span className="text-o1-label tabular-nums opacity-70 block">0 kcal</span>
         </button>
@@ -91,7 +91,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
               : 'border-white/[0.08] bg-o1-surface text-o1-muted hover:text-o1-text'
           }`}
         >
-          <TrendingUp className="w-4 h-4 mx-auto mb-1 text-amber-500" />
+          <TrendingUp className="w-4 h-4 mx-auto mb-1 text-o1-yellow" />
           <span className="text-xs block font-bold">Lean Mass Gain</span>
           <span className="text-o1-label tabular-nums opacity-70 block">+250 kcal</span>
         </button>
@@ -110,7 +110,7 @@ export const MifflinGoalSection: React.FC<MifflinGoalSectionProps> = ({
               : 'border-white/[0.08] bg-o1-surface text-o1-muted hover:text-o1-text'
           }`}
         >
-          <Zap className="w-4 h-4 mx-auto mb-1 text-amber-500" />
+          <Zap className="w-4 h-4 mx-auto mb-1 text-o1-yellow" />
           <span className="text-xs block font-bold">Muscle Bulk</span>
           <span className="text-o1-label tabular-nums opacity-70 block">+450 kcal</span>
         </button>

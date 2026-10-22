@@ -280,7 +280,7 @@ export function WorkoutLogFields({
         <div className="space-y-3">
           {!focusLift && (
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">
                 Duration (MIN)
               </label>
               <input
@@ -297,7 +297,7 @@ export function WorkoutLogFields({
             focusLift && lift.name !== focusLift ? null : (
               <div key={`${lift.name}-${liftIndex}`} className="space-y-1.5">
                 <div className="text-o1-label font-sans font-semibold text-white">{lift.name}</div>
-                <div className="grid grid-cols-[1.25rem_1fr_1fr] gap-2 text-o1-label text-neutral-500">
+                <div className="grid grid-cols-[1.25rem_1fr_1fr] gap-2 text-o1-label text-o1-faint">
                   <span />
                   <span>Reps</span>
                   <span>kg</span>
@@ -307,9 +307,7 @@ export function WorkoutLogFields({
                     key={`${lift.name}-${setIndex}`}
                     className="grid grid-cols-[1.25rem_1fr_1fr] gap-2 items-center"
                   >
-                    <span className="text-o1-label text-neutral-500 tabular-nums">
-                      {setIndex + 1}
-                    </span>
+                    <span className="text-o1-label text-o1-faint tabular-nums">{setIndex + 1}</span>
                     <input
                       type="number"
                       value={set.reps}
@@ -361,7 +359,7 @@ export function WorkoutLogFields({
       ) : (
         <div className="space-y-3.5">
           <div>
-            <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+            <label className="text-o1-label text-o1-muted font-bold block mb-1">
               Routine Split
             </label>
             <div className="grid grid-cols-3 gap-1.5">
@@ -373,7 +371,7 @@ export function WorkoutLogFields({
                   className={`py-2 px-1 text-o1-label rounded-xl font-bold transition-all ${
                     workoutRoutine === r
                       ? 'bg-o1-crimson text-white'
-                      : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
+                      : 'bg-o1-well border border-white/[0.07] text-o1-muted hover:text-white'
                   }`}
                 >
                   {r.split(' ')[0]}
@@ -384,7 +382,7 @@ export function WorkoutLogFields({
 
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">
                 Volume (KG)
               </label>
               <input
@@ -397,9 +395,7 @@ export function WorkoutLogFields({
               />
             </div>
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
-                Total Sets
-              </label>
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">Total Sets</label>
               <input
                 type="number"
                 value={workoutSets}
@@ -410,7 +406,7 @@ export function WorkoutLogFields({
               />
             </div>
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">
                 Duration (MIN)
               </label>
               <input
@@ -425,7 +421,7 @@ export function WorkoutLogFields({
           </div>
 
           <div className="p-3 rounded-xl bg-white/[0.03] space-y-2">
-            <span className="text-o1-label text-neutral-400 font-bold tracking-wider block">
+            <span className="text-o1-label text-o1-muted font-bold tracking-wider block">
               Primary Exercise Anchor
             </span>
             <input
@@ -437,7 +433,7 @@ export function WorkoutLogFields({
             />
             <div className="grid grid-cols-2 gap-2 pt-1">
               <div>
-                <label className="text-o1-label text-neutral-500 block">Weight (kg)</label>
+                <label className="text-o1-label text-o1-faint block">Weight (kg)</label>
                 <input
                   type="number"
                   value={exerciseWeight}
@@ -447,7 +443,7 @@ export function WorkoutLogFields({
                 />
               </div>
               <div>
-                <label className="text-o1-label text-neutral-500 block">Reps</label>
+                <label className="text-o1-label text-o1-faint block">Reps</label>
                 <input
                   type="number"
                   value={exerciseReps}

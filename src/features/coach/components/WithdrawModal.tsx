@@ -90,7 +90,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
             <span className="text-xs font-tactical text-o1-muted tracking-wider font-bold block">
               Available for Payout
             </span>
-            <div className="text-3xl font-mono font-black text-o1-text tracking-tight">
+            <div className="text-3xl font-num font-black text-o1-text tracking-tight">
               $
               {availableBalance.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
@@ -104,7 +104,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               Withdrawal Amount ($ AUD, minimum $5)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-o1-muted font-mono text-sm">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-o1-muted font-num text-sm">
                 $
               </span>
               <input
@@ -115,7 +115,7 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                 value={amountStr}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setAmountStr(sanitizeNumericInput(e.target.value))}
-                className="w-full pl-8 pr-4 py-3 bg-o1-surface border border-o1-gold/35 rounded-xl text-o1-text font-mono font-bold text-base focus:outline-none focus:border-o1-gold"
+                className="w-full pl-8 pr-4 py-3 bg-o1-surface border border-o1-gold/35 rounded-xl text-o1-text font-num font-bold text-base focus:outline-none focus:border-o1-gold"
               />
             </div>
             <div className="grid grid-cols-3 gap-2 pt-1">
@@ -137,11 +137,11 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
               <Building2 className="w-4 h-4 text-o1-gold shrink-0" />
               <span className="truncate font-medium">To: {destinationLabel}</span>
             </div>
-            <span className="text-o1-gold font-mono font-bold shrink-0 ml-2">Bank transfer</span>
+            <span className="text-o1-gold font-num font-bold shrink-0 ml-2">Bank transfer</span>
           </div>
 
           {error && (
-            <div className="p-2.5 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 text-xs font-sans flex items-center gap-2">
+            <div className="p-2.5 rounded-xl bg-o1-crimson-wash/40 border border-o1-crimson/30 text-o1-crimson-pale text-xs font-sans flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>

@@ -72,7 +72,7 @@ export const LogView: React.FC = () => {
   return (
     <div
       id="log-view"
-      className="space-y-2.5 pb-10 pt-1 relative select-none min-h-full h-auto text-neutral-100 transition-colors duration-200"
+      className="space-y-2.5 pb-10 pt-1 relative select-none min-h-full h-auto text-o1-bone transition-colors duration-200"
     >
       {/* ============================================================== */}
       {/* 1. SINGLE UNIFIED TOP BOARD CARD                               */}
@@ -99,9 +99,9 @@ export const LogView: React.FC = () => {
         </span>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold text-white">The Oblivion Report</div>
-          <div className="text-o1-label text-neutral-500">Score, muscle map, strength trends</div>
+          <div className="text-o1-label text-o1-faint">Score, muscle map, strength trends</div>
         </div>
-        <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+        <ChevronRight className="w-4 h-4 text-o1-faint shrink-0" />
       </button>
 
       {/* ============================================================== */}

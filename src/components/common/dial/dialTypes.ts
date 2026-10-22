@@ -1,3 +1,4 @@
+import { COLOR } from '../../../theme/colors';
 /**
  * Oblivion 1 Fitness Club - Dial Modal Types & Utility Math
  * Strict File Ceiling: < 140 lines
@@ -60,14 +61,14 @@ export function resolveDialConfig(
               : [10, 20, 30, 40, 50]);
 
   const accentColor = isWeight
-    ? '#C4121A'
+    ? COLOR.crimson
     : isReps
-      ? '#f7c600'
+      ? COLOR.yellow
       : isSteps
-        ? '#0284c7'
+        ? COLOR.sky
         : isRpe
-          ? '#059669'
-          : '#C4121A';
+          ? COLOR.emeraldDeep
+          : COLOR.crimson;
 
   return {
     unit: upper,

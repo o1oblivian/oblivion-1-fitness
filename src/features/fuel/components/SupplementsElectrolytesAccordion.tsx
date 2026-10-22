@@ -4,6 +4,7 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { useFuelStore, Electrolytes } from '../store/useFuelStore';
 import { SupplementTodayPane } from './supplements/SupplementTodayPane';
 import { SupplementStackPane } from './supplements/SupplementStackPane';
+import { COLOR } from '../../../theme/colors';
 
 const ELECTROLYTE_TARGETS: Array<{
   key: keyof Electrolytes;
@@ -12,9 +13,9 @@ const ELECTROLYTE_TARGETS: Array<{
   step: number;
   color: string;
 }> = [
-  { key: 'sodium', name: 'Sodium', target: 3000, step: 250, color: '#0284c7' },
-  { key: 'potassium', name: 'Potassium', target: 3500, step: 250, color: '#059669' },
-  { key: 'magnesium', name: 'Magnesium', target: 400, step: 50, color: '#f7c600' },
+  { key: 'sodium', name: 'Sodium', target: 3000, step: 250, color: COLOR.sky },
+  { key: 'potassium', name: 'Potassium', target: 3500, step: 250, color: COLOR.emeraldDeep },
+  { key: 'magnesium', name: 'Magnesium', target: 400, step: 50, color: COLOR.yellow },
 ];
 
 type Pane = 'today' | 'stack' | 'salts';

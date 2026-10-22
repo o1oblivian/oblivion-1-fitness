@@ -16,8 +16,8 @@ export const TIER_SUMMARY: Record<BlueprintTier, string> = {
 };
 
 export const TIER_DOT: Record<BlueprintTier, string> = {
-  BEGINNER: 'bg-emerald-500',
-  INTERMEDIATE: 'bg-amber-400',
+  BEGINNER: 'bg-o1-olive',
+  INTERMEDIATE: 'bg-o1-yellow',
   ADVANCED: 'bg-o1-crimson',
 };
 

@@ -276,7 +276,7 @@ export const WorkoutDispatchStudio: React.FC<WorkoutDispatchStudioProps> = ({
           <div
             role="status"
             aria-live="polite"
-            className="p-3 bg-emerald-500/10 border-b border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2"
+            className="p-3 bg-o1-olive/10 border-b border-o1-olive/30 text-o1-olive text-xs font-bold flex items-center justify-center gap-2"
           >
             <CheckCircle2 size={16} />
             {toast}

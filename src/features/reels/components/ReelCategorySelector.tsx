@@ -40,11 +40,11 @@ export const ReelCategorySelector: React.FC<ReelCategorySelectorProps> = ({
               className={`p-2.5 rounded-2xl border text-left flex flex-col gap-0.5 transition-colors cursor-pointer ${
                 isSelected
                   ? 'bg-o1-crimson/10 border-o1-crimson text-white'
-                  : 'bg-o1-well border-white/[0.07] text-neutral-300 hover:text-white'
+                  : 'bg-o1-well border-white/[0.07] text-o1-stone hover:text-white'
               }`}
             >
               <span className="text-o1-caption">{cat.label}</span>
-              <span className="text-o1-label text-neutral-500 leading-snug">{cat.desc}</span>
+              <span className="text-o1-label text-o1-faint leading-snug">{cat.desc}</span>
             </button>
           );
         })}
@@ -67,7 +67,7 @@ export const ReelCategorySelector: React.FC<ReelCategorySelectorProps> = ({
               className={`px-2.5 py-1 rounded-xl text-o1-label transition-colors cursor-pointer ${
                 isSelected
                   ? 'bg-o1-crimson text-white'
-                  : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
+                  : 'bg-o1-well border border-white/[0.07] text-o1-muted hover:text-white'
               }`}
             >
               {titleCase(tag)}

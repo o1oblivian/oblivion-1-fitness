@@ -27,10 +27,10 @@ const NavRow: React.FC<{ label: string; first?: boolean; onClick: () => void }> 
       first ? '' : 'border-t border-white/[0.05]'
     }`}
   >
-    <span className="text-xs font-sans font-medium text-neutral-300 group-hover:text-white">
+    <span className="text-xs font-sans font-medium text-o1-stone group-hover:text-white">
       {label}
     </span>
-    <ChevronRight className="w-4 h-4 text-neutral-400 group-hover:text-white shrink-0" />
+    <ChevronRight className="w-4 h-4 text-o1-muted group-hover:text-white shrink-0" />
   </button>
 );
 
@@ -45,7 +45,7 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
 }) => {
   return (
     <div className="space-y-2">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1">
         Help, Support &amp; Legal Compliance
       </h3>
 
@@ -61,7 +61,7 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onSendFeedback();
             }}
-            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold transition-all cursor-pointer active:scale-95"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-o1-ink-soft text-xs font-sans font-semibold transition-all cursor-pointer active:scale-95"
           >
             Send feedback
           </button>
@@ -71,9 +71,9 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onOpenTerms();
             }}
-            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold cursor-pointer"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-o1-ink-soft text-xs font-sans font-semibold cursor-pointer"
           >
-            <FileText className="w-3.5 h-3.5 text-neutral-400" />
+            <FileText className="w-3.5 h-3.5 text-o1-muted" />
             <span>Terms</span>
           </button>
           <button
@@ -83,7 +83,7 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
               if (onOpenPrivacy) onOpenPrivacy();
               else onOpenTerms();
             }}
-            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-sans font-semibold cursor-pointer"
+            className="o1-pill border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-o1-ink-soft text-xs font-sans font-semibold cursor-pointer"
           >
             <Lock className="w-3.5 h-3.5 text-o1-teal" />
             <span>Privacy</span>
@@ -97,9 +97,9 @@ export const SettingsHelpSupportSection: React.FC<HelpSupportSectionProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onOpenCitations();
             }}
-            className="w-full min-h-[44px] text-center text-o1-label font-sans text-neutral-400 hover:text-neutral-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full min-h-[44px] text-center text-o1-label font-sans text-o1-muted hover:text-o1-ink-soft transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
+            <ShieldAlert className="w-3.5 h-3.5 text-o1-yellow" />
             <span>Health &amp; Biomechanical Disclaimers</span>
           </button>
         </div>

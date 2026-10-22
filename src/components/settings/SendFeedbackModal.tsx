@@ -37,8 +37,8 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
       <div className="o1-sheet-card w-full bg-o1-card border border-white/[0.07] p-5 shadow-xl flex flex-col overflow-y-auto text-white">
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-              <MessageSquare className="w-4 h-4 text-emerald-500" />
+            <div className="p-1.5 rounded-lg bg-o1-olive/10 border border-o1-olive/30">
+              <MessageSquare className="w-4 h-4 text-o1-olive" />
             </div>
             <div>
               <h2
@@ -47,7 +47,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
               >
                 Athlete Feedback Desk
               </h2>
-              <p className="text-o1-label font-mono text-neutral-500">
+              <p className="text-o1-label font-num text-o1-faint">
                 Shape the Next Oblivion 1 Release
               </p>
             </div>
@@ -59,7 +59,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-11 h-11 -mr-2 flex items-center justify-center text-neutral-400 hover:text-white rounded-full cursor-pointer"
+            className="w-11 h-11 -mr-2 flex items-center justify-center text-o1-muted hover:text-white rounded-full cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -70,7 +70,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
           className="py-4 space-y-3 flex-1 overflow-y-auto no-scrollbar"
         >
           <div className="space-y-1 text-center">
-            <label className="text-o1-label font-tactical font-bold text-neutral-500">
+            <label className="text-o1-label font-tactical font-bold text-o1-faint">
               Rate Athlete Experience
             </label>
             <div className="flex justify-center gap-2 pt-1">
@@ -87,7 +87,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
                   className="w-11 h-11 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer"
                 >
                   <Star
-                    className={`w-6 h-6 ${s <= rating ? 'text-amber-400 fill-amber-400' : 'text-neutral-700'}`}
+                    className={`w-6 h-6 ${s <= rating ? 'text-o1-yellow fill-o1-yellow' : 'text-o1-edge'}`}
                   />
                 </button>
               ))}
@@ -95,7 +95,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
           </div>
 
           <div className="space-y-1">
-            <label className="text-o1-label font-tactical font-bold text-neutral-500">
+            <label className="text-o1-label font-tactical font-bold text-o1-faint">
               Feature Focus
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -108,10 +108,10 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
                     setCategory(cat);
                   }}
                   aria-pressed={category === cat}
-                  className={`px-3 min-h-[44px] rounded-xl text-o1-label font-mono transition-all cursor-pointer ${
+                  className={`px-3 min-h-[44px] rounded-xl text-o1-label font-num transition-all cursor-pointer ${
                     category === cat
                       ? 'bg-o1-crimson text-white font-bold'
-                      : 'bg-o1-well border border-white/[0.07] text-neutral-300'
+                      : 'bg-o1-well border border-white/[0.07] text-o1-stone'
                   }`}
                 >
                   {cat}
@@ -123,7 +123,7 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
           <div className="space-y-1">
             <label
               htmlFor="feedback-text"
-              className="text-o1-label font-tactical font-bold text-neutral-500"
+              className="text-o1-label font-tactical font-bold text-o1-faint"
             >
               Feedback or Feature Request
             </label>
@@ -135,19 +135,19 @@ export const SendFeedbackModal: React.FC<SendFeedbackModalProps> = ({ isOpen, on
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Tell us what you love or what we can engineer better..."
-              className="w-full p-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono focus:outline-hidden focus:border-o1-crimson resize-none"
+              className="w-full p-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-num focus:outline-hidden focus:border-o1-crimson resize-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={!feedback.trim()}
-            className="w-full min-h-[44px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-tactical font-semibold tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
+            className="w-full min-h-[44px] rounded-xl bg-o1-olive hover:bg-o1-olive-strong text-white text-xs font-tactical font-semibold tracking-wider transition flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50"
           >
             <Send className="w-3.5 h-3.5" />
             <span>Write email</span>
           </button>
-          <p className="text-o1-label font-sans text-neutral-500 text-center">
+          <p className="text-o1-label font-sans text-o1-faint text-center">
             Opens your mail app with this feedback. Nothing is sent until you press send there.
           </p>
         </form>

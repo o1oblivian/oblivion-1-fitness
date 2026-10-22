@@ -68,7 +68,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               >
                 Contact support
               </h2>
-              <p className="text-o1-label font-mono text-neutral-500">We reply by email</p>
+              <p className="text-o1-label font-num text-o1-faint">We reply by email</p>
             </div>
           </div>
           <button
@@ -78,7 +78,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-11 h-11 -mr-2 flex items-center justify-center text-neutral-400 hover:text-white rounded-full cursor-pointer"
+            className="w-11 h-11 -mr-2 flex items-center justify-center text-o1-muted hover:text-white rounded-full cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -87,21 +87,17 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
         <form onSubmit={handleSend} className="py-4 space-y-3 flex-1 overflow-y-auto no-scrollbar">
           <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <Mail className="w-4 h-4 text-neutral-400 shrink-0" />
-              <span className="text-xs font-mono truncate text-neutral-300 select-text">
+              <Mail className="w-4 h-4 text-o1-muted shrink-0" />
+              <span className="text-xs font-num truncate text-o1-stone select-text">
                 {SUPPORT_EMAIL}
               </span>
             </div>
             <button
               type="button"
               onClick={() => void handleCopyEmail()}
-              className="min-h-[44px] px-3 rounded-xl bg-white/[0.08] text-o1-label font-mono flex items-center gap-1 hover:text-white cursor-pointer shrink-0"
+              className="min-h-[44px] px-3 rounded-xl bg-white/[0.08] text-o1-label font-num flex items-center gap-1 hover:text-white cursor-pointer shrink-0"
             >
-              {copied ? (
-                <Check className="w-3 h-3 text-emerald-400" />
-              ) : (
-                <Copy className="w-3 h-3" />
-              )}
+              {copied ? <Check className="w-3 h-3 text-o1-olive" /> : <Copy className="w-3 h-3" />}
               <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
@@ -109,7 +105,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           <div className="space-y-1">
             <label
               htmlFor="support-topic"
-              className="text-o1-label font-tactical font-bold text-neutral-500"
+              className="text-o1-label font-tactical font-bold text-o1-faint"
             >
               Topic
             </label>
@@ -117,7 +113,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               id="support-topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full min-h-[44px] px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono focus:outline-hidden focus:border-o1-crimson"
+              className="w-full min-h-[44px] px-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-num focus:outline-hidden focus:border-o1-crimson"
             >
               {TOPICS.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -130,7 +126,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
           <div className="space-y-1">
             <label
               htmlFor="support-message"
-              className="text-o1-label font-tactical font-bold text-neutral-500"
+              className="text-o1-label font-tactical font-bold text-o1-faint"
             >
               Message
             </label>
@@ -142,7 +138,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="What happened, and what were you trying to do?"
-              className="w-full p-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-mono focus:outline-hidden focus:border-o1-crimson resize-none select-text"
+              className="w-full p-3 rounded-xl bg-o1-well border border-white/[0.07] text-xs font-num focus:outline-hidden focus:border-o1-crimson resize-none select-text"
             />
           </div>
 
@@ -154,7 +150,7 @@ export const ContactSupportModal: React.FC<ContactSupportModalProps> = ({
             <Send className="w-3.5 h-3.5" />
             <span>Write email</span>
           </button>
-          <p className="text-o1-label font-sans text-neutral-500 text-center">
+          <p className="text-o1-label font-sans text-o1-faint text-center">
             Opens your mail app with this message. Nothing is sent until you press send there.
           </p>
         </form>

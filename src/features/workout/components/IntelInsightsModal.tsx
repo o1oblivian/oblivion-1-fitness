@@ -155,7 +155,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-11 h-11 -mr-2 -mt-1 rounded-xl hover:bg-white/[0.06] text-neutral-300 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-11 h-11 -mr-2 -mt-1 rounded-xl hover:bg-white/[0.06] text-o1-stone flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -170,7 +170,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                 className="blur-[6px] opacity-60 pointer-events-none space-y-3"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl border border-o1-emerald/40 flex items-center justify-center text-4xl font-light font-mono text-o1-emerald">
+                  <div className="w-16 h-16 rounded-2xl border border-o1-emerald/40 flex items-center justify-center text-4xl font-light font-num text-o1-emerald">
                     B
                   </div>
                   <div className="space-y-2 flex-1">
@@ -258,7 +258,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                         style={{ borderColor: `${TONE_HEX[gradeTone]}66` }}
                       >
                         <span
-                          className="text-5xl font-light font-mono leading-none"
+                          className="text-5xl font-light font-num leading-none"
                           style={{ color: TONE_HEX[gradeTone] }}
                         >
                           {weekly.score === null ? '--' : weekly.letter}
@@ -266,7 +266,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                       </div>
                       <div className="min-w-0">
                         <div className="text-o1-label text-o1-muted">Week grade</div>
-                        <div className="text-2xl font-light font-mono leading-none mt-0.5">
+                        <div className="text-2xl font-light font-num leading-none mt-0.5">
                           {weekly.score === null ? '--' : weekly.score}
                           <span className="text-sm text-o1-muted"> / 100</span>
                         </div>
@@ -322,7 +322,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                             className="rounded-xl bg-o1-surface border border-white/[0.07] px-3 py-2 min-h-[44px] flex items-baseline justify-between"
                           >
                             <span className="text-o1-label text-o1-muted">{p.label}</span>
-                            <span className="text-sm font-light font-mono">{p.value}</span>
+                            <span className="text-sm font-light font-num">{p.value}</span>
                           </div>
                         ))}
                     </div>
@@ -339,7 +339,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                               className="min-h-[44px] flex items-center justify-between gap-3 text-xs"
                             >
                               <span className="text-o1-text/85">{row.label}</span>
-                              <div className="flex items-center gap-4 font-mono">
+                              <div className="flex items-center gap-4 font-num">
                                 <span className="text-o1-text font-medium w-14 text-right">
                                   {fmtVal(row, row.now)}
                                 </span>
@@ -437,7 +437,7 @@ export const IntelInsightsModal: React.FC<IntelInsightsModalProps> = ({
                             className="min-h-[44px] flex items-center justify-between gap-3 text-xs"
                           >
                             <span className="text-o1-text font-semibold truncate">{l.name}</span>
-                            <span className="font-mono shrink-0 text-o1-muted">
+                            <span className="font-num shrink-0 text-o1-muted">
                               {l.currentE1rm} kg{' '}
                               <span
                                 className={

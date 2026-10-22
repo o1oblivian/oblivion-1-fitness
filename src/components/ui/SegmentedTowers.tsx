@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Award } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 import { rampColor, type TowerRamp } from './towerThemes';
+import { COLOR } from '../../theme/colors';
 
 export interface SegmentedTower {
   key: string;
@@ -44,7 +45,7 @@ const PEAK_ROW_H = 18;
 const VALUE_ROW_H = 17;
 const TRACK = 'rgba(255,255,255,0.035)';
 const TRACK_BORDER = 'rgba(255,255,255,0.05)';
-const CRIMSON = '#C4121A';
+const CRIMSON = COLOR.crimson;
 
 export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
   towers,
@@ -143,7 +144,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
               {showValues && (
                 <span
                   className={`flex items-center ${bold ? 'text-o1-label' : 'text-o1-label'} leading-none tabular-nums ${
-                    isPeak || isActive ? 'text-white font-bold' : 'text-neutral-400 font-medium'
+                    isPeak || isActive ? 'text-white font-bold' : 'text-o1-muted font-medium'
                   }`}
                   style={{ height: VALUE_ROW_H }}
                 >
@@ -181,7 +182,7 @@ export const SegmentedTowers: React.FC<SegmentedTowersProps> = ({
                   className={`text-o1-label tracking-wide leading-none ${
                     isActive
                       ? `${bold ? 'text-o1-text' : 'text-o1-crimson'} font-bold`
-                      : 'text-neutral-300 font-medium'
+                      : 'text-o1-stone font-medium'
                   }`}
                 >
                   {t.label}

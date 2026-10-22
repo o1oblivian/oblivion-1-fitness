@@ -81,7 +81,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
               <button
                 type="button"
                 onClick={() => setShowLiveScanner(true)}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-sm"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-o1-olive hover:bg-o1-olive text-white text-xs font-bold transition active:scale-95 cursor-pointer shadow-sm"
               >
                 <Video className="w-4 h-4" />
                 <span>Live Barcode Camera</span>
@@ -90,7 +90,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
           ) : null}
 
           <div className="flex items-center gap-2 bg-o1-well border border-white/[0.07] rounded-xl px-3 py-1.5">
-            <Scan className="w-4 h-4 text-neutral-400 shrink-0" />
+            <Scan className="w-4 h-4 text-o1-muted shrink-0" />
             <input
               type="text"
               value={barcodeInput}
@@ -99,7 +99,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
                 if (e.key === 'Enter') onBarcodeLookup();
               }}
               placeholder="Type the barcode number"
-              className="bg-transparent text-xs text-white placeholder-neutral-500 focus:outline-none flex-1 py-1"
+              className="bg-transparent text-xs text-white placeholder-o1-faint focus:outline-none flex-1 py-1"
             />
             <button
               type="button"
@@ -115,14 +115,14 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
 
       {/* Tab 2: Package Nutrition Facts OCR Guide Overlay */}
       {scanMode === 'package' && (
-        <p className="text-o1-label text-neutral-400 text-center">
+        <p className="text-o1-label text-o1-muted text-center">
           Fill the photo with the Nutrition Facts table.
         </p>
       )}
 
       {/* Tab 3: Plate Interactive Estimate Guide */}
       {scanMode === 'plate' && (
-        <p className="text-o1-label text-neutral-400 text-center">
+        <p className="text-o1-label text-o1-muted text-center">
           Photograph the whole plate from above.
         </p>
       )}
@@ -156,7 +156,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
           type="button"
           onClick={() => openPhoto('camera')}
           disabled={isLoading}
-          className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-white text-neutral-950 text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
+          className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-white text-o1-canvas text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Camera className="w-4 h-4" />
           <span>Take Photo</span>
@@ -165,7 +165,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
           type="button"
           onClick={() => openPhoto('photos')}
           disabled={isLoading}
-          className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
+          className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-o1-ink-soft text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Upload className="w-4 h-4" />
           <span>Upload Photo</span>

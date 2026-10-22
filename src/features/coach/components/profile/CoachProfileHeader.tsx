@@ -114,7 +114,7 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
       <div className="flex items-center gap-1">
         <h2 className="truncate text-o1-control font-semibold text-o1-text">{name}</h2>
         {verified ? (
-          <BadgeCheck size={16} className="shrink-0 text-sky-600" aria-label="Verified" />
+          <BadgeCheck size={16} className="shrink-0 text-o1-blue" aria-label="Verified" />
         ) : null}
         {onEdit ? (
           <button

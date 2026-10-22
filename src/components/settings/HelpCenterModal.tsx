@@ -39,7 +39,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
             </div>
             <div>
               <h2 className="text-sm font-bold tracking-wider font-tactical">Help</h2>
-              <p className="text-o1-label font-mono text-neutral-500">How Oblivion 1 works</p>
+              <p className="text-o1-label font-num text-o1-faint">How Oblivion 1 works</p>
             </div>
           </div>
           <button
@@ -48,7 +48,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-o1-well border border-white/[0.07] cursor-pointer"
+            className="p-1.5 text-o1-muted hover:text-white rounded-full bg-o1-well border border-white/[0.07] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -75,17 +75,17 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
                     <Icon className="w-4 h-4 text-o1-crimson shrink-0" />
                     <div>
                       <h4 className="font-bold text-xs font-tactical">{t.title}</h4>
-                      <p className="text-o1-label text-neutral-500 font-mono">{t.summary}</p>
+                      <p className="text-o1-label text-o1-faint font-num">{t.summary}</p>
                     </div>
                   </div>
                   {isExp ? (
-                    <ChevronUp className="w-4 h-4 text-neutral-400 shrink-0" />
+                    <ChevronUp className="w-4 h-4 text-o1-muted shrink-0" />
                   ) : (
-                    <ChevronDown className="w-4 h-4 text-neutral-400 shrink-0" />
+                    <ChevronDown className="w-4 h-4 text-o1-muted shrink-0" />
                   )}
                 </button>
                 {isExp && (
-                  <div className="px-3.5 pb-3.5 pt-1 text-o1-label font-mono text-neutral-300 leading-relaxed border-t border-white/[0.05]">
+                  <div className="px-3.5 pb-3.5 pt-1 text-o1-label font-num text-o1-stone leading-relaxed border-t border-white/[0.05]">
                     {t.desc}
                   </div>
                 )}
@@ -100,7 +100,7 @@ export const HelpCenterModal: React.FC<HelpCenterModalProps> = ({ isOpen, onClos
             tactileEngine.triggerSelectionBuzz();
             onClose();
           }}
-          className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 text-xs font-semibold tracking-wide transition cursor-pointer"
+          className="w-full py-2.5 rounded-xl bg-o1-paper hover:bg-white text-o1-canvas text-xs font-semibold tracking-wide transition cursor-pointer"
         >
           Close Manual
         </button>

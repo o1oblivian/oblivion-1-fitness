@@ -46,10 +46,10 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
             {/* Left: Index, Title & Subtitle */}
             <div>
               <div className="flex items-baseline gap-2">
-                <span className="text-xs font-medium text-neutral-400 font-mono">{index + 1}</span>
+                <span className="text-xs font-medium text-o1-muted font-num">{index + 1}</span>
                 <span className="text-sm font-semibold text-white">{exercise.name}</span>
               </div>
-              <div className="text-o1-label text-neutral-400 font-normal mt-0.5 ml-4">
+              <div className="text-o1-label text-o1-muted font-normal mt-0.5 ml-4">
                 {exercise.subLabel ||
                   `${getMechanicLabel(exercise)} · ${getEquipmentLabel(exercise)}`}
               </div>
@@ -60,7 +60,7 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveSetsSlot(activeSetsSlot === index ? null : index)}
-                className="bg-o1-card hover:bg-white/[0.06] text-neutral-200 text-xs font-medium px-2.5 py-1 rounded-xl flex items-center gap-1 cursor-pointer transition-colors border border-white/[0.07]"
+                className="bg-o1-card hover:bg-white/[0.06] text-o1-ink-soft text-xs font-medium px-2.5 py-1 rounded-xl flex items-center gap-1 cursor-pointer transition-colors border border-white/[0.07]"
               >
                 {sets} sets ▾
               </button>
@@ -76,7 +76,7 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
                         setActiveSetsSlot(null);
                       }}
                       className={`w-full text-center px-2 py-1 text-xs font-semibold hover:bg-white/5 transition-colors cursor-pointer ${
-                        sets === num ? 'text-white bg-o1-crimson' : 'text-neutral-300'
+                        sets === num ? 'text-white bg-o1-crimson' : 'text-o1-stone'
                       }`}
                     >
                       {num} sets
@@ -87,7 +87,7 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
               <button
                 type="button"
                 onClick={() => onSwapSlot(index)}
-                className="text-neutral-400 hover:text-white p-1 cursor-pointer transition-colors"
+                className="text-o1-muted hover:text-white p-1 cursor-pointer transition-colors"
                 title="Swap exercise"
               >
                 <RotateCw className="w-3.5 h-3.5" />

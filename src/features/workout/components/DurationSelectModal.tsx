@@ -44,14 +44,14 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
             <h3 className="text-sm font-tactical font-light text-white tracking-wider">
               Select Available Duration
             </h3>
-            <p className="text-o1-label font-sans text-neutral-400">
+            <p className="text-o1-label font-sans text-o1-muted">
               Autoregulated volume and rest cadence
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/5 text-neutral-400 hover:text-neutral-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-full hover:bg-white/5 text-o1-muted hover:text-o1-ink-soft transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -83,10 +83,10 @@ export const DurationSelectModal: React.FC<DurationSelectModalProps> = ({
                   >
                     {opt.label}
                   </span>
-                  <span className="text-neutral-400 text-xs">•</span>
+                  <span className="text-o1-muted text-xs">•</span>
                   <span
                     className={`text-xs font-sans font-medium ${
-                      isSelected ? 'text-white/80' : 'text-neutral-400'
+                      isSelected ? 'text-white/80' : 'text-o1-muted'
                     }`}
                   >
                     {opt.sub}

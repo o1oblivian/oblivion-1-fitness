@@ -295,7 +295,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
               >
                 Scan Cardio &amp; Watch
               </h2>
-              <p className="text-o1-label font-light text-neutral-400 leading-snug">
+              <p className="text-o1-label font-light text-o1-muted leading-snug">
                 Take a photo of your treadmill screen, bike console, or watch dial to auto-sync your
                 metrics.
               </p>
@@ -305,7 +305,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="p-1.5 -mr-1 text-neutral-400 hover:text-white rounded-full cursor-pointer"
+            className="p-1.5 -mr-1 text-o1-muted hover:text-white rounded-full cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -340,7 +340,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
               type="button"
               onClick={() => handleCapture('photos')}
               disabled={isCapturing}
-              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-neutral-200 text-o1-caption font-normal cursor-pointer border border-white/[0.07] active:scale-[0.98] transition disabled:opacity-60"
+              className="flex items-center justify-center gap-2 h-10 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-o1-ink-soft text-o1-caption font-normal cursor-pointer border border-white/[0.07] active:scale-[0.98] transition disabled:opacity-60"
             >
               <ImageIcon className="w-3.5 h-3.5" strokeWidth={1.75} /> Choose from Photos
             </button>

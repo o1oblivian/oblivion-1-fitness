@@ -259,5 +259,5 @@ function BurnNote({ workout }: { workout: WorkoutDayRecord }) {
 }
 
 function EmptyCopy({ children }: { children: React.ReactNode }) {
-  return <p className="pt-2 text-o1-label text-neutral-500">{children}</p>;
+  return <p className="pt-2 text-o1-label text-o1-faint">{children}</p>;
 }

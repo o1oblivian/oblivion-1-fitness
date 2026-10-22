@@ -80,7 +80,7 @@ export function PasswordRecoverySheet() {
                 setPassword(event.target.value);
                 setError(null);
               }}
-              className="h-11 w-full rounded-xl border-0 bg-white/[0.05] px-3.5 pr-12 text-o1-control font-normal outline-none placeholder:text-[#5E5C55] focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60"
+              className="h-11 w-full rounded-xl border-0 bg-white/[0.05] px-3.5 pr-12 text-o1-control font-normal outline-none placeholder:text-o1-placeholder focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60"
             />
             <button
               type="button"

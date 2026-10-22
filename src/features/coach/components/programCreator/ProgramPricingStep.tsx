@@ -52,7 +52,7 @@ export const ProgramPricingStep: React.FC<{
         <div className="space-y-1 pr-3">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-o1-text">Free Community Program</span>
-            <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-o1-muted text-o1-label font-mono font-semibold">
+            <span className="px-2 py-0.5 rounded-md bg-white/[0.08] text-o1-muted text-o1-label font-num font-semibold">
               Free Access
             </span>
           </div>
@@ -77,7 +77,7 @@ export const ProgramPricingStep: React.FC<{
               Program Price (USD) *
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-o1-muted font-mono">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-o1-muted font-num">
                 $
               </span>
               <input
@@ -87,7 +87,7 @@ export const ProgramPricingStep: React.FC<{
                 value={data.priceUsd === 0 ? '' : data.priceUsd}
                 onChange={(e) => onChange({ priceUsd: parseFloat(e.target.value) || 0 })}
                 placeholder="29.99"
-                className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-o1-sheet border border-white/[0.07] focus:border-white text-sm text-o1-text font-mono font-bold outline-none transition-colors"
+                className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-o1-sheet border border-white/[0.07] focus:border-white text-sm text-o1-text font-num font-bold outline-none transition-colors"
               />
             </div>
           </div>
@@ -129,7 +129,7 @@ export const ProgramPricingStep: React.FC<{
                   <span className="text-xs font-bold text-o1-text">
                     Net Revenue Split ({payoutPct} Coach / {feePct} Platform)
                   </span>
-                  <span className="text-o1-label font-mono text-emerald-400 flex items-center gap-1 font-semibold">
+                  <span className="text-o1-label font-num text-o1-olive flex items-center gap-1 font-semibold">
                     <TrendingUp size={11} /> Live Modeling
                   </span>
                 </div>
@@ -140,7 +140,7 @@ export const ProgramPricingStep: React.FC<{
                     <span className="text-o1-label text-o1-muted block font-semibold">
                       Sale Price
                     </span>
-                    <span className="text-xs font-bold font-mono text-o1-text">
+                    <span className="text-xs font-bold font-num text-o1-text">
                       ${effectivePrice.toFixed(2)}
                     </span>
                   </div>
@@ -148,15 +148,15 @@ export const ProgramPricingStep: React.FC<{
                     <span className="text-o1-label text-o1-muted block font-semibold">
                       Platform ({feePct})
                     </span>
-                    <span className="text-xs font-bold font-mono text-o1-muted">
+                    <span className="text-xs font-bold font-num text-o1-muted">
                       ${platformFee.toFixed(2)}
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-emerald-950/20 border border-emerald-800/40">
-                    <span className="text-o1-label text-emerald-400 block font-semibold">
+                  <div className="p-2.5 rounded-xl bg-o1-olive-wash/20 border border-o1-olive-deep/40">
+                    <span className="text-o1-label text-o1-olive block font-semibold">
                       Your Payout ({payoutPct})
                     </span>
-                    <span className="text-xs font-bold font-mono text-emerald-400">
+                    <span className="text-xs font-bold font-num text-o1-olive">
                       ${coachPayout.toFixed(2)}
                     </span>
                   </div>
@@ -175,7 +175,7 @@ export const ProgramPricingStep: React.FC<{
                         onChange={(e) =>
                           setProjectedAthletes(Math.max(1, Number(e.target.value) || 1))
                         }
-                        className="w-16 px-2 py-0.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-mono font-bold text-center text-o1-text focus:outline-none"
+                        className="w-16 px-2 py-0.5 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-num font-bold text-center text-o1-text focus:outline-none"
                       />
                       <span className="text-o1-label text-o1-muted">athletes</span>
                     </div>
@@ -203,7 +203,7 @@ export const ProgramPricingStep: React.FC<{
                             tactileEngine.triggerSelectionBuzz();
                             setProjectedAthletes(p);
                           }}
-                          className={`px-2 py-0.5 rounded-md text-o1-label font-mono font-semibold transition-all cursor-pointer ${
+                          className={`px-2 py-0.5 rounded-md text-o1-label font-num font-semibold transition-all cursor-pointer ${
                             isSel
                               ? 'bg-o1-crimson text-white font-bold'
                               : 'bg-white/[0.08] text-o1-muted hover:text-o1-text'
@@ -220,17 +220,17 @@ export const ProgramPricingStep: React.FC<{
                 <div className="pt-2 border-t border-white/[0.07] space-y-1 text-xs">
                   <div className="flex items-center justify-between text-o1-muted">
                     <span>Total Gross Revenue ({projectedAthletes} athletes):</span>
-                    <span className="font-mono font-semibold text-o1-text">
+                    <span className="font-num font-semibold text-o1-text">
                       ${totalGross.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-o1-muted">
                     <span>Platform Fee ({feePct}):</span>
-                    <span className="font-mono">${totalPlatform.toFixed(2)}</span>
+                    <span className="font-num">${totalPlatform.toFixed(2)}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-1 font-bold text-emerald-400 border-t border-dashed border-white/[0.07]">
+                  <div className="flex items-center justify-between pt-1 font-bold text-o1-olive border-t border-dashed border-white/[0.07]">
                     <span>Coach Net Payout ({payoutPct}):</span>
-                    <span className="font-mono text-sm">${totalPayout.toFixed(2)}</span>
+                    <span className="font-num text-sm">${totalPayout.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -258,7 +258,7 @@ export const ProgramPricingStep: React.FC<{
               type="date"
               value={data.startDate || ''}
               onChange={(e) => onChange({ startDate: e.target.value })}
-              className="w-full px-3 py-2 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-mono text-o1-text outline-none focus:border-white transition-colors"
+              className="w-full px-3 py-2 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-num text-o1-text outline-none focus:border-white transition-colors"
             />
           </div>
           <div>
@@ -267,7 +267,7 @@ export const ProgramPricingStep: React.FC<{
               type="date"
               value={data.endDate || ''}
               onChange={(e) => onChange({ endDate: e.target.value })}
-              className="w-full px-3 py-2 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-mono text-o1-text outline-none focus:border-white transition-colors"
+              className="w-full px-3 py-2 rounded-xl bg-o1-sheet border border-white/[0.07] text-xs font-num text-o1-text outline-none focus:border-white transition-colors"
             />
           </div>
         </div>

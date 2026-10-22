@@ -27,7 +27,7 @@ export const MealScanModeSelector: React.FC<MealScanModeSelectorProps> = ({
           className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
             scanMode === mode
               ? 'bg-white/10 text-white shadow-sm border border-white/[0.07]'
-              : 'text-neutral-400 hover:text-white'
+              : 'text-o1-muted hover:text-white'
           }`}
         >
           <Icon className="w-3.5 h-3.5" />

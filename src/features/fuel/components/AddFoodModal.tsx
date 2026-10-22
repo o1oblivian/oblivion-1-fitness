@@ -309,7 +309,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
       <div className="o1-sheet-card bg-o1-sheet border border-white/[0.08] p-3.5 shadow-xl flex flex-col overflow-hidden space-y-2.5">
         <div className="flex items-center justify-between shrink-0 gap-2 pb-0.5">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-red-950/30 text-o1-crimson flex items-center justify-center shrink-0 border border-red-900/40">
+            <div className="w-10 h-10 rounded-2xl bg-o1-crimson-wash/30 text-o1-crimson flex items-center justify-center shrink-0 border border-o1-crimson-deep/40">
               <Flame className="w-5 h-5 fill-o1-crimson/20 text-o1-crimson" />
             </div>
             <div className="min-w-0">
@@ -456,7 +456,7 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                         </span>
                       )}
                       {food.source === 'openfoodfacts' && (
-                        <span className="px-1.5 py-0.5 rounded-md bg-transparent text-sky-600 text-o1-label tabular-nums font-bold shrink-0 border border-sky-600/40">
+                        <span className="px-1.5 py-0.5 rounded-md bg-transparent text-o1-blue text-o1-label tabular-nums font-bold shrink-0 border border-o1-blue/40">
                           Live
                         </span>
                       )}
@@ -478,8 +478,8 @@ export const AddFoodModal: React.FC<AddFoodModalProps> = ({
                     </div>
                     <div className="flex items-center gap-2 text-o1-label tabular-nums">
                       <span className="text-o1-crimson font-bold">{food.protein}p</span>
-                      <span className="text-amber-500 font-bold">{food.carbs}c</span>
-                      <span className="text-emerald-500 font-bold">{food.fats}f</span>
+                      <span className="text-o1-yellow font-bold">{food.carbs}c</span>
+                      <span className="text-o1-olive font-bold">{food.fats}f</span>
                     </div>
                   </div>
                 </div>

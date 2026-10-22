@@ -71,11 +71,11 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
               setIsStyleOpen((v) => !v);
             }}
             aria-expanded={isStyleOpen}
-            className="h-8 px-3 rounded-full bg-black border border-white/[0.07] text-xs font-semibold text-neutral-200 flex items-center gap-1.5 cursor-pointer"
+            className="h-8 px-3 rounded-full bg-black border border-white/[0.07] text-xs font-semibold text-o1-ink-soft flex items-center gap-1.5 cursor-pointer"
           >
             {selectedTag}
-            <span className="text-neutral-400 font-medium">{filteredBlueprints.length}</span>
-            <ChevronDown className="w-3 h-3 text-neutral-400" />
+            <span className="text-o1-muted font-medium">{filteredBlueprints.length}</span>
+            <ChevronDown className="w-3 h-3 text-o1-muted" />
           </button>
           {isStyleOpen && (
             <div className="absolute left-0 top-full mt-1 z-30 min-w-[160px] bg-o1-card border border-white/[0.07] shadow-lg rounded-2xl p-1">
@@ -91,7 +91,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
                   className={`w-full text-left px-3 py-1.5 text-xs rounded-xl cursor-pointer ${
                     selectedTag === tag
                       ? 'bg-o1-well font-semibold text-white'
-                      : 'text-neutral-400 hover:bg-white/5'
+                      : 'text-o1-muted hover:bg-white/5'
                   }`}
                 >
                   {tag}
@@ -108,7 +108,7 @@ export const BlueprintModeView: React.FC<BlueprintModeViewProps> = ({ onLoaded }
               setShowSwapper((prev) => !prev);
             }}
             aria-expanded={showSwapper}
-            className="text-o1-label font-mono text-neutral-500 hover:text-neutral-300 flex items-center gap-1 transition-colors cursor-pointer"
+            className="text-o1-label font-num text-o1-faint hover:text-o1-stone flex items-center gap-1 transition-colors cursor-pointer"
           >
             <ArrowLeftRight className="w-3 h-3" />
             <span>{showSwapper ? 'Hide Swapper' : 'Exercise Swapper'}</span>

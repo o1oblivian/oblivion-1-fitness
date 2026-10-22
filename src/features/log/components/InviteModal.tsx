@@ -9,6 +9,7 @@ import {
   savePendingInvite,
   shareContent,
 } from '../publicShare';
+import { BRAND } from '../../../theme/colors';
 
 interface InviteModalProps {
   isOpen: boolean;
@@ -94,17 +95,17 @@ export const InviteModal: React.FC<InviteModalProps> = ({
     {
       name: 'WhatsApp',
       href: `https://wa.me/?text=${encodeURIComponent(shareText)}`,
-      color: '#25D366',
+      color: BRAND.whatsapp,
     },
     {
       name: 'Telegram',
       href: `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Train with me on Oblivion 1.')}`,
-      color: '#229ED9',
+      color: BRAND.telegram,
     },
     {
       name: 'X',
       href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
-      color: '#111111',
+      color: BRAND.x,
     },
   ];
 
@@ -116,13 +117,13 @@ export const InviteModal: React.FC<InviteModalProps> = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="o1-sheet-card bg-o1-card text-neutral-100 w-full p-4 shadow-xl relative space-y-3 border border-white/[0.07] overflow-y-auto">
+      <div className="o1-sheet-card bg-o1-card text-o1-bone w-full p-4 shadow-xl relative space-y-3 border border-white/[0.07] overflow-y-auto">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-base text-white">Invite</h3>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/[0.08] text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/[0.08] text-o1-muted hover:text-white flex items-center justify-center cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -130,9 +131,9 @@ export const InviteModal: React.FC<InviteModalProps> = ({
         </div>
 
         <div className="rounded-2xl bg-o1-well border border-white/[0.07] p-3 space-y-1">
-          <span className="text-o1-label text-neutral-500 block">{userHandle}</span>
-          <div className="text-o1-caption font-semibold tracking-wide text-neutral-200">{code}</div>
-          <p className="text-o1-label text-neutral-400">
+          <span className="text-o1-label text-o1-faint block">{userHandle}</span>
+          <div className="text-o1-caption font-semibold tracking-wide text-o1-ink-soft">{code}</div>
+          <p className="text-o1-label text-o1-muted">
             Anyone who opens this link lands on Oblivion 1 Fitness Club.
           </p>
         </div>
@@ -149,13 +150,13 @@ export const InviteModal: React.FC<InviteModalProps> = ({
           <button
             type="button"
             onClick={() => void handleCopy()}
-            className="min-h-[44px] rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
+            className="min-h-[44px] rounded-xl bg-o1-well border border-white/[0.07] text-o1-ink-soft text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
           >
             {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
             Copy link
           </button>
         </div>
-        {status && <p className="text-o1-label text-neutral-300 text-center">{status}</p>}
+        {status && <p className="text-o1-label text-o1-stone text-center">{status}</p>}
 
         <div className="grid grid-cols-3 gap-2">
           {social.map((item) => (
@@ -173,22 +174,20 @@ export const InviteModal: React.FC<InviteModalProps> = ({
               >
                 {item.name.slice(0, 1)}
               </span>
-              <span className="text-o1-label text-neutral-400">{item.name}</span>
+              <span className="text-o1-label text-o1-muted">{item.name}</span>
             </a>
           ))}
         </div>
 
         <form onSubmit={(e) => void handleJoin(e)} className="space-y-1.5">
-          <label className="text-o1-label text-neutral-400 block">
-            Have a coach’s invite code?
-          </label>
+          <label className="text-o1-label text-o1-muted block">Have a coach’s invite code?</label>
           <div className="flex items-center gap-2">
             <input
               type="text"
               value={friendCode}
               onChange={(e) => setFriendCode(e.target.value)}
               placeholder="Invite code"
-              className="flex-1 bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:outline-none"
+              className="flex-1 bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-o1-faint focus:outline-none"
             />
             <button
               type="submit"

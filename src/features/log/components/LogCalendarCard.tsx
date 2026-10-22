@@ -36,7 +36,7 @@ export const LogCalendarCard: React.FC<LogCalendarCardProps> = ({
   onToday,
   onSelectDate,
 }) => (
-  <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 shadow-sm space-y-2.5 text-neutral-100">
+  <div className="rounded-2xl bg-o1-card border border-white/[0.07] p-3 shadow-sm space-y-2.5 text-o1-bone">
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 min-w-0">
         <span className="o1-mark text-o1-copper">
@@ -51,7 +51,7 @@ export const LogCalendarCard: React.FC<LogCalendarCardProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 onViewChange(month);
               }}
-              className={`px-2.5 py-0.5 rounded-full text-o1-label font-semibold ${monthView === month ? 'bg-o1-crimson text-white' : 'text-neutral-400'}`}
+              className={`px-2.5 py-0.5 rounded-full text-o1-label font-semibold ${monthView === month ? 'bg-o1-crimson text-white' : 'text-o1-muted'}`}
             >
               {month ? 'Month' : 'Week'}
             </button>
@@ -59,14 +59,14 @@ export const LogCalendarCard: React.FC<LogCalendarCardProps> = ({
         </div>
       </div>
       <div className="flex items-center gap-1">
-        <span className="text-o1-label font-semibold text-neutral-400 mr-1">{rangeLabel}</span>
+        <span className="text-o1-label font-semibold text-o1-muted mr-1">{rangeLabel}</span>
         <button
           type="button"
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
             onStep(-1);
           }}
-          className="p-1 rounded-lg bg-white/[0.08] text-neutral-300"
+          className="p-1 rounded-lg bg-white/[0.08] text-o1-stone"
           aria-label={monthView ? 'Previous month' : 'Previous week'}
         >
           <ChevronLeft className="w-3.5 h-3.5" />
@@ -88,7 +88,7 @@ export const LogCalendarCard: React.FC<LogCalendarCardProps> = ({
             onStep(1);
           }}
           disabled={atPresent}
-          className="p-1 rounded-lg bg-white/[0.08] text-neutral-300 disabled:opacity-30"
+          className="p-1 rounded-lg bg-white/[0.08] text-o1-stone disabled:opacity-30"
           aria-label={monthView ? 'Next month' : 'Next week'}
         >
           <ChevronRight className="w-3.5 h-3.5" />

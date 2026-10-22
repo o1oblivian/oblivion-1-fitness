@@ -1,3 +1,4 @@
+import { COLOR } from '../../theme/colors';
 export interface ProgressCardInput {
   name: string;
   before: HTMLImageElement | null;
@@ -47,13 +48,13 @@ function emptyFrame(
   h: number,
   label: string,
 ) {
-  ctx.fillStyle = '#161616';
+  ctx.fillStyle = COLOR.well;
   roundRect(ctx, x, y, w, h, 28);
   ctx.fill();
   ctx.strokeStyle = 'rgba(242,239,230,0.18)';
   ctx.lineWidth = 2;
   ctx.stroke();
-  ctx.fillStyle = '#C4BDA8';
+  ctx.fillStyle = COLOR.muted;
   ctx.font = '500 28px Manrope, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText(label, x + w / 2, y + h / 2 + 10);
@@ -66,15 +67,15 @@ export async function renderProgressCard(input: ProgressCardInput): Promise<File
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas unavailable');
 
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = COLOR.canvas;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.fillStyle = '#F2EFE6';
+  ctx.fillStyle = COLOR.bone;
   ctx.textAlign = 'left';
   ctx.font = '800 56px Manrope, sans-serif';
   ctx.fillText('O1FC', 72, 104);
 
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = COLOR.pure;
   ctx.font = '700 64px Manrope, sans-serif';
   const name = input.name.trim() || 'Athlete';
   ctx.fillText(name.slice(0, 22), 72, 176);
@@ -101,24 +102,24 @@ export async function renderProgressCard(input: ProgressCardInput): Promise<File
   ctx.restore();
 
   if (input.before) {
-    ctx.fillStyle = '#F2EFE6';
+    ctx.fillStyle = COLOR.bone;
     ctx.font = '600 22px Manrope, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('Before', left + 20, frameY + frameH - 24);
   }
   if (input.after) {
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#F2EFE6';
+    ctx.fillStyle = COLOR.bone;
     ctx.fillText('After', right + 20, frameY + frameH - 24);
   }
 
   let y = 920;
   ctx.textAlign = 'left';
   input.rows.slice(0, 5).forEach((row) => {
-    ctx.fillStyle = '#C4BDA8';
+    ctx.fillStyle = COLOR.muted;
     ctx.font = '500 28px Manrope, sans-serif';
     ctx.fillText(row.label, 72, y);
-    ctx.fillStyle = '#F2EFE6';
+    ctx.fillStyle = COLOR.bone;
     ctx.font = '600 32px Manrope, sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(row.value || '--', W - 72, y);
@@ -126,7 +127,7 @@ export async function renderProgressCard(input: ProgressCardInput): Promise<File
     y += 58;
   });
 
-  ctx.fillStyle = '#C4BDA8';
+  ctx.fillStyle = COLOR.muted;
   ctx.font = '500 24px Manrope, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText('Oblivion 1 Fitness Club', 72, H - 72);

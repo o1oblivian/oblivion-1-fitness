@@ -107,7 +107,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
   return (
     <div className="space-y-3.5">
       <div>
-        <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+        <label className="text-o1-label text-o1-muted font-bold block mb-1">
           Activity Modality
         </label>
         <div className="grid grid-cols-3 gap-1.5">
@@ -118,8 +118,8 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
               onClick={() => setCardioType(m)}
               className={`py-2 px-1 text-o1-label rounded-xl font-bold transition-all ${
                 cardioType === m
-                  ? 'bg-sky-600 text-white'
-                  : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
+                  ? 'bg-o1-blue text-white'
+                  : 'bg-o1-well border border-white/[0.07] text-o1-muted hover:text-white'
               }`}
             >
               {m.split(' ')[0]}
@@ -130,29 +130,25 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
-            Distance (KM)
-          </label>
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">Distance (KM)</label>
           <input
             type="number"
             step="0.1"
             value={cardioDistance}
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCardioDistance(sanitizeNumericInput(e.target.value))}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-teal focus:outline-none"
             placeholder="5.0"
           />
         </div>
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
-            Duration (MIN)
-          </label>
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">Duration (MIN)</label>
           <input
             type="number"
             value={cardioDuration}
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCardioDuration(sanitizeNumericInput(e.target.value))}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-teal focus:outline-none"
             placeholder="35"
           />
         </div>
@@ -160,7 +156,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">
             Burned Energy (KCAL)
           </label>
           <input
@@ -168,12 +164,12 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
             value={cardioBurn}
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCardioBurn(sanitizeNumericInput(e.target.value))}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-amber-400 font-bold focus:border-sky-500 focus:outline-none"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-o1-yellow font-bold focus:border-o1-teal focus:outline-none"
             placeholder="380"
           />
         </div>
         <div>
-          <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+          <label className="text-o1-label text-o1-muted font-bold block mb-1">
             Avg Heart Rate (BPM)
           </label>
           <input
@@ -181,7 +177,7 @@ export function CardioLogFields({ form }: { form: CardioLogForm }) {
             value={cardioHeartRate}
             onFocus={(e) => e.target.select()}
             onChange={(e) => setCardioHeartRate(sanitizeNumericInput(e.target.value))}
-            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-sky-500 focus:outline-none"
+            className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-teal focus:outline-none"
             placeholder="142"
           />
         </div>

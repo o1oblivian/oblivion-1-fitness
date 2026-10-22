@@ -112,7 +112,7 @@ export const ProgramDetailsStep: React.FC<{
         {/* View 1: Short Overview */}
         {data.descriptionMode === 'short' ? (
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-o1-label text-o1-muted font-mono">
+            <div className="flex items-center justify-between text-o1-label text-o1-muted font-num">
               <span>Catchy 1–2 sentence hook for program cards & marketplace preview</span>
               <span>{currentShortOverview.length}/140</span>
             </div>
@@ -134,7 +134,7 @@ export const ProgramDetailsStep: React.FC<{
         ) : (
           /* View 2: Full Methodology */
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-o1-label text-o1-muted font-mono">
+            <div className="flex items-center justify-between text-o1-label text-o1-muted font-num">
               <span>
                 In-depth training philosophy, periodization phases, fatigue rules & athlete
                 guidelines
@@ -155,7 +155,7 @@ export const ProgramDetailsStep: React.FC<{
                     '- Phase 1 (Weeks 1-2): Accumulation & motor recruitment (RPE 7-8)\n- Phase 2 (Weeks 3-4): Mechanical tension & progressive overload (RPE 8-9)\n- Deload Week: 40% reduction in compound training volume',
                   )
                 }
-                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
+                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-o1-edge transition-colors cursor-pointer"
               >
                 + Periodization
               </button>
@@ -167,7 +167,7 @@ export const ProgramDetailsStep: React.FC<{
                     '- Micro-load compounds by 2.5kg once top rep bracket is completed across all working sets.\n- Maintain 2-3 minutes rest between compound multi-joint efforts.',
                   )
                 }
-                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
+                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-o1-edge transition-colors cursor-pointer"
               >
                 + Overload Rules
               </button>
@@ -179,7 +179,7 @@ export const ProgramDetailsStep: React.FC<{
                     '- Hydration threshold: minimum 3.5L fluids on training days.\n- Sleep target: 7.5 - 9.0 hours sleep for optimal endocrine restoration.\n- Ensure 48 hours recovery before retraining matching prime movers.',
                   )
                 }
-                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
+                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-o1-edge transition-colors cursor-pointer"
               >
                 + Recovery & Fatigue
               </button>
@@ -191,7 +191,7 @@ export const ProgramDetailsStep: React.FC<{
                     '- Daily protein requirement: 2.0g - 2.2g per kg target bodyweight.\n- Pre-session fueling: 40-60g fast-acting carbohydrates 45 mins prior.',
                   )
                 }
-                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-neutral-700 transition-colors cursor-pointer"
+                className="px-2 py-0.5 rounded-xl text-o1-label font-medium bg-white/[0.08] text-o1-text hover:bg-o1-edge transition-colors cursor-pointer"
               >
                 + Nutrition
               </button>
@@ -202,7 +202,7 @@ export const ProgramDetailsStep: React.FC<{
               value={currentMethodology}
               onChange={(e) => onChange({ fullMethodology: e.target.value })}
               placeholder="Detail your scientific rationale, split structure, periodization phases, warm-up protocols, and recovery expectations. Athletes will be able to read this comprehensive syllabus in their program portal."
-              className="w-full p-3 rounded-2xl bg-o1-sheet border border-white/[0.07] focus:border-white text-xs font-mono text-o1-text placeholder:text-o1-muted outline-none resize-y min-h-[140px] transition-colors leading-relaxed"
+              className="w-full p-3 rounded-2xl bg-o1-sheet border border-white/[0.07] focus:border-white text-xs font-num text-o1-text placeholder:text-o1-muted outline-none resize-y min-h-[140px] transition-colors leading-relaxed"
             />
           </div>
         )}
@@ -227,7 +227,7 @@ export const ProgramDetailsStep: React.FC<{
                 className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-o1-crimson text-white font-bold'
-                    : 'bg-white/[0.08] text-o1-text hover:bg-neutral-700'
+                    : 'bg-white/[0.08] text-o1-text hover:bg-o1-edge'
                 }`}
               >
                 {c}
@@ -277,7 +277,7 @@ export const ProgramDetailsStep: React.FC<{
                   onChange({ durationWeeks: w });
                 }}
                 className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer shrink-0 ${
-                  isSelected ? 'bg-o1-crimson text-white' : 'text-o1-muted hover:bg-neutral-700'
+                  isSelected ? 'bg-o1-crimson text-white' : 'text-o1-muted hover:bg-o1-edge'
                 }`}
               >
                 {w}
@@ -304,7 +304,7 @@ export const ProgramDetailsStep: React.FC<{
                   onChange({ trainingDaysPerWeek: days });
                 }}
                 className={`flex-1 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
-                  isSelected ? 'bg-o1-crimson text-white' : 'text-o1-muted hover:bg-neutral-700'
+                  isSelected ? 'bg-o1-crimson text-white' : 'text-o1-muted hover:bg-o1-edge'
                 }`}
               >
                 {days}

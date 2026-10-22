@@ -34,10 +34,10 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
       <div
         role="dialog"
         aria-label="Clips in this reel"
-        className="absolute inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-[#1F1F1F] bg-o1-card p-4 pb-safe shadow-2xl animate-in slide-in-from-bottom duration-200 select-none"
+        className="absolute inset-x-0 bottom-0 z-50 rounded-t-2xl border-t border-o1-hairline bg-o1-card p-4 pb-safe shadow-2xl animate-in slide-in-from-bottom duration-200 select-none"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-[#1F1F1F] pb-2">
+        <div className="flex items-center justify-between border-b border-o1-hairline pb-2">
           <div className="flex items-center gap-2">
             <span className="text-o1-control font-semibold text-o1-text">Clips in this reel</span>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-o1-label text-o1-muted">
@@ -70,11 +70,11 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
                 className={`flex min-h-[52px] items-center gap-2 rounded-xl border p-2 text-left transition-all ${
                   isCurrent
                     ? 'border-o1-crimson bg-o1-crimson text-white'
-                    : 'border-[#1F1F1F] bg-black text-o1-text hover:border-white/20'
+                    : 'border-o1-hairline bg-black text-o1-text hover:border-white/20'
                 }`}
               >
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isCurrent ? 'bg-neutral-950 text-white' : 'bg-[#1F1F1F] text-white'}`}
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${isCurrent ? 'bg-o1-canvas text-white' : 'bg-o1-hairline text-white'}`}
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                 </span>
@@ -82,7 +82,7 @@ export const ReelAssetGalleryDrawer: React.FC<ReelAssetGalleryDrawerProps> = ({
                   <span className="block truncate text-o1-body font-semibold">{clip.title}</span>
                   {clip.duration ? (
                     <span
-                      className={`text-o1-label ${isCurrent ? 'text-neutral-600' : 'text-o1-muted'}`}
+                      className={`text-o1-label ${isCurrent ? 'text-o1-dim' : 'text-o1-muted'}`}
                     >
                       {clip.duration}
                     </span>

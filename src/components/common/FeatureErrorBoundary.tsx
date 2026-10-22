@@ -66,11 +66,11 @@ export class FeatureErrorBoundary extends Component<Props, State> {
         >
           <div className="bg-o1-well border border-white/[0.07] text-white rounded-2xl p-5 shadow-2xl space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-o1-crimson/15 border border-o1-crimson/30 flex items-center justify-center text-o1-crimson shrink-0">
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-o1-label font-telemetry font-bold tracking-wider text-red-400 block">
+                <span className="text-o1-label font-num font-bold tracking-wider text-o1-crimson block">
                   Module fault isolation // crash shield
                 </span>
                 <h3 className="font-tactical font-black text-sm text-white tracking-wide">
@@ -79,14 +79,14 @@ export class FeatureErrorBoundary extends Component<Props, State> {
               </div>
             </div>
 
-            <p className="text-xs text-zinc-300 leading-relaxed font-sans">
+            <p className="text-xs text-o1-stone leading-relaxed font-sans">
               The telemetry feed encountered an unhandled exception. The failure has been safely
               isolated to prevent whole-application disruption.
             </p>
 
             <div className="bg-black rounded-xl p-3 border border-white/[0.07] flex items-start gap-2">
-              <Terminal className="w-3.5 h-3.5 text-zinc-500 shrink-0 mt-0.5" />
-              <code className="text-o1-label font-mono text-red-300/90 break-all leading-tight">
+              <Terminal className="w-3.5 h-3.5 text-o1-faint shrink-0 mt-0.5" />
+              <code className="text-o1-label font-num text-o1-crimson-pale/90 break-all leading-tight">
                 {this.state.errorMessage}
               </code>
             </div>
@@ -95,7 +95,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
               type="button"
               id="error-boundary-reload-btn"
               onClick={this.handleReset}
-              className="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-500 active:scale-95 text-white text-xs font-tactical font-bold tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson active:scale-95 text-white text-xs font-tactical font-bold tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Reload Application View</span>

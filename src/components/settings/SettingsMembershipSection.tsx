@@ -33,7 +33,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1 flex items-center gap-1.5">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1 flex items-center gap-1.5">
         <Sparkles className="w-3.5 h-3.5 text-o1-gold" /> Membership &amp; Entitlements
       </h3>
 
@@ -44,7 +44,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
               {isPro || trialState.hasSubscribedPro ? 'O1 Club Pass Pro' : 'Core Free'}
             </span>
 
-            <p className="text-xs text-neutral-400 mt-1">
+            <p className="text-xs text-o1-muted mt-1">
               {isPro || trialState.hasSubscribedPro
                 ? 'Club Pass is active.'
                 : isTrialActive
@@ -76,21 +76,21 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
         {/* 90-Day Trial Progress Meter if on Core Free */}
         {isTrialActive && !isPro && (
           <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
-            <div className="flex items-center justify-between text-o1-label font-mono">
-              <span className="text-neutral-300 font-bold">90-Day Complimentary Window</span>
+            <div className="flex items-center justify-between text-o1-label font-num">
+              <span className="text-o1-stone font-bold">90-Day Complimentary Window</span>
               <span className="text-o1-crimson font-bold">
                 {isExpired ? 'Ended' : `${trialState.daysRemaining} of 90 days left`}
               </span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-300 ${isExpired ? 'bg-amber-500' : 'bg-o1-crimson'}`}
+                className={`h-full rounded-full transition-all duration-300 ${isExpired ? 'bg-o1-yellow' : 'bg-o1-crimson'}`}
                 style={{
                   width: `${Math.min(100, Math.max(5, ((90 - trialState.daysRemaining) / 90) * 100))}%`,
                 }}
               />
             </div>
-            <p className="text-o1-label text-neutral-400 font-mono">
+            <p className="text-o1-label text-o1-muted font-num">
               {isExpired
                 ? 'Basic workout logging is always free. Premium analytics need an active pass.'
                 : 'Workout Logger and Hydration stay free forever even after 90 days.'}
@@ -99,8 +99,8 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
         )}
 
         <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-o1-label font-mono text-neutral-400">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+          <div className="flex items-center gap-1.5 text-o1-label font-num text-o1-muted">
+            <ShieldCheck className="w-3.5 h-3.5 text-o1-olive" />
             <span>Private backup • Zero 3rd-party trackers</span>
           </div>
 
@@ -108,7 +108,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
             type="button"
             onClick={handleRestore}
             disabled={isRestoring}
-            className="o1-pill bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-xs font-sans font-semibold text-neutral-300 cursor-pointer disabled:opacity-50"
+            className="o1-pill bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-xs font-sans font-semibold text-o1-stone cursor-pointer disabled:opacity-50"
           >
             <RotateCcw className={`w-3 h-3 ${isRestoring ? 'animate-spin' : ''}`} />
             <span>{isRestoring ? 'Restoring...' : 'Restore Purchases'}</span>

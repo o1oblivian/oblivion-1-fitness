@@ -38,7 +38,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
     <div className="mb-2">
       <div className="flex items-center justify-between py-1">
         <div className="min-w-0">
-          <p className="text-o1-label font-medium tracking-wider text-neutral-400">Today</p>
+          <p className="text-o1-label font-medium tracking-wider text-o1-muted">Today</p>
           <p className="text-sm font-semibold text-white truncate">
             {selectedCategory} · {targetVolume} moves
           </p>
@@ -51,7 +51,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
             setIsEquipOpen(false);
             setIsVolOpen(false);
           }}
-          className="shrink-0 ml-2 h-8 px-3 rounded-full bg-o1-well border border-white/[0.07] text-xs font-medium text-neutral-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
+          className="shrink-0 ml-2 h-8 px-3 rounded-full bg-o1-well border border-white/[0.07] text-xs font-medium text-o1-muted hover:text-white flex items-center gap-1.5 cursor-pointer"
         >
           <SlidersHorizontal className="w-3 h-3" />
           Change
@@ -74,7 +74,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
                   className={
                     isSelected
                       ? 'bg-o1-sheet text-o1-text border border-o1-crimson text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap cursor-pointer'
-                      : 'bg-o1-well text-neutral-400 hover:text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap cursor-pointer border border-white/[0.07]'
+                      : 'bg-o1-well text-o1-muted hover:text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap cursor-pointer border border-white/[0.07]'
                   }
                 >
                   {chip}
@@ -91,7 +91,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
                   setIsEquipOpen(!isEquipOpen);
                   setIsVolOpen(false);
                 }}
-                className="text-xs text-neutral-300 font-medium hover:text-white cursor-pointer"
+                className="text-xs text-o1-stone font-medium hover:text-white cursor-pointer"
               >
                 {selectedEquipment}
               </button>
@@ -109,7 +109,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
                       className={`w-full text-left px-3 py-1.5 text-xs font-medium rounded-xl transition-colors cursor-pointer ${
                         selectedEquipment === eq
                           ? 'bg-o1-well text-white font-semibold'
-                          : 'text-neutral-300 hover:bg-white/5'
+                          : 'text-o1-stone hover:bg-white/5'
                       }`}
                     >
                       {eq}
@@ -125,7 +125,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
                   setIsVolOpen(!isVolOpen);
                   setIsEquipOpen(false);
                 }}
-                className="text-xs text-neutral-300 font-medium hover:text-white cursor-pointer"
+                className="text-xs text-o1-stone font-medium hover:text-white cursor-pointer"
               >
                 {targetVolume} exercises
               </button>
@@ -143,7 +143,7 @@ export const AutoModeFiltersRow: React.FC<AutoModeFiltersRowProps> = ({
                       className={`w-full text-left px-3 py-1.5 text-xs font-medium rounded-xl transition-colors cursor-pointer ${
                         targetVolume === vol
                           ? 'bg-o1-well text-white font-semibold'
-                          : 'text-neutral-300 hover:bg-white/5'
+                          : 'text-o1-stone hover:bg-white/5'
                       }`}
                     >
                       {vol} Exercises

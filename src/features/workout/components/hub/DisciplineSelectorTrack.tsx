@@ -19,7 +19,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         className={
           selectedDiscipline === 'lift'
             ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-medium flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
-            : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            : 'text-o1-muted hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
         <Weight className="w-3.5 h-3.5 text-o1-crimson" strokeWidth={1.75} />
@@ -32,7 +32,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         className={
           selectedDiscipline === 'sports'
             ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-medium flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
-            : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            : 'text-o1-muted hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
         <Trophy className="w-3.5 h-3.5 text-o1-emerald-deep" strokeWidth={1.75} />
@@ -45,7 +45,7 @@ export const DisciplineSelectorTrack: React.FC<DisciplineSelectorTrackProps> = (
         className={
           selectedDiscipline === 'recovery'
             ? 'bg-o1-well shadow-xs text-white rounded-full px-3.5 py-1.5 text-xs font-medium flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
-            : 'text-neutral-400 hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
+            : 'text-o1-muted hover:text-white rounded-full px-3.5 py-1.5 text-xs font-semibold flex items-center justify-center gap-1.5 flex-1 transition-all cursor-pointer'
         }
       >
         <Leaf className="w-3.5 h-3.5 text-o1-teal" strokeWidth={1.75} />

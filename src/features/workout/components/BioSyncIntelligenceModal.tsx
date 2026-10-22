@@ -85,7 +85,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/[0.05] pb-3.5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-600">
+            <div className="w-9 h-9 rounded-xl bg-o1-teal/10 border border-o1-teal/30 flex items-center justify-center text-o1-blue">
               <Dna className="w-4 h-4" />
             </div>
             <div>
@@ -93,11 +93,11 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
                 <h3 className="font-tactical font-medium text-sm tracking-wider text-white">
                   Bio-Sync Intelligence
                 </h3>
-                <span className="px-1.5 py-0.5 rounded text-o1-label font-mono font-medium bg-white/10 text-sky-600">
+                <span className="px-1.5 py-0.5 rounded text-o1-label font-num font-medium bg-white/10 text-o1-blue">
                   Endocrine
                 </span>
               </div>
-              <p className="text-o1-label font-mono text-neutral-400">
+              <p className="text-o1-label font-num text-o1-muted">
                 Endocrine Rhythm &amp; Neuromuscular Peaking
               </p>
             </div>
@@ -106,7 +106,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/[0.07] flex items-center justify-center text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 border border-white/[0.07] flex items-center justify-center text-o1-muted hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -114,9 +114,9 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
 
         {/* Phase Timeline Pushers (4-Slot Tactical Bar) */}
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-o1-label font-mono tracking-wider text-neutral-400">
+          <div className="flex items-center justify-between text-o1-label font-num tracking-wider text-o1-muted">
             <span>Biological Cycle Phase</span>
-            <span className="text-sky-600 font-mono">{currentMeta.daySpan}</span>
+            <span className="text-o1-blue font-num">{currentMeta.daySpan}</span>
           </div>
           <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.07]">
             {(
@@ -138,12 +138,12 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
                   }}
                   className={`py-2 px-1 rounded-xl text-center transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-white/10 text-sky-300 border border-sky-500/40 shadow-xs'
-                      : 'text-neutral-400 hover:text-white'
+                      ? 'bg-white/10 text-o1-blue-pale border border-o1-teal/40 shadow-xs'
+                      : 'text-o1-muted hover:text-white'
                   }`}
                 >
-                  <span className="text-o1-label font-mono font-medium block">{p.label}</span>
-                  <span className="text-o1-label font-mono opacity-70 block">{p.code}</span>
+                  <span className="text-o1-label font-num font-medium block">{p.label}</span>
+                  <span className="text-o1-label font-num opacity-70 block">{p.code}</span>
                 </button>
               );
             })}
@@ -153,10 +153,10 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
         {/* Phase Intelligence Spotlight Card (Zero Dark Fog) */}
         <div className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded-full text-o1-label font-mono font-medium tracking-wider bg-sky-500/10 text-sky-600 border border-sky-500/30">
+            <span className="px-2 py-0.5 rounded-full text-o1-label font-num font-medium tracking-wider bg-o1-teal/10 text-o1-blue border border-o1-teal/30">
               {currentMeta.daySpan} • {activePhase}
             </span>
-            <span className="text-o1-label font-mono font-medium text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+            <span className="text-o1-label font-num font-medium text-o1-olive bg-o1-olive/10 border border-o1-olive/20 px-2 py-0.5 rounded-full">
               OFFSET: {currentMeta.rpeOffset}
             </span>
           </div>
@@ -165,7 +165,7 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
             <h4 className="text-sm font-tactical font-medium text-white leading-snug">
               {currentMeta.title}
             </h4>
-            <p className="text-xs font-sans text-neutral-300 mt-1 leading-relaxed">
+            <p className="text-xs font-sans text-o1-stone mt-1 leading-relaxed">
               {currentMeta.hormoneContext}
             </p>
           </div>
@@ -173,18 +173,18 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
           {/* Neuromuscular Metrics Grid */}
           <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/[0.05]">
             <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.07]">
-              <span className="text-o1-label font-mono tracking-wider text-neutral-400 block font-medium">
+              <span className="text-o1-label font-num tracking-wider text-o1-muted block font-medium">
                 Recovery Window
               </span>
-              <span className="text-xs font-mono font-medium text-white mt-0.5 block">
+              <span className="text-xs font-num font-medium text-white mt-0.5 block">
                 {currentMeta.restInterval}
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-black/40 border border-white/[0.07]">
-              <span className="text-o1-label font-mono tracking-wider text-neutral-400 block font-medium">
+              <span className="text-o1-label font-num tracking-wider text-o1-muted block font-medium">
                 Target Intensity
               </span>
-              <span className="text-xs font-mono font-medium text-sky-600 mt-0.5 block">
+              <span className="text-xs font-num font-medium text-o1-blue mt-0.5 block">
                 {currentMeta.rpeRecommendation.split(' ')[1] || 'RPE 8.5'}
               </span>
             </div>
@@ -192,12 +192,12 @@ export const BioSyncIntelligenceModal: React.FC<BioSyncIntelligenceModalProps> =
         </div>
 
         {/* Auto-Regulation Recommendation Box */}
-        <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.07] text-xs text-neutral-300 space-y-1">
-          <span className="text-o1-label font-mono tracking-wider text-neutral-400 font-medium flex items-center gap-1.5">
-            <Activity className="w-3.5 h-3.5 text-sky-600" />
+        <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.07] text-xs text-o1-stone space-y-1">
+          <span className="text-o1-label font-num tracking-wider text-o1-muted font-medium flex items-center gap-1.5">
+            <Activity className="w-3.5 h-3.5 text-o1-blue" />
             <span>How it affects training</span>
           </span>
-          <p className="text-o1-label text-neutral-300 font-sans pl-5">{currentMeta.powerImpact}</p>
+          <p className="text-o1-label text-o1-stone font-sans pl-5">{currentMeta.powerImpact}</p>
         </div>
 
         <p className="text-o1-label text-o1-muted leading-relaxed px-0.5">

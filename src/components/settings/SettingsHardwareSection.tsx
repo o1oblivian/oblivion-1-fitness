@@ -71,7 +71,7 @@ export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({ onSho
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1">
         Devices &amp; sensors
       </h3>
 
@@ -87,7 +87,7 @@ export const SettingsHardwareSection: React.FC<ConnectedDevicesProps> = ({ onSho
 
         <MotionSensorRow status={motionStatus} error={motionError} onToggle={handleToggleMotion} />
 
-        <p className="pt-2 border-t border-white/[0.05] text-o1-label font-sans text-neutral-400 leading-snug">
+        <p className="pt-2 border-t border-white/[0.05] text-o1-label font-sans text-o1-muted leading-snug">
           HRV and steps are kept only on this phone. They are never uploaded or shared, and nothing
           is sent to your sensors.
         </p>

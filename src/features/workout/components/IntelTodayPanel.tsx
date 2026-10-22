@@ -12,6 +12,7 @@ import { BodyStatusCard } from '../../bodyStatus/BodyStatusCard';
 import { useBodyStatus } from '../../bodyStatus/bodyStatus';
 import { useCountUp } from '../../../hooks/useCountUp';
 import { PLAIN_LOAD } from '../../../utils/acwrMath';
+import { COLOR } from '../../../theme/colors';
 
 const DECISION_TONE: Record<Decision, Tone> = {
   PUSH: 'good',
@@ -93,7 +94,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
         <div className="flex items-center gap-4">
           <div className="relative w-[84px] h-[84px] shrink-0">
             <svg viewBox="0 0 84 84" className="w-full h-full -rotate-90" aria-hidden="true">
-              <circle cx="42" cy="42" r="35" fill="none" stroke="#1f1f23" strokeWidth="7" />
+              <circle cx="42" cy="42" r="35" fill="none" stroke={COLOR.track} strokeWidth="7" />
               {intel.readiness !== null && (
                 <circle
                   cx="42"
@@ -110,7 +111,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
               )}
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-light font-mono tabular-nums leading-none">
+              <span className="text-2xl font-light font-num tabular-nums leading-none">
                 {readinessShown === null ? '--' : readinessShown}
               </span>
               <span className="text-o1-label text-o1-muted mt-1">Readiness</span>
@@ -130,8 +131,8 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
                 <div className="text-o1-label text-o1-muted truncate">{sig.note}</div>
               </div>
               <span
-                className="text-sm font-light font-mono shrink-0"
-                style={{ color: sig.value === null ? '#C4BDA8' : TONE_HEX[sig.tone] }}
+                className="text-sm font-light font-num shrink-0"
+                style={{ color: sig.value === null ? COLOR.muted : TONE_HEX[sig.tone] }}
               >
                 {sig.display}
               </span>
@@ -154,11 +155,11 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
                 <li key={rx.name} className="py-3 first:pt-0 last:pb-0 space-y-1.5">
                   <div className="flex items-baseline justify-between gap-3">
                     <span className="text-sm font-medium text-o1-text truncate">{rx.name}</span>
-                    <span className="text-sm font-light font-mono text-o1-text shrink-0">
+                    <span className="text-sm font-light font-num text-o1-text shrink-0">
                       {kg(rx.targetWeightKg)} kg × {rx.targetReps}
                     </span>
                   </div>
-                  <div className="flex items-baseline justify-between gap-3 text-o1-label font-mono text-o1-muted">
+                  <div className="flex items-baseline justify-between gap-3 text-o1-label font-num text-o1-muted">
                     <span>
                       Last {kg(rx.lastWeightKg)} × {rx.lastReps} · {shortDay(rx.lastDay)}
                       {simple ? '' : ` · e1RM ${kg(rx.e1rm)}`}
@@ -203,7 +204,7 @@ export const IntelTodayPanel: React.FC<IntelTodayPanelProps> = ({
           <>
             <div className="flex items-baseline justify-between gap-3">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-light font-mono tabular-nums text-o1-text">
+                <span className="text-3xl font-light font-num tabular-nums text-o1-text">
                   {ratio === null ? '--' : ratio.toFixed(2)}
                 </span>
                 <span className="text-o1-label text-o1-muted">Acute : chronic</span>

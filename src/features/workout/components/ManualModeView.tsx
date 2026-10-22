@@ -116,7 +116,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
             className={`px-3 py-1 rounded-full text-o1-label font-semibold tracking-wider whitespace-nowrap transition-all border cursor-pointer ${
               selectedCategory === cat
                 ? 'bg-o1-sheet text-o1-text border-o1-crimson'
-                : 'bg-black text-neutral-400 border-white/[0.07] hover:text-white'
+                : 'bg-black text-o1-muted border-white/[0.07] hover:text-white'
             }`}
           >
             {cat}
@@ -126,13 +126,13 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
 
       <div className="flex items-center gap-1.5">
         <div className="relative flex-1">
-          <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <Search className="w-3.5 h-3.5 text-o1-muted absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search ${selectedCategory.toLowerCase()}...`}
-            className="w-full pl-9 pr-3 py-2 bg-black rounded-xl border border-white/[0.07] text-xs text-white placeholder:text-neutral-400 focus:outline-none focus:border-white/[0.14]"
+            className="w-full pl-9 pr-3 py-2 bg-black rounded-xl border border-white/[0.07] text-xs text-white placeholder:text-o1-muted focus:outline-none focus:border-white/[0.14]"
           />
         </div>
         <button
@@ -144,7 +144,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
           className={`h-9 px-3 rounded-xl border text-xs font-medium flex items-center gap-1 cursor-pointer ${
             showGear || selectedEquip !== 'All'
               ? 'bg-o1-sheet text-o1-text border-o1-crimson'
-              : 'bg-black text-neutral-300 border-white/[0.07]'
+              : 'bg-black text-o1-stone border-white/[0.07]'
           }`}
         >
           <SlidersHorizontal className="w-3 h-3" />
@@ -165,7 +165,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
               className={`px-2.5 py-1 rounded-xl text-o1-label font-semibold tracking-wider whitespace-nowrap transition-all cursor-pointer border ${
                 selectedEquip === eq
                   ? 'bg-o1-sheet text-o1-text border-o1-crimson'
-                  : 'bg-o1-card text-neutral-400 border-white/[0.07]'
+                  : 'bg-o1-card text-o1-muted border-white/[0.07]'
               }`}
             >
               {eq}
@@ -176,7 +176,7 @@ export const ManualModeView: React.FC<ManualModeViewProps> = ({
 
       <div className="space-y-1.5 max-h-80 overflow-y-auto pr-0.5">
         {filteredExercises.length === 0 ? (
-          <div className="p-6 bg-black rounded-2xl border border-white/[0.07] text-center text-xs text-neutral-400">
+          <div className="p-6 bg-black rounded-2xl border border-white/[0.07] text-center text-xs text-o1-muted">
             No matching exercises. Try another search or filter.
           </div>
         ) : (

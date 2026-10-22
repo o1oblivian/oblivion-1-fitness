@@ -295,22 +295,22 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
   return (
     <div className="space-y-3.5">
       {/* Client Daily Calorie Target Adjustment */}
-      <div className="p-3 rounded-2xl bg-amber-950/20 border border-amber-800/40 space-y-1.5">
+      <div className="p-3 rounded-2xl bg-o1-brown-wash/20 border border-o1-brown-deep/40 space-y-1.5">
         <div className="flex items-center justify-between">
-          <label className="text-o1-label text-amber-400 font-bold tracking-wider block">
+          <label className="text-o1-label text-o1-yellow font-bold tracking-wider block">
             Daily Calorie Target (KCAL)
           </label>
-          <span className="text-o1-label text-neutral-500 font-mono">Client Goal</span>
+          <span className="text-o1-label text-o1-faint font-num">Client Goal</span>
         </div>
         <input
           type="number"
           value={nutritionCalorieTarget}
           onFocus={(e) => e.target.select()}
           onChange={(e) => setNutritionCalorieTarget(sanitizeNumericInput(e.target.value))}
-          className="w-full bg-o1-card border border-amber-800/80 rounded-xl px-3 py-2 text-white font-mono font-bold focus:border-o1-crimson focus:outline-none text-sm placeholder:text-neutral-400"
+          className="w-full bg-o1-card border border-o1-brown-deep/80 rounded-xl px-3 py-2 text-white font-num font-bold focus:border-o1-crimson focus:outline-none text-sm placeholder:text-o1-muted"
           placeholder="Set custom daily goal (e.g. 2200, 2500)..."
         />
-        <p className="text-o1-label text-neutral-400 font-sans">
+        <p className="text-o1-label text-o1-muted font-sans">
           Adjustable by client at any time. Saved across all nutrition and telemetry views.
         </p>
       </div>
@@ -330,7 +330,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
                   ] as const
                 ).map(([label, field]) => (
                   <label key={field} className="space-y-1">
-                    <span className="text-o1-label text-neutral-500 block">{label}</span>
+                    <span className="text-o1-label text-o1-faint block">{label}</span>
                     <input
                       type="number"
                       value={meal[field]}
@@ -355,7 +355,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
         <div className="space-y-3.5">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">
                 Meal / Logged (KCAL)
               </label>
               <input
@@ -363,12 +363,12 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
                 value={nutritionCalories}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setNutritionCalories(sanitizeNumericInput(e.target.value))}
-                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-amber-400 font-bold focus:border-amber-500 focus:outline-none text-sm"
+                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-o1-yellow font-bold focus:border-o1-yellow focus:outline-none text-sm"
                 placeholder="e.g. 750"
               />
             </div>
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">
                 Protein (G)
               </label>
               <input
@@ -376,7 +376,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
                 value={nutritionProtein}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setNutritionProtein(sanitizeNumericInput(e.target.value))}
-                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-sky-400 font-bold focus:border-amber-500 focus:outline-none text-sm"
+                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-o1-teal font-bold focus:border-o1-yellow focus:outline-none text-sm"
                 placeholder="e.g. 45"
               />
             </div>
@@ -384,7 +384,7 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">
                 Carbohydrates (G)
               </label>
               <input
@@ -392,12 +392,12 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
                 value={nutritionCarbs}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setNutritionCarbs(sanitizeNumericInput(e.target.value))}
-                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-amber-500 focus:outline-none"
+                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-yellow focus:outline-none"
                 placeholder="e.g. 80"
               />
             </div>
             <div>
-              <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+              <label className="text-o1-label text-o1-muted font-bold block mb-1">
                 Lipids &amp; Fats (G)
               </label>
               <input
@@ -405,21 +405,21 @@ export function NutritionLogFields({ form }: { form: NutritionLogForm }) {
                 value={nutritionFats}
                 onFocus={(e) => e.target.select()}
                 onChange={(e) => setNutritionFats(sanitizeNumericInput(e.target.value))}
-                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-amber-500 focus:outline-none"
+                className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2.5 py-2 text-white font-bold focus:border-o1-yellow focus:outline-none"
                 placeholder="e.g. 20"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-o1-label text-neutral-400 font-bold block mb-1">
+            <label className="text-o1-label text-o1-muted font-bold block mb-1">
               Itemized Meal Summary
             </label>
             <input
               type="text"
               value={mealName}
               onChange={(e) => setMealName(e.target.value)}
-              className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-white focus:border-amber-500 focus:outline-none text-xs font-mono"
+              className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-3 py-2 text-white focus:border-o1-yellow focus:outline-none text-xs font-num"
               placeholder="e.g. Grilled Chicken, Jasmine Rice & Avocado"
             />
           </div>

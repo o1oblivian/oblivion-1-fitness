@@ -2,6 +2,7 @@ import React from 'react';
 import { round1 } from '../../../../utils/mathUtils';
 import { SCALE, Unit } from './portionMath';
 import type { RulerHandlers } from './usePortionDial';
+import { COLOR } from '../../../../theme/colors';
 
 const RULER_H = 68;
 
@@ -52,7 +53,7 @@ export function PortionRuler({
         x2={x}
         y1={14}
         y2={14 + h}
-        stroke={passed ? '#EAE8DF' : '#C4BDA8'}
+        stroke={passed ? COLOR.text : COLOR.muted}
         strokeOpacity={passed ? (major ? 0.9 : 0.55) : major ? 0.55 : 0.28}
         strokeWidth={major ? 1.6 : 1}
         strokeLinecap="round"
@@ -68,7 +69,7 @@ export function PortionRuler({
           textAnchor="middle"
           fontSize="10"
           fontWeight={600}
-          fill={passed ? '#EAE8DF' : '#C4BDA8'}
+          fill={passed ? COLOR.text : COLOR.muted}
           fillOpacity={passed ? 0.85 : 0.6}
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
@@ -104,10 +105,13 @@ export function PortionRuler({
       <svg width={width} height={RULER_H} className="block">
         {ticks}
         {serveMarkX != null && serveMarkX > -8 && serveMarkX < width + 8 && (
-          <circle cx={serveMarkX} cy={7} r={2.5} fill="#F7C600" />
+          <circle cx={serveMarkX} cy={7} r={2.5} fill={COLOR.yellow} />
         )}
-        <rect x={width / 2 - 1} y={4} width={2} height={42} rx={1} fill="#C4121A" />
-        <path d={`M ${width / 2 - 5} 2 L ${width / 2 + 5} 2 L ${width / 2} 8 Z`} fill="#C4121A" />
+        <rect x={width / 2 - 1} y={4} width={2} height={42} rx={1} fill={COLOR.crimson} />
+        <path
+          d={`M ${width / 2 - 5} 2 L ${width / 2 + 5} 2 L ${width / 2} 8 Z`}
+          fill={COLOR.crimson}
+        />
       </svg>
     </div>
   );

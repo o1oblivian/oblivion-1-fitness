@@ -10,7 +10,7 @@ export const ReadinessBreakdown: React.FC = () => {
       aria-label="Why this readiness score"
       className="rounded-2xl bg-o1-card border border-white/[0.07] p-4 space-y-2"
     >
-      <h3 className="text-o1-label font-mono font-bold tracking-[0.18em] text-neutral-400">
+      <h3 className="text-o1-label font-num font-bold tracking-[0.18em] text-o1-muted">
         Why this number
       </h3>
       <p className="text-o1-body font-medium text-o1-text leading-snug">{intel.headline}</p>
@@ -22,7 +22,7 @@ export const ReadinessBreakdown: React.FC = () => {
               <div className="text-o1-label text-o1-muted">{signal.note}</div>
             </div>
             <span
-              className="text-o1-control font-mono shrink-0"
+              className="text-o1-control font-num shrink-0"
               style={{ color: TONE_HEX[signal.tone] }}
             >
               {signal.display}

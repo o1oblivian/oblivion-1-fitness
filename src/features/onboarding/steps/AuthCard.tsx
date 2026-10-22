@@ -35,7 +35,7 @@ const SYSTEM_FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif';
 
 const fieldClass =
-  'o1-auth-field h-11 w-full rounded-xl border-0 bg-o1-surface/60 px-3.5 text-o1-control font-normal text-o1-text placeholder:text-[#5E5C55] outline-none transition-colors focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60';
+  'o1-auth-field h-11 w-full rounded-xl border-0 bg-o1-surface/60 px-3.5 text-o1-control font-normal text-o1-text placeholder:text-o1-placeholder outline-none transition-colors focus:bg-white/[0.08] focus:ring-1 focus:ring-o1-crimson/60';
 
 function cleanEmail(value: string): string {
   return value.trim().toLowerCase();
@@ -280,13 +280,13 @@ export const AuthCard: React.FC<AuthCardProps> = ({ data, onUpdate, onNext, onOp
                     onClick={() => void signInWithApple()}
                     disabled={busy !== null}
                     style={{ fontFamily: SYSTEM_FONT }}
-                    className="flex h-11 w-full items-center justify-center gap-2 o1-machined o1-see-through rounded-full text-o1-control font-normal text-[#FFFFFF] transition active:scale-[0.98] disabled:opacity-60"
+                    className="flex h-11 w-full items-center justify-center gap-2 o1-machined o1-see-through rounded-full text-o1-control font-normal text-o1-pure transition active:scale-[0.98] disabled:opacity-60"
                   >
                     {busy === 'apple' ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
                       <svg
-                        className="h-[18px] w-[18px] shrink-0 -translate-y-px fill-[#FFFFFF]"
+                        className="h-[18px] w-[18px] shrink-0 -translate-y-px fill-o1-pure"
                         viewBox="0 0 24 24"
                         aria-hidden="true"
                       >

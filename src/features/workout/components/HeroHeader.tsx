@@ -76,7 +76,7 @@ export const HeroHeader: React.FC<HeroHeaderProps> = ({
             <span className="text-o1-label font-semibold tracking-[0.08em] text-white/75">
               Readiness
             </span>
-            <span className="text-o1-control font-mono font-medium tabular-nums">
+            <span className="text-o1-control font-num font-medium tabular-nums">
               {readinessScore}%
             </span>
           </>

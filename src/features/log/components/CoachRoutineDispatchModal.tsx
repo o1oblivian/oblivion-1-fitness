@@ -100,19 +100,19 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
       <div className="o1-sheet-card bg-o1-card border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-950/40 border border-red-900/50 flex items-center justify-center text-o1-crimson">
+            <div className="w-8 h-8 rounded-xl bg-o1-crimson-wash/40 border border-o1-crimson-deep/50 flex items-center justify-center text-o1-crimson">
               <Award className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-sm text-white tracking-wider">Choose a workout</h3>
-              <span className="text-o1-label text-neutral-400 block">Stored on this weekday</span>
+              <span className="text-o1-label text-o1-muted block">Stored on this weekday</span>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-o1-edge text-o1-muted hover:text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -121,19 +121,17 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
         {coachSession ? (
           <div className="bg-o1-well border border-white/[0.07] rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-o1-label font-bold tracking-wider">
+              <span className="px-2 py-0.5 rounded-full bg-o1-olive/10 text-o1-olive border border-o1-olive/20 text-o1-label font-bold tracking-wider">
                 ● Sent by your coach
               </span>
               {firstRpe ? (
-                <span className="text-o1-label font-mono text-neutral-400">
-                  Target RPE: {firstRpe}
-                </span>
+                <span className="text-o1-label font-num text-o1-muted">Target RPE: {firstRpe}</span>
               ) : null}
             </div>
 
             <div className="space-y-1">
               <h4 className="font-bold text-sm text-white">{coachSession.title}</h4>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-o1-muted">
                 {coachSession.exercises.length}{' '}
                 {coachSession.exercises.length === 1 ? 'exercise' : 'exercises'} prescribed by your
                 coach.
@@ -162,7 +160,7 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
                 className="w-full py-2.5 px-4 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-white font-semibold text-xs flex items-center justify-between transition-all cursor-pointer"
               >
                 <span>{split}</span>
-                <ChevronRight className="w-4 h-4 text-neutral-400" />
+                <ChevronRight className="w-4 h-4 text-o1-muted" />
               </button>
             ))}
             <button
@@ -172,9 +170,9 @@ export const CoachRoutineDispatchModal: React.FC<CoachRoutineDispatchModalProps>
                 onClose();
                 onNavigateToCoach();
               }}
-              className="w-full py-2.5 px-4 rounded-xl bg-transparent text-neutral-300 font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full py-2.5 px-4 rounded-xl bg-transparent text-o1-stone font-semibold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Compass className="w-3.5 h-3.5 text-neutral-400" />
+              <Compass className="w-3.5 h-3.5 text-o1-muted" />
               <span>Browse programs</span>
             </button>
           </div>

@@ -117,7 +117,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
           >
             <span className="text-sm font-semibold text-white">Invite</span>
 
-            <div className="w-10 h-10 rounded-full bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-neutral-200 group-hover:bg-o1-crimson group-hover:text-white group-hover:border-o1-crimson transition-colors shadow-xs">
+            <div className="w-10 h-10 rounded-full bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-o1-ink-soft group-hover:bg-o1-crimson group-hover:text-white group-hover:border-o1-crimson transition-colors shadow-xs">
               <UserPlus className="w-5 h-5 stroke-[2]" />
             </div>
           </button>
@@ -133,12 +133,12 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               {session.title}
             </h2>
-            <p className="text-xs text-neutral-400 font-medium">{session.detail}</p>
+            <p className="text-xs text-o1-muted font-medium">{session.detail}</p>
           </div>
 
           {/* TARGET RPE Box */}
           <div className="shrink-0 bg-white/[0.03] rounded-xl p-2.5 flex flex-col items-center justify-center min-w-[76px] space-y-0.5">
-            <span className="text-o1-label font-bold text-neutral-500 tracking-wider text-center">
+            <span className="text-o1-label font-bold text-o1-faint tracking-wider text-center">
               Target RPE
             </span>
             <span className="text-lg font-sans font-semibold text-white tabular-nums leading-none">
@@ -150,9 +150,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
                 return (
                   <span
                     key={dot}
-                    className={`w-1.5 h-1.5 rounded-full ${
-                      active ? 'bg-o1-gold' : 'bg-neutral-700'
-                    }`}
+                    className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-o1-gold' : 'bg-o1-edge'}`}
                   />
                 );
               })}
@@ -187,9 +185,9 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
           <div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-2xl font-black text-white tracking-tight">{athleteWeight}</span>
-              <span className="text-xs font-mono font-bold text-neutral-400">KG</span>
+              <span className="text-xs font-num font-bold text-o1-muted">KG</span>
             </div>
-            <span className="text-o1-label font-mono font-bold text-neutral-400 tracking-wider">
+            <span className="text-o1-label font-num font-bold text-o1-muted tracking-wider">
               Bodyweight
             </span>
           </div>
@@ -197,16 +195,16 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
           <div className="text-right">
             <div className="flex items-baseline justify-end gap-1.5">
               <span className="text-2xl font-black text-white tracking-tight">{targetWeight}</span>
-              <span className="text-xs font-mono font-bold text-neutral-400">KG</span>
+              <span className="text-xs font-num font-bold text-o1-muted">KG</span>
             </div>
-            <span className="text-o1-label font-mono font-bold text-neutral-400 tracking-wider">
+            <span className="text-o1-label font-num font-bold text-o1-muted tracking-wider">
               Goal Weight
             </span>
           </div>
         </div>
 
         {/* Real training numbers from logged workout days */}
-        <div className="grid grid-cols-3 gap-2 text-center font-mono">
+        <div className="grid grid-cols-3 gap-2 text-center font-num">
           {[
             {
               label: '7-day volume',
@@ -223,7 +221,7 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
               className="py-2 rounded-xl bg-white/[0.03] min-h-[44px] flex flex-col items-center justify-center"
             >
               <span className="text-xs font-bold text-white">{chip.value}</span>
-              <span className="text-o1-label tracking-wider text-neutral-500">{chip.label}</span>
+              <span className="text-o1-label tracking-wider text-o1-faint">{chip.label}</span>
             </div>
           ))}
         </div>
@@ -236,9 +234,9 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onShareProgress();
             }}
-            className="o1-pill bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-neutral-200 text-xs font-sans font-semibold active:scale-95 cursor-pointer"
+            className="o1-pill bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-o1-ink-soft text-xs font-sans font-semibold active:scale-95 cursor-pointer"
           >
-            <Share2 className="w-3.5 h-3.5 text-neutral-400" />
+            <Share2 className="w-3.5 h-3.5 text-o1-muted" />
             <span>Share</span>
           </button>
 
@@ -248,9 +246,9 @@ export const UnifiedTopBoard: React.FC<UnifiedTopBoardProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onOpenPhotoVault();
             }}
-            className="o1-pill bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-neutral-200 text-xs font-sans font-semibold active:scale-95 cursor-pointer"
+            className="o1-pill bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-o1-ink-soft text-xs font-sans font-semibold active:scale-95 cursor-pointer"
           >
-            <Camera className="w-3.5 h-3.5 text-neutral-400" />
+            <Camera className="w-3.5 h-3.5 text-o1-muted" />
             <span>Vault</span>
           </button>
         </div>

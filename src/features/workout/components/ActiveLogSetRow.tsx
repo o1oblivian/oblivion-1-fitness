@@ -208,7 +208,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   };
 
   const pill =
-    'flex-1 h-8 rounded-lg font-mono text-o1-body flex items-center justify-center cursor-pointer transition-all active:scale-[0.98] border bg-o1-card border-white/[0.07] hover:border-white/[0.14]';
+    'flex-1 h-8 rounded-lg font-num text-o1-body flex items-center justify-center cursor-pointer transition-all active:scale-[0.98] border bg-o1-card border-white/[0.07] hover:border-white/[0.14]';
 
   return (
     <SwipeToReveal
@@ -233,7 +233,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
                 ? `Set ${set.setNumber} done. Tap to undo`
                 : `Mark set ${set.setNumber} done and start rest`
             }
-            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-mono text-o1-body cursor-pointer transition-all bg-o1-card ${
+            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-num text-o1-body cursor-pointer transition-all bg-o1-card ${
               isDone ? 'text-o1-crimson' : 'text-o1-text hover:bg-o1-sheet'
             } ${cue === 'tick' ? 'o1-cue-wave' : ''}`}
           >
@@ -279,7 +279,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
               }}
               aria-expanded={bumpsOpen}
               aria-label={`Quick bumps for set ${set.setNumber}`}
-              className={`w-7 h-8 shrink-0 rounded-lg border font-mono text-o1-label cursor-pointer transition-colors ${
+              className={`w-7 h-8 shrink-0 rounded-lg border font-num text-o1-label cursor-pointer transition-colors ${
                 bumpsOpen
                   ? 'border-o1-crimson text-o1-text bg-o1-sheet'
                   : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -337,7 +337,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
                 type="button"
                 onClick={() => pickRpe(value)}
                 aria-pressed={rpeVal === value}
-                className={`flex-1 h-7 rounded-lg border font-mono text-o1-body cursor-pointer active:scale-[0.97] transition ${
+                className={`flex-1 h-7 rounded-lg border font-num text-o1-body cursor-pointer active:scale-[0.97] transition ${
                   rpeVal === value
                     ? 'border-o1-crimson text-o1-text bg-o1-sheet'
                     : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
@@ -379,7 +379,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
         )}
 
         {bumpsOpen && (
-          <div className="flex items-center justify-between gap-1 text-o1-label font-mono bg-o1-card p-1.5 rounded-xl border border-white/[0.07] animate-in fade-in duration-100">
+          <div className="flex items-center justify-between gap-1 text-o1-label font-num bg-o1-card p-1.5 rounded-xl border border-white/[0.07] animate-in fade-in duration-100">
             <div className="flex items-center gap-1">
               <span className="text-o1-muted">{unitLower}</span>
               {[-bumpSmall, bumpSmall, bumpLarge].map((delta) => (

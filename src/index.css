@@ -65,8 +65,6 @@
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-tactical: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --font-telemetry: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* Organic vivid — OLED canvas, bone ink, crimson accent, earth pigments */
   --color-o1-canvas: #000000;
@@ -108,6 +106,43 @@
   --color-o1-iris: #8e7ca8;
   --color-o1-rose: #c9a3a8;
 
+  /* Ink tiers for secondary text and borders, brightest to dimmest. */
+  --color-o1-pure: #ffffff;
+  --color-o1-placeholder: #5e5c55;
+  --color-o1-subtle: #5a5852;
+  --color-o1-cream: #f2f0ea;
+  --color-o1-sand: #f0d7a2;
+  --color-o1-lavender: #a98bcb;
+  --color-o1-alert: #e5484d;
+  --color-o1-hairline: #1f1f1f;
+  --color-o1-raised: #1a1a1a;
+  --color-o1-track: #1f1f23;
+  --color-o1-paper: oklch(96.7% 0.001 286.375);
+  --color-o1-ink-soft: #d4d0c4;
+  --color-o1-faint: #a39b86;
+  --color-o1-dim: #7a7466;
+  --color-o1-edge: #3a3833;
+
+  /* Status tints: each colour's pale text shade and its dark border and wash shades. */
+  --color-o1-crimson-pale: oklch(80.8% 0.114 19.571);
+  --color-o1-crimson-deep: #520609;
+  --color-o1-crimson-wash: oklch(25.8% 0.092 26.042);
+  --color-o1-yellow-pale: oklch(92.4% 0.12 95.746);
+  --color-o1-yellow-soft: oklch(87.9% 0.169 91.605);
+  --color-o1-brown: oklch(55.5% 0.163 48.998);
+  --color-o1-brown-deep: oklch(47.3% 0.137 46.201);
+  --color-o1-brown-edge: oklch(41.4% 0.112 45.904);
+  --color-o1-brown-wash: oklch(27.9% 0.077 45.635);
+  --color-o1-olive-strong: oklch(50.8% 0.118 165.612);
+  --color-o1-olive-deep: oklch(43.2% 0.095 166.913);
+  --color-o1-olive-edge: oklch(37.8% 0.077 168.94);
+  --color-o1-olive-wash: oklch(26.2% 0.051 172.552);
+  --color-o1-blue: oklch(58.8% 0.158 241.966);
+  --color-o1-blue-pale: oklch(82.8% 0.111 230.318);
+  --color-o1-blue-edge: oklch(39.1% 0.09 240.876);
+  --color-o1-pebble: oklch(86.9% 0.005 56.366);
+  --color-o1-pebble-edge: oklch(37.4% 0.01 67.558);
+
   /* Type scale: the only font sizes the app uses. Text tokens follow the text-size setting;
      display tokens follow the display scale. Nothing is smaller than 12px. The stock xs and sm
      sizes are pinned to px as well, so the screen-width root size cannot shrink them. */
@@ -133,54 +168,9 @@
   --color-o1-carbs: #f7c600;
   --color-o1-fat: #6b8f5e;
 
-  --color-red-400: #c4121a;
-  --color-red-500: #c4121a;
-  --color-red-600: #c4121a;
-  --color-red-700: #a30f16;
-  --color-red-800: #800c11;
-  --color-red-900: #520609;
-
+  /* The app's white is warm. Every other colour is a named o1 token above; stock palette classes
+     (red-500, neutral-400 and so on) are not used and a test keeps it that way. */
   --color-white: #f2efe6;
-  --color-neutral-50: #f2efe6;
-  --color-neutral-100: #f2efe6;
-  --color-neutral-200: #d4d0c4;
-  --color-neutral-300: #d9d3c1;
-  --color-neutral-400: #c4bda8;
-  --color-neutral-500: #a39b86;
-  --color-neutral-600: #7a7466;
-  --color-zinc-300: #d9d3c1;
-  --color-zinc-400: #c4bda8;
-  --color-zinc-500: #a39b86;
-  --color-slate-400: #c4bda8;
-  --color-neutral-700: #3a3833;
-  --color-neutral-800: #1c1c1c;
-  --color-neutral-900: #0e0e0e;
-  --color-neutral-950: #000000;
-
-  --color-emerald-400: #6b8f5e;
-  --color-emerald-500: #6b8f5e;
-  --color-emerald-600: #6b8f5e;
-  --color-green-400: #6b8f5e;
-  --color-green-500: #6b8f5e;
-  --color-sky-400: #4f8f9a;
-  --color-sky-500: #4f8f9a;
-  --color-amber-400: #f7c600;
-  --color-amber-500: #f7c600;
-  --color-amber-600: #f7c600;
-  --color-cyan-400: #4f8f9a;
-  --color-cyan-500: #4f8f9a;
-  --color-cyan-950: #16363a;
-  --color-blue-400: #4f8f9a;
-  --color-blue-500: #4f8f9a;
-  --color-indigo-400: #4f8f9a;
-  --color-indigo-500: #4f8f9a;
-  --color-violet-400: #a39b86;
-  --color-purple-400: #a39b86;
-  --color-orange-400: #f7c600;
-  --color-orange-500: #f7c600;
-  --color-rose-300: #c4121a;
-  --color-rose-400: #c4121a;
-  --color-rose-500: #c4121a;
 }
 
 /* Universal Top Font Enforcement across all pages, cards, lines, words, buttons, inputs */
@@ -232,43 +222,19 @@ html {
   }
 }
 
-.font-tactical,
-.font-display,
-.font-sans,
-[class*='font-tactical'],
-[class*='font-display'] {
-  font-family:
-    'Manrope',
-    -apple-system,
-    BlinkMacSystemFont,
-    system-ui,
-    sans-serif !important;
-}
-
-/* Words and everyday figures: Manrope, tabular so prices and stats align. */
-.font-mono,
-.font-telemetry,
-[class*='font-mono'],
-[class*='font-telemetry'],
+/* Words and everyday figures (font-num, tabular-nums): Manrope, tabular so prices and stats align. */
+.font-num,
 .tabular-nums {
-  font-family:
-    'Manrope',
-    -apple-system,
-    BlinkMacSystemFont,
-    system-ui,
-    sans-serif !important;
+  font-family: var(--font-sans);
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: 'tnum', 'lnum', 'cv11';
   letter-spacing: 0;
 }
-
 /* Instrument figures only: dial, set log, history values. */
 #root .o1-num,
 #root .o1-instrument,
-#root .o1-instrument .font-mono,
-#root .o1-instrument [class*='font-mono'],
-#root .o1-log .font-mono,
-#root .o1-log [class*='font-mono'] {
+#root .o1-instrument .font-num,
+#root .o1-log .font-num {
   font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: 'tnum', 'lnum';
@@ -339,6 +305,12 @@ body {
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 }
+
+/* Sheets, density and compact controls (here down to the "Text size setting" block) deliberately
+   override spacing and sizing utilities written in component markup, so one rule can retune every
+   card, sheet and button together. !important is how they win there. Outside this region it only
+   appears in a few single-purpose rules: instrument and unread-dash fonts, no forced caps, and
+   the set-logging cue. */
 
 /* Unified inner content column (canvas remains edge-to-edge) */
 .o1-shell {
@@ -772,15 +744,10 @@ svg.lucide,
 }
 
 /* Translucent colour washes read as fog. Cards stay black. */
-#root [class*='bg-red-950/'],
-#root [class*='bg-red-900/'],
-#root [class*='bg-red-800/'],
-#root [class*='bg-red-500/'],
-#root [class*='bg-red-600/'],
-#root [class*='bg-rose-950/'],
-#root [class*='bg-emerald-950/'],
-#root [class*='bg-amber-950/'],
-#root [class*='bg-sky-950/'] {
+#root [class*='bg-o1-crimson-wash/'],
+#root [class*='bg-o1-crimson-deep/'],
+#root [class*='bg-o1-olive-wash/'],
+#root [class*='bg-o1-brown-wash/'] {
   background-color: #161616 !important;
 }
 #root .o1-mark {
@@ -803,13 +770,6 @@ svg.lucide,
 #root [class*='bg-o1-crimson/'] {
   background-color: #161616 !important;
 }
-#root [class*='shadow-o1-crimson'],
-#root [class*='shadow-red-'] {
-  --tw-shadow: 0 0 #0000 !important;
-  --tw-shadow-colored: 0 0 #0000 !important;
-  box-shadow: none !important;
-}
-
 /* Machined-titanium edge: chamfer highlight on top, soft catch-light below, no drawn border. */
 .o1-machined {
   background-image: linear-gradient(180deg, #1c1c1e 0%, #0d0d0e 52%, #060607 100%);

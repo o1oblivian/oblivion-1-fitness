@@ -50,12 +50,12 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
               }`}
             >
               <div className="flex items-center justify-between gap-1 mb-1">
-                <span className="o1-num text-o1-label font-normal text-neutral-500 font-mono tracking-widest block truncate">
+                <span className="o1-num text-o1-label font-normal text-o1-faint font-num tracking-widest block truncate">
                   {m.label}
                 </span>
                 {onUpdateMetric && !isEditing && (
                   <Edit3
-                    className="w-2.5 h-2.5 shrink-0 text-neutral-500 opacity-50 group-hover:opacity-100 transition-opacity"
+                    className="w-2.5 h-2.5 shrink-0 text-o1-faint opacity-50 group-hover:opacity-100 transition-opacity"
                     strokeWidth={1.5}
                   />
                 )}
@@ -90,7 +90,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
                 <span className="text-o1-control font-light tabular-nums text-white truncate block">
                   {displayText}
                   {!isMissing && m.unit && (
-                    <span className="ml-1 text-o1-label font-light text-neutral-500">{m.unit}</span>
+                    <span className="ml-1 text-o1-label font-light text-o1-faint">{m.unit}</span>
                   )}
                 </span>
               )}
@@ -99,7 +99,7 @@ export const CardioMetricsGrid: React.FC<Props> = ({ metrics, onUpdateMetric }) 
         })}
       </div>
       {onUpdateMetric && (
-        <p className="text-o1-label font-light text-neutral-500 text-center">
+        <p className="text-o1-label font-light text-o1-faint text-center">
           Numbers auto-extracted from photo. Tap any number to edit.
         </p>
       )}

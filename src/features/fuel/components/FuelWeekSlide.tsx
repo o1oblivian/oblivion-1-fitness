@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SegmentedTowers, SegmentedTower } from '../../../components/ui/SegmentedTowers';
 import { MacroTotals, WeekDayEntry, weeklyTrajectory } from '../utils/fuelMath';
+import { COLOR } from '../../../theme/colors';
 
 interface FuelWeekSlideProps {
   days: WeekDayEntry[];
@@ -15,15 +16,15 @@ interface FuelWeekSlideProps {
 type TowerTheme = { slabs: string[]; accent: string };
 
 const STATE_THEME: Record<'on' | 'under' | 'over' | 'today', TowerTheme> = {
-  on: { slabs: ['#059669', '#10B981'], accent: '#10B981' },
-  under: { slabs: ['#C9A000', '#F7C600'], accent: '#F7C600' },
-  over: { slabs: ['#A30F16', '#C4121A'], accent: '#C4121A' },
-  today: { slabs: ['#CFCCC1', '#EAE8DF'], accent: '#EAE8DF' },
+  on: { slabs: [COLOR.emeraldDeep, COLOR.emerald], accent: COLOR.emerald },
+  under: { slabs: [COLOR.yellowDeep, COLOR.yellow], accent: COLOR.yellow },
+  over: { slabs: [COLOR.crimsonHover, COLOR.crimson], accent: COLOR.crimson },
+  today: { slabs: [COLOR.ash, COLOR.text], accent: COLOR.text },
 };
 
 const STATUS_COPY = {
-  on_track: { label: 'On track', className: 'text-emerald-500' },
-  under: { label: 'Under', className: 'text-amber-500' },
+  on_track: { label: 'On track', className: 'text-o1-olive' },
+  under: { label: 'Under', className: 'text-o1-yellow' },
   over: { label: 'Over', className: 'text-o1-crimson' },
 } as const;
 
@@ -146,14 +147,14 @@ export const FuelWeekSlide: React.FC<FuelWeekSlideProps> = ({ days, targets }) =
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-amber-500 font-medium w-14 shrink-0">Carbs</dt>
+          <dt className="text-o1-yellow font-medium w-14 shrink-0">Carbs</dt>
           <dd className="text-o1-text">
             {fmt(t.avgCarbs, 'g')}
             <span className="text-o1-muted"> / {fmt(targets.carbs, 'g')}</span>
           </dd>
         </div>
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-emerald-500 font-medium w-14 shrink-0">Fats</dt>
+          <dt className="text-o1-olive font-medium w-14 shrink-0">Fats</dt>
           <dd className="text-o1-text">
             {fmt(t.avgFats, 'g')}
             <span className="text-o1-muted"> / {fmt(targets.fats, 'g')}</span>

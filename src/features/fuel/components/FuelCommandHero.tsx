@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Droplet, Minus, Settings2 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { EnergyBalance, FuelPace } from '../utils/fuelMath';
+import { COLOR } from '../../../theme/colors';
 
 export interface MacroMeter {
   label: string;
@@ -31,14 +32,14 @@ let lastSlide = 0;
 const SEGMENTS = 12;
 const RING_R = 54;
 const RING_C = 2 * Math.PI * RING_R;
-const BONE = '#EAE8DF';
-const CRIMSON = '#C4121A';
-const EMERALD = '#10B981';
+const BONE = COLOR.text;
+const CRIMSON = COLOR.crimson;
+const EMERALD = COLOR.emerald;
 
 const PACE_COPY: Record<FuelPace, { label: string; className: string }> = {
-  ahead: { label: 'Ahead of pace', className: 'text-amber-500 border-amber-600/40' },
-  on_pace: { label: 'On pace', className: 'text-emerald-500 border-emerald-600/40' },
-  behind: { label: 'Behind pace', className: 'text-sky-500 border-sky-500/50' },
+  ahead: { label: 'Ahead of pace', className: 'text-o1-yellow border-o1-yellow/40' },
+  on_pace: { label: 'On pace', className: 'text-o1-olive border-o1-olive/40' },
+  behind: { label: 'Behind pace', className: 'text-o1-teal border-o1-teal/50' },
 };
 
 function fmtGrams(n: number): string {
@@ -306,7 +307,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
 
         <div className="mt-1.5 pt-3 border-t border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <Droplet className="w-4 h-4 text-sky-500 shrink-0" aria-hidden />
+            <Droplet className="w-4 h-4 text-o1-teal shrink-0" aria-hidden />
             <div className="flex-1 min-w-0">
               <div className="flex items-baseline justify-between">
                 <span className="text-o1-label text-o1-muted">Water</span>
@@ -320,7 +321,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
               </div>
               <div className="h-1.5 mt-1.5 rounded-full bg-white/[0.15] overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-sky-500 transition-[width] duration-300"
+                  className="h-full rounded-full bg-o1-teal transition-[width] duration-300"
                   style={{ width: `${waterShare * 100}%` }}
                 />
               </div>

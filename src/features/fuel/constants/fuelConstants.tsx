@@ -17,31 +17,31 @@ export const MEAL_SLOTS: MealSlotConfig[] = [
     key: 'breakfast',
     label: 'Breakfast',
     icon: <Sun className="w-6 h-6 stroke-[1.75]" />,
-    accent: 'text-amber-500',
+    accent: 'text-o1-yellow',
   },
   {
     key: 'lunch',
     label: 'Lunch',
     icon: <Utensils className="w-6 h-6 stroke-[1.75]" />,
-    accent: 'text-red-500',
+    accent: 'text-o1-crimson',
   },
   {
     key: 'dinner',
     label: 'Dinner',
     icon: <Moon className="w-6 h-6 stroke-[1.75]" />,
-    accent: 'text-sky-500',
+    accent: 'text-o1-teal',
   },
   {
     key: 'snack',
     label: 'Snack',
     icon: <Box className="w-6 h-6 stroke-[1.75]" />,
-    accent: 'text-emerald-500',
+    accent: 'text-o1-olive',
   },
   {
     key: 'drinks',
     label: 'Drinks',
     icon: <Coffee className="w-6 h-6 stroke-[1.75]" />,
-    accent: 'text-[#A98BCB]',
+    accent: 'text-o1-lavender',
   },
 ];
 

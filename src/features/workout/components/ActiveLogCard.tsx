@@ -202,7 +202,7 @@ export const ActiveLogCard: React.FC<ActiveLogCardProps> = ({ onBuildWorkout }) 
       <div className="w-full bg-o1-card rounded-2xl p-2 border border-white/[0.07] space-y-2 text-o1-text select-none transition-colors">
         <div className="flex items-baseline justify-between gap-2 px-0.5">
           <span className="text-o1-control text-o1-text">Active log</span>
-          <span className="font-mono text-o1-label text-o1-muted truncate">
+          <span className="font-num text-o1-label text-o1-muted truncate">
             {kgToDisplay(totalVolume, unit).toLocaleString()} {unitLower} · {totalSets}{' '}
             {totalSets === 1 ? 'set' : 'sets'} · {totalReps} reps
           </span>

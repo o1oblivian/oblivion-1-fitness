@@ -14,7 +14,7 @@ export const BasementOfflineBanner: React.FC = () => {
         aria-label="Offline status"
         className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center gap-2 text-o1-label text-o1-muted select-none z-40"
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+        <span className="w-1.5 h-1.5 rounded-full bg-o1-yellow shrink-0" />
         <span className="truncate">
           Offline. Saved on this phone{pending > 0 ? ` · ${changes} to back up` : ''}
         </span>
@@ -29,7 +29,7 @@ export const BasementOfflineBanner: React.FC = () => {
         className="w-full bg-o1-well border-b border-white/[0.07] px-3 py-1.5 flex items-center justify-between gap-2 text-o1-label text-o1-muted select-none z-40"
       >
         <span className="flex items-center gap-2 min-w-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+          <span className="w-1.5 h-1.5 rounded-full bg-o1-yellow shrink-0" />
           <span className="truncate">
             {syncing ? 'Backing up…' : `${changes} waiting to back up`}
           </span>

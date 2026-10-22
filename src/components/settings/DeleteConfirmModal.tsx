@@ -32,7 +32,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
           <h3 id="delete-account-title" className="text-base font-sans font-semibold text-white">
             Permanently delete account?
           </h3>
-          <p className="text-xs font-sans text-neutral-400 leading-relaxed">
+          <p className="text-xs font-sans text-o1-muted leading-relaxed">
             This will wipe all workout logs, nutrition history, vault media, and personal data. This
             cannot be undone.
           </p>
@@ -43,7 +43,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             type="button"
             disabled={isDeleting}
             onClick={onClose}
-            className="min-h-[44px] rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-neutral-300 hover:text-white text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
+            className="min-h-[44px] rounded-xl border border-white/[0.07] bg-o1-well hover:bg-white/[0.06] text-o1-stone hover:text-white text-xs font-sans font-semibold transition-all active:scale-95 cursor-pointer"
           >
             Cancel
           </button>

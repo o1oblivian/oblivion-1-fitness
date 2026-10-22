@@ -26,16 +26,16 @@ export function PortionMacros({ food, scale, budget }: PortionMacrosProps) {
       name: 'Carbs',
       value: round1(food.carbs * scale),
       left: budget?.carbs,
-      color: 'bg-amber-500',
-      text: 'text-amber-500',
+      color: 'bg-o1-yellow',
+      text: 'text-o1-yellow',
     },
     {
       key: 'F',
       name: 'Fat',
       value: round1(food.fats * scale),
       left: budget?.fats,
-      color: 'bg-emerald-500',
-      text: 'text-emerald-500',
+      color: 'bg-o1-olive',
+      text: 'text-o1-olive',
     },
   ];
 
@@ -55,12 +55,12 @@ export function PortionMacros({ food, scale, budget }: PortionMacrosProps) {
               <>
                 <div className="mt-1.5 h-1 rounded-full bg-white/[0.06] overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${over ? 'bg-amber-500' : m.color} transition-[width] duration-150`}
+                    className={`h-full rounded-full ${over ? 'bg-o1-yellow' : m.color} transition-[width] duration-150`}
                     style={{ width: `${Math.min(100, share * 100)}%` }}
                   />
                 </div>
                 <p
-                  className={`mt-1 text-o1-label tabular-nums ${over ? 'text-amber-500' : 'text-o1-muted'}`}
+                  className={`mt-1 text-o1-label tabular-nums ${over ? 'text-o1-yellow' : 'text-o1-muted'}`}
                 >
                   {over
                     ? `+${round1(m.value - (m.left as number))}g over`

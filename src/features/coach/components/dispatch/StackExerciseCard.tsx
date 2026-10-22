@@ -67,7 +67,7 @@ export const StackExerciseCard: React.FC<StackExerciseCardProps> = ({ exercise, 
           </div>
 
           {exercise.sets.map((set, idx) => (
-            <div key={set.id} className="grid grid-cols-12 gap-1.5 items-center text-xs font-mono">
+            <div key={set.id} className="grid grid-cols-12 gap-1.5 items-center text-xs font-num">
               <span className="col-span-2 text-center text-o1-muted font-bold">#{idx + 1}</span>
               <input
                 type="number"

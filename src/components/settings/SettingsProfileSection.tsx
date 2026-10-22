@@ -180,7 +180,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1">
         Profile &amp; Visibility
       </h3>
 
@@ -248,7 +248,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 onClick={() => setIsEditingName(true)}
               >
                 <h4
-                  className={`font-sans font-semibold text-sm truncate ${localName ? 'text-white' : 'text-neutral-400'}`}
+                  className={`font-sans font-semibold text-sm truncate ${localName ? 'text-white' : 'text-o1-muted'}`}
                 >
                   {localName || 'Add your name'}
                 </h4>
@@ -271,7 +271,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                   autoCapitalize="none"
                   autoCorrect="off"
                   onChange={(e) => setLocalHandle(e.target.value)}
-                  className="bg-black border border-white/[0.07] rounded-xl px-2 min-h-[36px] text-xs font-mono text-neutral-300 focus:outline-none focus:border-o1-crimson w-full"
+                  className="bg-black border border-white/[0.07] rounded-xl px-2 min-h-[36px] text-xs font-num text-o1-stone focus:outline-none focus:border-o1-crimson w-full"
                   autoFocus
                 />
                 <button
@@ -288,7 +288,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                 className="block max-w-full text-left cursor-pointer"
                 onClick={() => setIsEditingHandle(true)}
               >
-                <p className="font-sans text-xs text-neutral-400 truncate">
+                <p className="font-sans text-xs text-o1-muted truncate">
                   {localHandle || 'Add a handle'}
                 </p>
               </button>
@@ -318,7 +318,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
         {/* Athlete Bio Field */}
         <div>
-          <label className="text-o1-label font-tactical text-neutral-400 font-bold block mb-1 tracking-wide">
+          <label className="text-o1-label font-tactical text-o1-muted font-bold block mb-1 tracking-wide">
             Athlete Bio
           </label>
           <textarea
@@ -326,17 +326,17 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             onChange={(e) => onUpdateBio(e.target.value)}
             placeholder="Add training background, PR targets, or coaching philosophy..."
             rows={2}
-            className="w-full text-xs font-sans bg-black border border-white/[0.07] rounded-xl p-2.5 text-neutral-100 placeholder:text-neutral-500 focus:outline-none focus:border-o1-crimson transition-colors resize-none leading-relaxed"
+            className="w-full text-xs font-sans bg-black border border-white/[0.07] rounded-xl p-2.5 text-o1-bone placeholder:text-o1-faint focus:outline-none focus:border-o1-crimson transition-colors resize-none leading-relaxed"
           />
         </div>
 
         {/* Elite Reels Presence Toggle */}
         <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between gap-3">
           <div>
-            <span className="text-xs font-tactical font-semibold text-neutral-100 block">
+            <span className="text-xs font-tactical font-semibold text-o1-bone block">
               Elite Reels Presence
             </span>
-            <span className="text-o1-label font-sans text-neutral-400 leading-tight block">
+            <span className="text-o1-label font-sans text-o1-muted leading-tight block">
               Showcase your profile card and training highlights across reels
             </span>
           </div>
@@ -360,7 +360,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Camera className="w-4 h-4 text-neutral-400" />
+                <Camera className="w-4 h-4 text-o1-muted" />
                 <h4 className="text-xs font-bold font-tactical tracking-wider text-white">
                   Select Profile Avatar
                 </h4>
@@ -368,13 +368,13 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
               <button
                 type="button"
                 onClick={() => setIsAvatarPickerOpen(false)}
-                className="w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-neutral-400 hover:text-white cursor-pointer"
+                className="w-7 h-7 rounded-full bg-white/[0.08] flex items-center justify-center text-o1-muted hover:text-white cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <p className="text-o1-label text-neutral-400 leading-snug">
+            <p className="text-o1-label text-o1-muted leading-snug">
               Select or upload your genuine profile photo. Avatars sync directly to your private{' '}
               {role === 'coach' ? 'Coach' : 'Athlete'} Vault.
             </p>
@@ -400,7 +400,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
 
             {vaultPhotos.length > 0 && (
               <div className="space-y-2">
-                <span className="text-o1-label font-mono font-bold text-neutral-400 block">
+                <span className="text-o1-label font-num font-bold text-o1-muted block">
                   Photos in Your Vault ({vaultPhotos.length})
                 </span>
                 <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-1">
@@ -443,7 +443,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                   setIsAvatarPickerOpen(false);
                   setIsVaultOpen(true);
                 }}
-                className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-white text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-o1-edge text-white text-xs font-bold tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Open {role === 'coach' ? 'Coach' : 'Athlete'} Vault</span>
@@ -454,7 +454,7 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
                   type="button"
                   disabled={avatarBusy}
                   onClick={(e) => void handleRemovePhoto(e)}
-                  className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-neutral-700 text-neutral-300 text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5"
+                  className="w-full py-2 px-3 rounded-xl bg-white/[0.08] hover:bg-o1-edge text-o1-stone text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Remove Avatar</span>

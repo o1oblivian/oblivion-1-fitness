@@ -39,7 +39,7 @@ export const BodyStatusCard: React.FC = () => {
       className="w-full rounded-2xl bg-o1-card border border-white/[0.07] p-4 space-y-3"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-o1-label font-mono font-bold tracking-[0.18em] text-neutral-400">
+        <h3 className="text-o1-label font-num font-bold tracking-[0.18em] text-o1-muted">
           How are you today?
         </h3>
         {state.status === 'sick' || state.status === 'injured' ? (

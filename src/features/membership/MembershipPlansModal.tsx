@@ -131,12 +131,12 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
         <div className="flex items-center justify-between px-5 pt-4 pb-3 shrink-0 border-b border-white/[0.05] bg-o1-card">
           <div>
             <h2 className="text-sm font-bold text-white tracking-wide">Choose Your Plan</h2>
-            <p className="text-o1-label text-neutral-400 font-mono">O1FC Official Membership</p>
+            <p className="text-o1-label text-o1-muted font-num">O1FC Official Membership</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white transition cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-o1-edge flex items-center justify-center text-o1-muted hover:text-white transition cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -155,7 +155,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                 className={`py-2 rounded-xl text-xs font-bold capitalize tracking-wider transition-all cursor-pointer ${
                   userType === t
                     ? 'bg-white/[0.08] text-white shadow-xs font-black'
-                    : 'text-neutral-400 hover:text-white'
+                    : 'text-o1-muted hover:text-white'
                 }`}
               >
                 {t}
@@ -173,10 +173,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between cursor-pointer hover:border-o1-crimson/50 transition-colors"
             >
               <div>
-                <span className="text-o1-label font-mono font-bold tracking-wider text-neutral-300">
+                <span className="text-o1-label font-num font-bold tracking-wider text-o1-stone">
                   Launch special
                 </span>
-                <p className="text-o1-label text-neutral-400 mt-0.5 leading-snug">
+                <p className="text-o1-label text-o1-muted mt-0.5 leading-snug">
                   <strong className="text-white">
                     {plans.priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass
                   </strong>{' '}
@@ -216,7 +216,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           />
 
           {/* Billing Notice */}
-          <div className="flex items-start gap-2 pt-1 text-o1-label text-neutral-400 leading-snug">
+          <div className="flex items-start gap-2 pt-1 text-o1-label text-o1-muted leading-snug">
             <Shield className="w-4 h-4 text-o1-olive shrink-0 mt-0.5" />
             <span>
               {isFreePlanSelected
@@ -232,7 +232,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           {banner && (
             <div
               role="alert"
-              className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono text-center flex items-center justify-center gap-2"
+              className="p-3 rounded-2xl bg-o1-yellow/10 border border-o1-yellow/30 text-o1-yellow text-xs font-num text-center flex items-center justify-center gap-2"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{banner}</span>
@@ -271,13 +271,13 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           </button>
 
           {plans.detail ? (
-            <p className="text-o1-label font-mono text-neutral-500 text-center break-words">
+            <p className="text-o1-label font-num text-o1-faint text-center break-words">
               {plans.detail}
             </p>
           ) : null}
 
           {/* Footer Links & Restore */}
-          <div className="flex items-center justify-center gap-2.5 text-o1-label font-mono text-neutral-400 flex-wrap">
+          <div className="flex items-center justify-center gap-2.5 text-o1-label font-num text-o1-muted flex-wrap">
             <span>App Store or Google Play</span>
             <span>•</span>
             <span>Cancel Anytime</span>

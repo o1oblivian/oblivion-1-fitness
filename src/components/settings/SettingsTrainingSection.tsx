@@ -40,9 +40,7 @@ function DisciplineAndDays() {
     <>
       <div>
         <div className="mb-2">
-          <span className="text-xs font-sans font-semibold text-neutral-100">
-            Primary Discipline
-          </span>
+          <span className="text-xs font-sans font-semibold text-o1-bone">Primary Discipline</span>
         </div>
         <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Primary discipline">
           {disciplines.map((option) => {
@@ -72,10 +70,10 @@ function DisciplineAndDays() {
 
       <div className="pt-3 border-t border-white/[0.05]">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-tactical font-semibold text-neutral-100">
+          <span className="text-xs font-tactical font-semibold text-o1-bone">
             Active Training Days
           </span>
-          <span className="text-o1-label font-mono text-neutral-400">
+          <span className="text-o1-label font-num text-o1-muted">
             {trainingDays.length === 0 ? 'Suggested · ' : ''}
             {shownDays.length} days / week
           </span>
@@ -123,10 +121,8 @@ function TrainingPlaces() {
   return (
     <div className="pt-3 border-t border-white/[0.05]">
       <div className="mb-2">
-        <span className="text-xs font-sans font-semibold text-neutral-100 block">
-          Where you train
-        </span>
-        <span className="text-o1-label font-sans text-neutral-400 block">
+        <span className="text-xs font-sans font-semibold text-o1-bone block">Where you train</span>
+        <span className="text-o1-label font-sans text-o1-muted block">
           {facilities.length === 0
             ? 'Not set. Workouts can use any equipment.'
             : 'Suggested workouts only use equipment you have.'}
@@ -165,7 +161,7 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
 }) => {
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1">
         Training &amp; Schedule
       </h3>
 
@@ -178,10 +174,10 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
         <div className="pt-3 border-t border-white/[0.05] space-y-2.5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <span className="text-xs font-tactical font-semibold text-neutral-200 block">
+              <span className="text-xs font-tactical font-semibold text-o1-ink-soft block">
                 Auto plan
               </span>
-              <span className="text-o1-label font-sans text-neutral-400 block">
+              <span className="text-o1-label font-sans text-o1-muted block">
                 Off means you design your own workouts
               </span>
             </div>
@@ -198,10 +194,10 @@ export const SettingsTrainingSection: React.FC<TrainingSectionProps> = ({
 
           <div className="flex items-center justify-between gap-3 pt-1">
             <div>
-              <span className="text-xs font-tactical font-semibold text-neutral-200 block">
+              <span className="text-xs font-tactical font-semibold text-o1-ink-soft block">
                 Recovery mode
               </span>
-              <span className="text-o1-label font-sans text-neutral-400 block">
+              <span className="text-o1-label font-sans text-o1-muted block">
                 Open Workout on recovery sessions
               </span>
             </div>

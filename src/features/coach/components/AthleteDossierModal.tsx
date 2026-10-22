@@ -69,11 +69,11 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
             <div>
               <h3 className="font-bold text-sm text-o1-text flex items-center gap-2">
                 {athlete.name}
-                <span className="text-o1-label font-mono px-1.5 py-0.5 rounded bg-o1-canvas border border-white/[0.07] text-o1-text">
+                <span className="text-o1-label font-num px-1.5 py-0.5 rounded bg-o1-canvas border border-white/[0.07] text-o1-text">
                   {athlete.status}
                 </span>
               </h3>
-              <p className="text-xs text-o1-muted font-mono">{athlete.handle}</p>
+              <p className="text-xs text-o1-muted font-num">{athlete.handle}</p>
             </div>
           </div>
           <button
@@ -92,21 +92,21 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
           {/* Readiness & Volume Metrics */}
           <div className="grid grid-cols-2 gap-2.5">
             <div className="p-3 rounded-2xl bg-o1-canvas border border-white/[0.07]">
-              <span className="text-o1-label font-mono text-o1-muted block">Readiness Score</span>
-              <div className="text-xl font-mono font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+              <span className="text-o1-label font-num text-o1-muted block">Readiness Score</span>
+              <div className="text-xl font-num font-bold text-o1-olive flex items-center gap-1 mt-0.5">
                 <Activity className="w-4 h-4" />
                 <span>{athlete.readiness ? `${athlete.readiness}%` : '--'}</span>
               </div>
-              <span className="text-o1-label text-o1-muted font-mono">Check-in</span>
+              <span className="text-o1-label text-o1-muted font-num">Check-in</span>
             </div>
 
             <div className="p-3 rounded-2xl bg-o1-canvas border border-white/[0.07]">
-              <span className="text-o1-label font-mono text-o1-muted block">7-Day Volume</span>
-              <div className="text-xl font-mono font-bold text-o1-crimson flex items-center gap-1 mt-0.5">
+              <span className="text-o1-label font-num text-o1-muted block">7-Day Volume</span>
+              <div className="text-xl font-num font-bold text-o1-crimson flex items-center gap-1 mt-0.5">
                 <Flame className="w-4 h-4" />
                 <span>{athlete.volume ? `${(athlete.volume / 1000).toFixed(1)}k kg` : '--'}</span>
               </div>
-              <span className="text-o1-label text-o1-muted font-mono">Tonnage logged</span>
+              <span className="text-o1-label text-o1-muted font-num">Tonnage logged</span>
             </div>
           </div>
 
@@ -126,18 +126,18 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
 
           {/* Activity Status */}
           <div className="space-y-2">
-            <span className="text-xs font-bold text-o1-text tracking-wider flex items-center gap-1.5 font-mono">
+            <span className="text-xs font-bold text-o1-text tracking-wider flex items-center gap-1.5 font-num">
               <Calendar className="w-3.5 h-3.5 text-o1-crimson" />
               Telemetry Status
             </span>
             <div className="p-3 rounded-2xl border border-white/[0.07] bg-black/60 text-xs">
               <div className="flex items-center justify-between font-bold text-o1-text">
                 <span>Active Cycle</span>
-                <span className="text-o1-label font-mono text-o1-muted">
+                <span className="text-o1-label font-num text-o1-muted">
                   {athlete.cycle || athlete.lastActive || '--'}
                 </span>
               </div>
-              <p className="text-o1-label text-o1-muted mt-1 font-mono">
+              <p className="text-o1-label text-o1-muted mt-1 font-num">
                 {athlete.status}
                 {athlete.volume ? ` · ${athlete.volume.toLocaleString()} kg` : ''}
               </p>
@@ -151,7 +151,7 @@ export const AthleteDossierModal: React.FC<AthleteDossierModalProps> = ({
             <button
               type="button"
               onClick={dispatch}
-              className="w-full py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer transition-all font-mono"
+              className="w-full py-2.5 px-4 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-o1-text text-xs font-bold tracking-wider flex items-center justify-center gap-2 shadow-md active:scale-98 cursor-pointer transition-all font-num"
             >
               <Send className="w-4 h-4" />
               <span>Send workout</span>

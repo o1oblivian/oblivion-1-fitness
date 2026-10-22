@@ -55,7 +55,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim transition-opacity">
-      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] shadow-xl overflow-hidden text-neutral-100 flex flex-col">
+      <div className="o1-sheet-card bg-o1-card border border-white/[0.07] shadow-xl overflow-hidden text-o1-bone flex flex-col">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-white/[0.05] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -66,7 +66,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
               <h3 className="font-tactical font-black text-xs tracking-wider text-white">
                 {mode === 'edit' ? theme.title.replace('Log ', 'Edit ') : theme.title}
               </h3>
-              <p className="text-o1-label font-mono text-neutral-400">
+              <p className="text-o1-label font-num text-o1-muted">
                 Date: <span className="text-white font-bold">{dayMeta.dayLabel}</span> ·{' '}
                 {dayMeta.dateFormatted}
               </p>
@@ -76,14 +76,14 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95"
+            className="w-8 h-8 rounded-full bg-o1-well border border-white/[0.07] text-o1-muted hover:text-white flex items-center justify-center cursor-pointer transition-colors active:scale-95"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Scrollable Form Content */}
-        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 font-mono text-xs">
+        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 font-num text-xs">
           {category === 'workout' && <WorkoutLogFields form={workout} focusLift={focusLift} />}
           {category === 'cardio' && <CardioLogFields form={cardio} />}
           {category === 'nutrition' && <NutritionLogFields form={nutrition} />}
@@ -96,7 +96,7 @@ export const LogDayTelemetryModal: React.FC<LogDayTelemetryModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 px-4 rounded-xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-neutral-300 font-bold text-xs tracking-wider transition-all cursor-pointer active:scale-95"
+            className="flex-1 py-3 px-4 rounded-xl bg-o1-well border border-white/[0.07] hover:bg-white/[0.06] text-o1-stone font-bold text-xs tracking-wider transition-all cursor-pointer active:scale-95"
           >
             Cancel
           </button>

@@ -56,11 +56,11 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
   return (
     <div className="o1-instrument o1-dial-stack w-full max-w-[270px] mx-auto flex flex-col items-center select-none">
       <div className="o1-dial-well w-full rounded-2xl bg-o1-well border border-white/[0.07] text-center">
-        <span className="text-o1-label font-mono tracking-wider text-neutral-400 block">
+        <span className="text-o1-label font-num tracking-wider text-o1-muted block">
           TARGET {unit}
         </span>
-        <span className="text-3xl font-mono font-light text-o1-text">
-          {value} <span className="text-sm font-sans text-neutral-400">{unit}</span>
+        <span className="text-3xl font-num font-light text-o1-text">
+          {value} <span className="text-sm font-sans text-o1-muted">{unit}</span>
         </span>
       </div>
 
@@ -71,7 +71,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
             key={d}
             type="button"
             onClick={() => handleDigit(d)}
-            className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-normal text-white active:scale-95 transition-all cursor-pointer"
+            className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-num text-lg font-normal text-white active:scale-95 transition-all cursor-pointer"
           >
             {d}
           </button>
@@ -80,7 +80,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={handleDecimal}
-          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-normal text-white active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-num text-base font-normal text-white active:scale-95 transition-all cursor-pointer flex items-center justify-center"
         >
           .5
         </button>
@@ -88,7 +88,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={() => handleDigit('0')}
-          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-lg font-normal text-white active:scale-95 transition-all cursor-pointer"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-num text-lg font-normal text-white active:scale-95 transition-all cursor-pointer"
         >
           0
         </button>
@@ -96,7 +96,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
         <button
           type="button"
           onClick={handleBackspace}
-          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-mono text-base font-normal text-neutral-300 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+          className="h-11 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] font-num text-base font-normal text-o1-stone active:scale-95 transition-all cursor-pointer flex items-center justify-center"
         >
           <Delete className="w-5 h-5" />
         </button>
@@ -106,7 +106,7 @@ export const DialNumpad: React.FC<DialNumpadProps> = ({ value, unit, max, onChan
       <button
         type="button"
         onClick={handleClear}
-        className="w-full mt-2 py-1.5 rounded-xl hover:bg-white/[0.06] bg-o1-well text-neutral-500 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 transition cursor-pointer"
+        className="w-full mt-2 py-1.5 rounded-xl hover:bg-white/[0.06] bg-o1-well text-o1-faint hover:text-white text-xs font-num font-medium flex items-center justify-center gap-1.5 transition cursor-pointer"
       >
         <RotateCcw className="w-3.5 h-3.5" />
         <span>Reset to 0</span>

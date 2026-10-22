@@ -76,15 +76,13 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
       {/* Sensor Standby State when camera is inactive */}
       {!isStreaming && !error && (
         <div className="absolute inset-0 bg-black flex flex-col items-center justify-center p-4 text-center space-y-1">
-          <div className="w-8 h-8 rounded-xl bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-neutral-400">
+          <div className="w-8 h-8 rounded-xl bg-white/[0.08] border border-white/[0.07] flex items-center justify-center text-o1-muted">
             <Camera className="w-4 h-4" />
           </div>
-          <span className="text-xs font-mono font-bold tracking-widest text-neutral-400">
+          <span className="text-xs font-num font-bold tracking-widest text-o1-muted">
             Sensor Standby
           </span>
-          <p className="text-o1-label text-neutral-600">
-            Initializing optical barcode sensor stream...
-          </p>
+          <p className="text-o1-label text-o1-dim">Initializing optical barcode sensor stream...</p>
         </div>
       )}
 
@@ -92,15 +90,15 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
       {isStreaming && !error && (
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
           <div className="w-48 h-28 border border-white/[0.07] rounded-xl" />
-          <span className="text-o1-label font-mono text-neutral-300 bg-black/60 px-2 py-0.5 rounded mt-2">
+          <span className="text-o1-label font-num text-o1-stone bg-black/60 px-2 py-0.5 rounded mt-2">
             Align Barcode In Sensor Field
           </span>
         </div>
       )}
 
       {error && (
-        <div className="absolute inset-0 bg-black/90 p-4 flex flex-col items-center justify-center text-center text-red-300 text-xs gap-2">
-          <AlertCircle className="w-5 h-5 text-red-400" />
+        <div className="absolute inset-0 bg-black/90 p-4 flex flex-col items-center justify-center text-center text-o1-crimson-pale text-xs gap-2">
+          <AlertCircle className="w-5 h-5 text-o1-crimson" />
           <span>{error}</span>
           <button
             type="button"

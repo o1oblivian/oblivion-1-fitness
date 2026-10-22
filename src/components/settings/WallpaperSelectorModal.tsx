@@ -118,7 +118,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim animate-in fade-in duration-150 select-none"
     >
       <div
-        className="o1-sheet-card w-full bg-black text-neutral-100 border border-white/[0.07] shadow-xl flex flex-col overflow-hidden"
+        className="o1-sheet-card w-full bg-black text-o1-bone border border-white/[0.07] shadow-xl flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-4 py-2 border-b border-white/[0.05] shrink-0 min-h-[44px]">
@@ -129,7 +129,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
             >
               Workout wallpaper
             </h2>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Hybrid · Iron · Track · Combat · Nature — pick, pause, or leave live
             </p>
           </div>
@@ -139,7 +139,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white cursor-pointer transition-colors"
+            className="w-8 h-8 rounded-full bg-white/[0.08] hover:bg-o1-edge flex items-center justify-center text-o1-faint hover:text-white cursor-pointer transition-colors"
             aria-label="Close dialog"
           >
             <X className="w-4 h-4" />
@@ -149,14 +149,14 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <div className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-o1-card border border-white/[0.07]">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-emerald-400 shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-o1-well border border-white/[0.07] flex items-center justify-center text-o1-olive shrink-0">
                 <BatteryCharging className="w-4 h-4" />
               </div>
               <div className="min-w-0">
                 <span className="font-tactical font-bold text-xs tracking-wider text-white block">
                   Show on console
                 </span>
-                <p className="text-o1-label text-neutral-400">
+                <p className="text-o1-label text-o1-muted">
                   {isEnabled
                     ? 'Live rotation on the workout hero'
                     : 'Off — no image load, saves battery'}
@@ -180,8 +180,8 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                   onClick={() => setTopic(id)}
                   className={`min-w-0 py-2 rounded-xl text-o1-label font-bold tracking-wide flex flex-col items-center gap-1 cursor-pointer ${
                     active
-                      ? 'bg-zinc-100 text-neutral-950'
-                      : 'bg-o1-well border border-white/[0.07] text-neutral-400'
+                      ? 'bg-o1-paper text-o1-canvas'
+                      : 'bg-o1-well border border-white/[0.07] text-o1-muted'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -205,7 +205,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
               <div className="flex items-center justify-between px-3 py-2">
                 <div className="min-w-0">
                   <p className="text-o1-label font-semibold truncate">{current.title}</p>
-                  <p className="text-o1-label text-neutral-500 font-mono truncate">
+                  <p className="text-o1-label text-o1-faint font-num truncate">
                     {sourceLabel || 'Live'} · {slideCount} frames
                   </p>
                 </div>
@@ -241,10 +241,10 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
             <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] space-y-2">
               <div className="flex items-center justify-between">
                 <label htmlFor="wallpaper-brightness" className="flex items-center gap-2">
-                  <SunDim className="w-4 h-4 text-neutral-500" />
+                  <SunDim className="w-4 h-4 text-o1-faint" />
                   <span className="font-tactical font-bold text-xs tracking-wider">Brightness</span>
                 </label>
-                <span className="text-o1-label font-mono text-neutral-400 tabular-nums">
+                <span className="text-o1-label font-num text-o1-muted tabular-nums">
                   {brightness}%
                 </span>
               </div>
@@ -259,7 +259,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 className="w-full h-11 accent-o1-crimson cursor-pointer"
                 aria-valuetext={`${brightness}%`}
               />
-              <p className="text-o1-label text-neutral-500">
+              <p className="text-o1-label text-o1-faint">
                 Lower it to make the dials easier to read over bright photos.
               </p>
             </div>
@@ -298,10 +298,10 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
           <div className="p-3 rounded-2xl bg-o1-card border border-white/[0.07] space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-neutral-500" />
+                <Clock className="w-4 h-4 text-o1-faint" />
                 <span className="font-tactical font-bold text-xs tracking-wider">Auto-rotate</span>
               </div>
-              <span className="text-o1-label font-mono text-neutral-500">
+              <span className="text-o1-label font-num text-o1-faint">
                 {isPaused ? 'Paused' : `${intervalSeconds}s`}
               </span>
             </div>
@@ -320,8 +320,8 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                     key={sec}
                     type="button"
                     onClick={() => setIntervalSeconds(sec)}
-                    className={`py-1.5 rounded-xl text-o1-label font-mono font-bold cursor-pointer ${
-                      intervalSeconds === sec ? 'bg-black text-white' : 'text-neutral-500'
+                    className={`py-1.5 rounded-xl text-o1-label font-num font-bold cursor-pointer ${
+                      intervalSeconds === sec ? 'bg-black text-white' : 'text-o1-faint'
                     }`}
                   >
                     {sec}s
@@ -337,7 +337,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 void refreshLive(true);
                 onShowToast?.('Shuffled a fresh set');
               }}
-              className="w-full py-2 rounded-xl bg-zinc-100 text-neutral-950 font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-2 rounded-xl bg-o1-paper text-o1-canvas font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>{isLoading ? 'Shuffling set…' : 'Shuffle set'}</span>
@@ -358,7 +358,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               fileRef.current?.click();
             }}
-            className="w-full py-2.5 px-4 rounded-xl bg-o1-well border border-white/[0.07] text-neutral-200 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            className="w-full py-2.5 px-4 rounded-xl bg-o1-well border border-white/[0.07] text-o1-ink-soft font-semibold text-xs tracking-wide flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
           >
             <ImagePlus className="w-4 h-4" />
             <span>
@@ -377,7 +377,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
                 clearCustomWallpaper();
                 onShowToast?.('Your photo removed from rotation');
               }}
-              className="w-full py-2 px-4 rounded-xl text-neutral-400 font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-2 px-4 rounded-xl text-o1-muted font-semibold text-xs flex items-center justify-center gap-2 cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Remove my photo</span>
@@ -392,7 +392,7 @@ export const WallpaperSelectorModal: React.FC<WallpaperSelectorModalProps> = ({
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="px-5 py-2.5 rounded-xl bg-zinc-100 hover:opacity-90 text-neutral-950 font-semibold text-xs tracking-wide cursor-pointer active:scale-[0.98] transition-all"
+            className="px-5 py-2.5 rounded-xl bg-o1-paper hover:opacity-90 text-o1-canvas font-semibold text-xs tracking-wide cursor-pointer active:scale-[0.98] transition-all"
           >
             Done
           </button>

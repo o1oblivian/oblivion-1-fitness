@@ -19,10 +19,8 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <FileText className="w-4 h-4 text-o1-crimson" />
             </div>
             <div>
-              <h2 className="text-sm font-black tracking-wider text-neutral-100">
-                Terms of Service
-              </h2>
-              <p className="text-o1-label font-mono text-neutral-400">
+              <h2 className="text-sm font-black tracking-wider text-o1-bone">Terms of Service</h2>
+              <p className="text-o1-label font-num text-o1-muted">
                 Apple &amp; Google Distribution Compliance
               </p>
             </div>
@@ -33,19 +31,19 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="p-1.5 text-neutral-400 hover:text-white rounded-full bg-o1-card border border-white/[0.07] cursor-pointer"
+            className="p-1.5 text-o1-muted hover:text-white rounded-full bg-o1-card border border-white/[0.07] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="overflow-y-auto no-scrollbar py-4 space-y-4 text-xs font-mono text-neutral-300 leading-relaxed">
+        <div className="overflow-y-auto no-scrollbar py-4 space-y-4 text-xs font-num text-o1-stone leading-relaxed">
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="flex items-center gap-1.5 text-o1-teal font-bold text-o1-label">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>1. Subscription Billing &amp; Auto-Renewal</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Club Pass subscriptions are billed directly through your Apple ID or Google Play
               Account, at the price shown in the store before you confirm. Subscriptions
               automatically renew unless auto-renew is cancelled at least 24 hours prior to the end
@@ -60,7 +58,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>2. Not a Medical App</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Oblivion 1 is a training log and coaching tool. It is not a medical device and does
               not diagnose, treat, monitor or prevent any disease, injury or medical condition.
               Readiness scores, reports, estimated 1RMs, nutrition targets, scans and coach messages
@@ -77,7 +75,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>3. Training Safety &amp; Assumption of Risk</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Strength and cardio training carry a risk of injury. You train at your own risk and
               are responsible for warming up, using correct technique, choosing loads within your
               ability, using spotters or safety equipment, and stopping when something hurts.
@@ -88,10 +86,10 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-olive font-bold text-o1-label">
               <span>4. Community Code of Conduct</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Coaches and athletes agree to zero harassment. There is no tolerance for
               objectionable, abusive, sexual, hateful or illegal content in profiles, photos, reels,
               reviews or messages. You can report any profile, reel, coach or message, and block any
@@ -103,11 +101,11 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="flex items-center gap-1.5 text-sky-400 font-bold text-o1-label">
+            <div className="flex items-center gap-1.5 text-o1-teal font-bold text-o1-label">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>5. Local-First Architecture &amp; Data Ownership</span>
             </div>
-            <p className="text-o1-label text-neutral-400">
+            <p className="text-o1-label text-o1-muted">
               Oblivion 1 operates on a local-first model. Workout data, roster files, and nutrition
               telemetry reside on the user's hardware. Users maintain complete ownership of their
               local vault and are responsible for maintaining their exported backups.
@@ -115,8 +113,8 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
-            <div className="text-o1-label text-neutral-200 font-bold">6. Governing Law</div>
-            <p className="text-o1-label text-neutral-400">
+            <div className="text-o1-label text-o1-ink-soft font-bold">6. Governing Law</div>
+            <p className="text-o1-label text-o1-muted">
               Governed by commercial digital distribution standards of Apple Inc. and Google LLC.
               Contact: legal@oblivion1.club.
             </p>
@@ -130,7 +128,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               tactileEngine.triggerSelectionBuzz();
               onClose();
             }}
-            className="w-full py-2.5 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 font-mono text-xs font-semibold tracking-wide cursor-pointer transition active:scale-[0.98]"
+            className="w-full py-2.5 rounded-xl bg-o1-paper hover:bg-white text-o1-canvas font-num text-xs font-semibold tracking-wide cursor-pointer transition active:scale-[0.98]"
           >
             Acknowledge &amp; Return
           </button>

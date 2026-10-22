@@ -33,10 +33,10 @@ export const ProgramCoverArtworkPicker: React.FC<Props> = ({
         <img src={coverImage} alt="Program Artwork" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/40 p-2.5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="px-2 py-0.5 rounded-md bg-black/60 text-o1-label font-mono font-bold text-o1-text border border-white/[0.07]">
+            <span className="px-2 py-0.5 rounded-md bg-black/60 text-o1-label font-num font-bold text-o1-text border border-white/[0.07]">
               Program Artwork
             </span>
-            <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-o1-label font-mono font-bold border border-emerald-500/30 flex items-center gap-1">
+            <span className="px-2 py-0.5 rounded-md bg-o1-olive/20 text-o1-olive text-o1-label font-num font-bold border border-o1-olive/30 flex items-center gap-1">
               <Check className="w-2.5 h-2.5" />
               Active
             </span>

@@ -22,7 +22,7 @@ interface ScheduledRemindersModalProps {
 }
 
 const INPUT =
-  'bg-black border border-white/[0.07] rounded-xl px-2.5 min-h-[44px] text-xs font-mono text-white focus:outline-none focus:border-o1-crimson disabled:opacity-40';
+  'bg-black border border-white/[0.07] rounded-xl px-2.5 min-h-[44px] text-xs font-num text-white focus:outline-none focus:border-o1-crimson disabled:opacity-40';
 
 export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = ({
   isOpen,
@@ -70,14 +70,14 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
       <div className="o1-sheet-card bg-black border border-white/[0.07] w-full p-5 shadow-xl relative space-y-4 overflow-y-auto text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-red-950/40 border border-red-900/50 flex items-center justify-center text-o1-crimson">
+            <div className="w-8 h-8 rounded-xl bg-o1-crimson-wash/40 border border-o1-crimson-deep/50 flex items-center justify-center text-o1-crimson">
               <Bell className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-tactical font-bold text-sm text-neutral-100 tracking-wider">
+              <h3 className="font-tactical font-bold text-sm text-o1-bone tracking-wider">
                 Scheduled Reminders
               </h3>
-              <span className="text-o1-label text-neutral-400 block">
+              <span className="text-o1-label text-o1-muted block">
                 Set on this phone. Nothing is sent anywhere.
               </span>
             </div>
@@ -86,7 +86,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-11 h-11 -mr-2 rounded-full text-neutral-400 hover:text-white flex items-center justify-center cursor-pointer transition-colors"
+            className="w-11 h-11 -mr-2 rounded-full text-o1-muted hover:text-white flex items-center justify-center cursor-pointer transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -95,7 +95,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         {blockedReason ? (
           <p
             role="status"
-            className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-o1-label text-amber-300"
+            className="rounded-xl border border-o1-yellow/30 bg-o1-yellow/10 px-3 py-2 text-o1-label text-o1-yellow-soft"
           >
             {blockedReason}
           </p>
@@ -107,7 +107,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
               <span className="text-xs font-tactical font-bold text-white block">
                 Training time
               </span>
-              <span className="text-o1-label text-neutral-400 block">
+              <span className="text-o1-label text-o1-muted block">
                 {preWorkoutOn
                   ? `Reminder ${PRE_WORKOUT_LEAD_MIN} min before`
                   : 'Pre-workout reminder is off in Settings'}
@@ -133,10 +133,10 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
                   aria-label={day}
                   disabled={!preWorkoutOn}
                   onClick={() => toggleDay(day)}
-                  className={`min-h-[44px] rounded-xl text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-40 ${
+                  className={`min-h-[44px] rounded-xl text-xs font-num font-bold transition-all cursor-pointer disabled:opacity-40 ${
                     active
                       ? 'bg-o1-crimson text-white'
-                      : 'bg-black text-neutral-400 border border-white/[0.07]'
+                      : 'bg-black text-o1-muted border border-white/[0.07]'
                   }`}
                 >
                   {day.slice(0, 2)}
@@ -151,7 +151,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
             <span className="text-xs font-tactical font-bold text-white block">
               Recovery check-in
             </span>
-            <span className="text-o1-label text-neutral-400 block">
+            <span className="text-o1-label text-o1-muted block">
               Every evening: log sleep and how you feel
             </span>
           </div>
@@ -175,7 +175,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
           <div className="space-y-0.5 min-w-0">
             <span className="text-xs font-tactical font-bold text-white block">Weigh-in</span>
-            <span className="text-o1-label text-neutral-400 block">
+            <span className="text-o1-label text-o1-muted block">
               Every morning: step on the scale and log it
             </span>
           </div>
@@ -199,7 +199,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         <div className="bg-o1-well border border-white/[0.07] rounded-xl p-3 flex items-center justify-between gap-3">
           <div className="space-y-0.5 min-w-0">
             <span className="text-xs font-tactical font-bold text-white block">Drink water</span>
-            <span className="text-o1-label text-neutral-400 block">
+            <span className="text-o1-label text-o1-muted block">
               {HYDRATION_START_HOUR}am to {HYDRATION_END_HOUR - 12}pm
             </span>
           </div>
@@ -227,7 +227,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
         <button
           type="button"
           onClick={handleSave}
-          className="w-full min-h-[44px] px-4 rounded-xl bg-zinc-100 hover:bg-white text-neutral-950 font-semibold text-xs tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+          className="w-full min-h-[44px] px-4 rounded-xl bg-o1-paper hover:bg-white text-o1-canvas font-semibold text-xs tracking-wide flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
         >
           <Check className="w-4 h-4 stroke-[3]" />
           <span>Save Reminders</span>

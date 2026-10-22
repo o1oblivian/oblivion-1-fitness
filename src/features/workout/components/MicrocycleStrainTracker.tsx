@@ -12,9 +12,9 @@ import { useSimpleMode } from '../../../stores/useDisplayPrefs';
 import { PLAIN_LOAD } from '../../../utils/acwrMath';
 
 const ACWR_TONE: Record<string, string> = {
-  Optimal: 'text-emerald-500 border-emerald-600/40',
-  Underload: 'text-sky-600 border-sky-600/40',
-  Caution: 'text-amber-500 border-amber-600/40',
+  Optimal: 'text-o1-olive border-o1-olive/40',
+  Underload: 'text-o1-blue border-o1-blue/40',
+  Caution: 'text-o1-yellow border-o1-yellow/40',
   'High risk': 'text-o1-crimson border-o1-crimson/50',
 };
 
@@ -109,7 +109,7 @@ export const MicrocycleStrainTracker: React.FC = () => {
           </div>
         </div>
         <span
-          className={`shrink-0 text-o1-label font-mono px-2 py-0.5 rounded-full border bg-o1-well tabular-nums ${pillTone}`}
+          className={`shrink-0 text-o1-label font-num px-2 py-0.5 rounded-full border bg-o1-well tabular-nums ${pillTone}`}
           title="This week's training compared with your usual 4-week average"
         >
           {pillText}
@@ -128,7 +128,7 @@ export const MicrocycleStrainTracker: React.FC = () => {
           <span className="text-o1-label uppercase tracking-[0.12em] text-o1-muted block">
             {simple ? 'Total lifted' : 'Volume'}
           </span>
-          <span className="font-mono font-light text-o1-control text-o1-text block tabular-nums">
+          <span className="font-num font-light text-o1-control text-o1-text block tabular-nums">
             {totalVolume > 0 ? `${tonnes(kgToDisplay(totalVolume, unit))} ${unitLower}` : '--'}
           </span>
           <span className="text-o1-label text-o1-muted block">
@@ -141,7 +141,7 @@ export const MicrocycleStrainTracker: React.FC = () => {
           <span className="text-o1-label uppercase tracking-[0.12em] text-o1-muted block">
             Sets
           </span>
-          <span className="font-mono font-light text-o1-control text-o1-text block tabular-nums">
+          <span className="font-num font-light text-o1-control text-o1-text block tabular-nums">
             {totalSets > 0 ? totalSets : '--'}
           </span>
           <span className="text-o1-label text-o1-muted block">

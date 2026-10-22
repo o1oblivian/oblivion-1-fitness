@@ -101,7 +101,7 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
       <div
         role="dialog"
         aria-label={`Share ${link.title}`}
-        className="w-full max-w-xl rounded-t-2xl border-t border-[#1F1F1F] bg-o1-card p-4 pb-safe text-o1-text animate-in slide-in-from-bottom duration-200"
+        className="w-full max-w-xl rounded-t-2xl border-t border-o1-hairline bg-o1-card p-4 pb-safe text-o1-text animate-in slide-in-from-bottom duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -128,7 +128,7 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
               }}
               className="flex flex-col items-center gap-1.5 rounded-xl py-2 active:scale-[0.97]"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1A1A] text-o1-text">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-o1-raised text-o1-text">
                 {channel.icon}
               </span>
               <span className="text-o1-label text-o1-muted">{channel.label}</span>
@@ -139,7 +139,7 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
             onClick={() => void copy()}
             className="flex flex-col items-center gap-1.5 rounded-xl py-2 active:scale-[0.97]"
           >
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#1A1A1A] text-o1-text">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-o1-raised text-o1-text">
               {copied ? <Check size={20} /> : <Copy size={20} />}
             </span>
             <span className="text-o1-label text-o1-muted">{copied ? 'Copied' : 'Copy link'}</span>
@@ -151,7 +151,7 @@ export const ShareLinkSheet: React.FC<ShareLinkSheetProps> = ({ link, onClose })
           readOnly
           value={link.url}
           onFocus={(e) => e.currentTarget.select()}
-          className="mt-3 h-[44px] w-full rounded-xl border border-[#1F1F1F] bg-black px-3 text-o1-caption text-o1-muted outline-none focus:border-o1-crimson"
+          className="mt-3 h-[44px] w-full rounded-xl border border-o1-hairline bg-black px-3 text-o1-caption text-o1-muted outline-none focus:border-o1-crimson"
           aria-label="Link"
         />
       </div>

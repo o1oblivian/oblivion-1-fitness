@@ -47,7 +47,7 @@ export const LogWeekStrip: React.FC<LogWeekStripProps> = ({
                 {item.dayName.slice(0, 3)}
               </span>
               <span
-                className={`font-mono text-o1-title leading-none ${
+                className={`font-num text-o1-title leading-none ${
                   item.trained
                     ? 'font-semibold text-o1-emerald'
                     : `font-light ${item.isToday ? 'text-o1-crimson' : isSelected ? 'text-o1-text' : 'text-o1-text/80'}`

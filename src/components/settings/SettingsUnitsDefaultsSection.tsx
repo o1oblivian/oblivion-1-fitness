@@ -102,7 +102,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
 
   return (
     <div className="space-y-2 select-none">
-      <h3 className="text-xs font-tactical tracking-wider text-neutral-400 font-bold px-1">
+      <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1">
         Units &amp; Targets
       </h3>
 
@@ -124,7 +124,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 <Footprints className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-tactical font-semibold text-neutral-100 block">
+                <span className="text-xs font-tactical font-semibold text-o1-bone block">
                   Daily Step Target
                 </span>
                 <span className="text-o1-label font-sans text-white tabular-nums block truncate font-semibold">
@@ -133,12 +133,12 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-neutral-400 shrink-0">
-              <span className="text-o1-label font-mono">{stepsExpanded ? 'Close' : 'Adjust'}</span>
+            <div className="flex items-center gap-1.5 text-o1-muted shrink-0">
+              <span className="text-o1-label font-num">{stepsExpanded ? 'Close' : 'Adjust'}</span>
               {stepsExpanded ? (
-                <ChevronUp className="w-4 h-4 text-neutral-400" />
+                <ChevronUp className="w-4 h-4 text-o1-muted" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-neutral-400" />
+                <ChevronDown className="w-4 h-4 text-o1-muted" />
               )}
             </div>
           </button>
@@ -147,7 +147,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
             <div className="px-4 pb-4 pt-1 border-t border-white/[0.05] space-y-3.5 animate-in fade-in duration-150">
               {/* Tactical Mobile Keypad Input Card */}
               <div className="p-4 rounded-xl bg-o1-well border border-white/[0.07] flex flex-col items-center gap-3">
-                <span className="text-o1-label font-tactical font-bold text-neutral-400 tracking-wider">
+                <span className="text-o1-label font-tactical font-bold text-o1-muted tracking-wider">
                   Target Steps / Day
                 </span>
 
@@ -155,11 +155,11 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                   <button
                     type="button"
                     onClick={() => adjustSteps(-STEP_INCREMENT)}
-                    className="w-12 h-12 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-neutral-200 flex items-center justify-center font-mono font-bold cursor-pointer active:scale-95 transition-all shadow-xs"
+                    className="w-12 h-12 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-o1-ink-soft flex items-center justify-center font-num font-bold cursor-pointer active:scale-95 transition-all shadow-xs"
                     title="Decrease 500 steps"
                     aria-label="Decrease 500 steps"
                   >
-                    <Minus className="w-5 h-5 text-neutral-300" />
+                    <Minus className="w-5 h-5 text-o1-stone" />
                   </button>
 
                   <div className="flex flex-col items-center">
@@ -178,7 +178,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                           if (e.key === 'Enter') e.currentTarget.blur();
                         }}
                         aria-label="Daily step target"
-                        className="w-44 text-center font-mono font-black text-3xl text-white bg-black border border-white/[0.07] focus:border-o1-crimson rounded-2xl py-2 px-3 outline-none transition-all shadow-inner tracking-tight"
+                        className="w-44 text-center font-num font-black text-3xl text-white bg-black border border-white/[0.07] focus:border-o1-crimson rounded-2xl py-2 px-3 outline-none transition-all shadow-inner tracking-tight"
                       />
                     </div>
                   </div>
@@ -186,16 +186,16 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                   <button
                     type="button"
                     onClick={() => adjustSteps(STEP_INCREMENT)}
-                    className="w-12 h-12 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-neutral-200 flex items-center justify-center font-mono font-bold cursor-pointer active:scale-95 transition-all shadow-xs"
+                    className="w-12 h-12 rounded-xl bg-o1-well hover:bg-white/[0.06] border border-white/[0.07] text-o1-ink-soft flex items-center justify-center font-num font-bold cursor-pointer active:scale-95 transition-all shadow-xs"
                     title="Increase 500 steps"
                     aria-label="Increase 500 steps"
                   >
-                    <Plus className="w-5 h-5 text-neutral-300" />
+                    <Plus className="w-5 h-5 text-o1-stone" />
                   </button>
                 </div>
 
                 {/* Telemetry Estimation */}
-                <div className="flex items-center justify-center gap-3 text-o1-label font-mono text-neutral-400">
+                <div className="flex items-center justify-center gap-3 text-o1-label font-num text-o1-muted">
                   <span>
                     ~
                     {distanceUnit === 'mi'
@@ -213,7 +213,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                     onClick={handleApplySet}
                     className={`o1-pill font-sans font-semibold text-xs cursor-pointer active:scale-95 ${
                       isSavedRecently
-                        ? 'bg-emerald-600 text-white'
+                        ? 'bg-o1-olive text-white'
                         : 'bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white'
                     }`}
                   >
@@ -243,10 +243,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 <Scale className="w-4 h-4" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-tactical font-semibold text-neutral-100 block">
+                <span className="text-xs font-tactical font-semibold text-o1-bone block">
                   Units &amp; Barbell Defaults
                 </span>
-                <span className="text-o1-label font-mono text-neutral-400 block truncate">
+                <span className="text-o1-label font-num text-o1-muted block truncate">
                   {weightUnit.toUpperCase()} · {distanceUnit.toUpperCase()} · Bar:{' '}
                   {weightUnit === 'lbs'
                     ? `${Math.round(defaultBarbellKg * 2.20462)}lbs`
@@ -256,12 +256,12 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-neutral-400 shrink-0">
-              <span className="text-o1-label font-mono">{unitsExpanded ? 'Close' : 'Adjust'}</span>
+            <div className="flex items-center gap-1.5 text-o1-muted shrink-0">
+              <span className="text-o1-label font-num">{unitsExpanded ? 'Close' : 'Adjust'}</span>
               {unitsExpanded ? (
-                <ChevronUp className="w-4 h-4 text-neutral-400" />
+                <ChevronUp className="w-4 h-4 text-o1-muted" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-neutral-400" />
+                <ChevronDown className="w-4 h-4 text-o1-muted" />
               )}
             </div>
           </button>
@@ -271,7 +271,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
               {/* Unit System Toggles */}
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block mb-1">
+                  <span className="text-o1-label font-tactical font-bold text-o1-muted block mb-1">
                     Weight Unit
                   </span>
                   <div className="grid grid-cols-2 bg-o1-well p-0.5 rounded-lg border border-white/[0.07]">
@@ -281,10 +281,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetWeightUnit('kg');
                       }}
-                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-num font-bold rounded-md transition-all cursor-pointer ${
                         weightUnit === 'kg'
                           ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
+                          : 'text-o1-muted hover:text-white'
                       }`}
                     >
                       KG
@@ -295,10 +295,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetWeightUnit('lbs');
                       }}
-                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-num font-bold rounded-md transition-all cursor-pointer ${
                         weightUnit === 'lbs'
                           ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
+                          : 'text-o1-muted hover:text-white'
                       }`}
                     >
                       LBS
@@ -307,7 +307,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 </div>
 
                 <div>
-                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block mb-1">
+                  <span className="text-o1-label font-tactical font-bold text-o1-muted block mb-1">
                     Distance
                   </span>
                   <div className="grid grid-cols-2 bg-o1-well p-0.5 rounded-lg border border-white/[0.07]">
@@ -317,10 +317,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetDistanceUnit('km');
                       }}
-                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-num font-bold rounded-md transition-all cursor-pointer ${
                         distanceUnit === 'km'
                           ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
+                          : 'text-o1-muted hover:text-white'
                       }`}
                     >
                       KM
@@ -331,10 +331,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetDistanceUnit('mi');
                       }}
-                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-num font-bold rounded-md transition-all cursor-pointer ${
                         distanceUnit === 'mi'
                           ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
+                          : 'text-o1-muted hover:text-white'
                       }`}
                     >
                       Mi
@@ -343,7 +343,7 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                 </div>
 
                 <div>
-                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block mb-1">
+                  <span className="text-o1-label font-tactical font-bold text-o1-muted block mb-1">
                     Height Unit
                   </span>
                   <div className="grid grid-cols-2 bg-o1-well p-0.5 rounded-lg border border-white/[0.07]">
@@ -353,10 +353,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetHeightUnit('cm');
                       }}
-                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-num font-bold rounded-md transition-all cursor-pointer ${
                         heightUnit === 'cm'
                           ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
+                          : 'text-o1-muted hover:text-white'
                       }`}
                     >
                       Cm
@@ -367,10 +367,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetHeightUnit('in');
                       }}
-                      className={`py-1 min-h-[44px] text-xs font-mono font-bold rounded-md transition-all cursor-pointer ${
+                      className={`py-1 min-h-[44px] text-xs font-num font-bold rounded-md transition-all cursor-pointer ${
                         heightUnit === 'in'
                           ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'text-neutral-400 hover:text-white'
+                          : 'text-o1-muted hover:text-white'
                       }`}
                     >
                       In
@@ -382,8 +382,8 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
               {/* Default Barbell Preset */}
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center gap-1.5">
-                  <Dumbbell className="w-3.5 h-3.5 text-neutral-400" />
-                  <span className="text-o1-label font-tactical font-bold text-neutral-400 block">
+                  <Dumbbell className="w-3.5 h-3.5 text-o1-muted" />
+                  <span className="text-o1-label font-tactical font-bold text-o1-muted block">
                     Default Olympic Barbell Type
                   </span>
                 </div>
@@ -399,12 +399,12 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                       className={`p-2 min-h-[44px] rounded-xl border text-xs font-tactical flex items-center justify-between transition-all cursor-pointer ${
                         defaultBarbellKg === b.value
                           ? 'bg-o1-crimson border-o1-crimson text-white font-bold'
-                          : 'bg-o1-well border-white/[0.07] text-neutral-400 hover:text-white'
+                          : 'bg-o1-well border-white/[0.07] text-o1-muted hover:text-white'
                       }`}
                     >
                       <span>{b.label}</span>
                       <span
-                        className={`font-mono text-o1-label ${defaultBarbellKg === b.value ? 'text-white/80' : 'text-neutral-400'}`}
+                        className={`font-num text-o1-label ${defaultBarbellKg === b.value ? 'text-white/80' : 'text-o1-muted'}`}
                       >
                         {weightUnit === 'lbs'
                           ? `${Math.round(b.value * 2.20462)} lbs`
@@ -419,16 +419,16 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
               <div className="space-y-1.5 pt-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-neutral-400" />
-                    <span className="text-o1-label font-tactical font-bold text-neutral-400 block">
+                    <Clock className="w-3.5 h-3.5 text-o1-muted" />
+                    <span className="text-o1-label font-tactical font-bold text-o1-muted block">
                       Rest timer
                     </span>
                   </div>
-                  <span className="text-xs font-mono font-bold text-o1-crimson">
+                  <span className="text-xs font-num font-bold text-o1-crimson">
                     {defaultRestSeconds === 0 ? 'Off' : `${defaultRestSeconds} seconds`}
                   </span>
                 </div>
-                <p className="text-o1-label font-sans text-neutral-400 leading-snug">
+                <p className="text-o1-label font-sans text-o1-muted leading-snug">
                   {defaultRestSeconds === 0
                     ? "The timer won't start by itself after a set."
                     : 'Starts after each set. Exercises with their own rest time use that instead.'}
@@ -442,10 +442,10 @@ export const SettingsUnitsDefaultsSection: React.FC<UnitsDefaultsSectionProps> =
                         tactileEngine.triggerSelectionBuzz();
                         onSetDefaultRest(opt.value);
                       }}
-                      className={`py-1.5 min-h-[44px] rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
+                      className={`py-1.5 min-h-[44px] rounded-xl text-xs font-num font-bold transition-all cursor-pointer ${
                         defaultRestSeconds === opt.value
                           ? 'bg-o1-crimson text-white shadow-xs'
-                          : 'bg-o1-well border border-white/[0.07] text-neutral-400 hover:text-white'
+                          : 'bg-o1-well border border-white/[0.07] text-o1-muted hover:text-white'
                       }`}
                     >
                       {opt.label}

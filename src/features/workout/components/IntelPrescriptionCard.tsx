@@ -25,12 +25,12 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
           Prescription · {prescription.length} movements
         </span>
         {outdated ? (
-          <span className="text-o1-label font-mono font-light text-o1-amber-deep">
+          <span className="text-o1-label font-num font-light text-o1-amber-deep">
             Options changed. Create again.
           </span>
         ) : (
           estCalories > 0 && (
-            <span className="text-o1-caption font-mono font-light text-o1-text">
+            <span className="text-o1-caption font-num font-light text-o1-text">
               ~{estCalories} kcal
             </span>
           )
@@ -57,7 +57,7 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
               key={drill.id || idx}
               className="bg-o1-well border border-white/[0.07] rounded-2xl px-3 py-3 flex items-center gap-3"
             >
-              <span className="w-6 h-6 rounded-lg border border-white/[0.14] text-o1-muted font-mono text-o1-label flex items-center justify-center shrink-0">
+              <span className="w-6 h-6 rounded-lg border border-white/[0.14] text-o1-muted font-num text-o1-label flex items-center justify-center shrink-0">
                 {idx + 1}
               </span>
               <div className="min-w-0 flex-1">
@@ -66,7 +66,7 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
                   {drill.targetMuscle || 'Compound'}
                 </p>
               </div>
-              <span className="text-o1-label font-mono font-light text-o1-text shrink-0 text-right">
+              <span className="text-o1-label font-num font-light text-o1-text shrink-0 text-right">
                 {target}
               </span>
             </div>

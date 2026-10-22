@@ -106,7 +106,7 @@ export const DispatchLibraryTab: React.FC<DispatchLibraryTabProps> = ({ stack, o
                   <p className="text-o1-label text-o1-muted truncate">
                     {item.muscleTarget} · {item.equipment}
                   </p>
-                  <p className="text-o1-label text-o1-muted font-mono">
+                  <p className="text-o1-label text-o1-muted font-num">
                     {item.defaultSets} sets · {item.defaultReps} reps ·{' '}
                     {item.defaultWeightKg > 0 ? `${item.defaultWeightKg}kg` : 'BW'}
                   </p>

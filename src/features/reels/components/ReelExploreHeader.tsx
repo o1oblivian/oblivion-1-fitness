@@ -40,7 +40,7 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer"
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full flex items-center justify-center text-o1-stone hover:text-white transition-all cursor-pointer"
           aria-label="Close reels"
         >
           <X className="w-4 h-4" />
@@ -48,20 +48,20 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
       </div>
 
       <div className="relative w-full">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-500" />
+        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-o1-faint" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search exercises, cues, coaches..."
-          className="w-full bg-o1-well border border-white/[0.07] rounded-full pl-9 pr-8 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-o1-crimson transition-colors"
+          className="w-full bg-o1-well border border-white/[0.07] rounded-full pl-9 pr-8 py-2 text-xs text-white placeholder-o1-faint focus:outline-none focus:border-o1-crimson transition-colors"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => setSearchQuery('')}
             aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-o1-muted hover:text-white"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -90,12 +90,12 @@ export const ReelExploreHeader: React.FC<ReelExploreHeaderProps> = ({
               className={`shrink-0 px-3 py-1 rounded-full text-o1-label font-semibold whitespace-nowrap transition-all cursor-pointer ${
                 isSelected
                   ? 'bg-o1-crimson text-white'
-                  : 'bg-o1-card text-o1-muted border border-[#1F1F1F]'
+                  : 'bg-o1-card text-o1-muted border border-o1-hairline'
               }`}
             >
               {tab.label}
               <span
-                className={`ml-1.5 tabular-nums ${isSelected ? 'text-white/70' : 'text-[#5A5852]'}`}
+                className={`ml-1.5 tabular-nums ${isSelected ? 'text-white/70' : 'text-o1-subtle'}`}
               >
                 {count}
               </span>

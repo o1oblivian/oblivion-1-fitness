@@ -1,5 +1,6 @@
 import React from 'react';
 import { GOOD, TONE_CHIP, TONE_HEX, type Tone } from '../palette';
+import { COLOR } from '../../../theme/colors';
 
 export const SectionCard: React.FC<{
   title: string;
@@ -8,10 +9,8 @@ export const SectionCard: React.FC<{
 }> = ({ title, subtitle, children }) => (
   <section className="w-full rounded-2xl bg-o1-card border border-white/[0.07] p-4 space-y-3">
     <div>
-      <h3 className="text-o1-label font-mono font-bold tracking-[0.18em] text-neutral-400">
-        {title}
-      </h3>
-      {subtitle && <p className="text-o1-label text-neutral-500 mt-0.5">{subtitle}</p>}
+      <h3 className="text-o1-label font-num font-bold tracking-[0.18em] text-o1-muted">{title}</h3>
+      {subtitle && <p className="text-o1-label text-o1-faint mt-0.5">{subtitle}</p>}
     </div>
     {children}
   </section>
@@ -22,7 +21,7 @@ export const ToneChip: React.FC<{ tone: Tone; children: React.ReactNode }> = ({
   children,
 }) => (
   <span
-    className={`inline-flex items-center px-2.5 py-1 rounded-full border text-o1-label font-mono font-bold tracking-wider ${TONE_CHIP[tone]}`}
+    className={`inline-flex items-center px-2.5 py-1 rounded-full border text-o1-label font-num font-bold tracking-wider ${TONE_CHIP[tone]}`}
   >
     {children}
   </span>
@@ -34,9 +33,9 @@ export const StatCell: React.FC<{ label: string; value: string; sub?: string }> 
   sub,
 }) => (
   <div className="rounded-xl bg-o1-surface border border-white/[0.07] p-3 min-h-[68px]">
-    <div className="text-o1-label font-mono font-bold tracking-wider text-neutral-500">{label}</div>
-    <div className="text-lg font-black font-mono text-white leading-tight mt-1">{value}</div>
-    {sub && <div className="text-o1-label font-mono text-neutral-500 mt-0.5">{sub}</div>}
+    <div className="text-o1-label font-num font-bold tracking-wider text-o1-faint">{label}</div>
+    <div className="text-lg font-black font-num text-white leading-tight mt-1">{value}</div>
+    {sub && <div className="text-o1-label font-num text-o1-faint mt-0.5">{sub}</div>}
   </div>
 );
 
@@ -73,7 +72,7 @@ export const DayBars: React.FC<DayBarsProps> = ({
             key={i}
             className="flex-1 flex flex-col items-center justify-end gap-1 h-full min-w-0"
           >
-            <span className="text-o1-label font-mono text-neutral-400 leading-none truncate max-w-full">
+            <span className="text-o1-label font-num text-o1-muted leading-none truncate max-w-full">
               {v === null ? '--' : format(v)}
             </span>
             <div className="relative w-full flex-1 flex items-end rounded-sm bg-white/[0.04]">
@@ -87,13 +86,11 @@ export const DayBars: React.FC<DayBarsProps> = ({
                 className="w-full rounded-sm transition-[height] duration-500"
                 style={{
                   height: `${h}%`,
-                  background: highlight?.[i] === false ? '#3f3f46' : TONE_HEX[tone],
+                  background: highlight?.[i] === false ? COLOR.off : TONE_HEX[tone],
                 }}
               />
             </div>
-            <span className="text-o1-label font-mono text-neutral-500 leading-none">
-              {labels[i]}
-            </span>
+            <span className="text-o1-label font-num text-o1-faint leading-none">{labels[i]}</span>
           </div>
         );
       })}
@@ -129,7 +126,7 @@ export const ZoneGauge: React.FC<{
           />
         )}
       </div>
-      <div className="flex justify-between text-o1-label font-mono text-neutral-600">
+      <div className="flex justify-between text-o1-label font-num text-o1-dim">
         {ticks.map((t) => (
           <span key={t}>{t}</span>
         ))}

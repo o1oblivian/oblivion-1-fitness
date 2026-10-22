@@ -75,17 +75,17 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h4 className="font-bold text-sm text-white font-tactical">{scannedMeal.dishName}</h4>
-          <span className="text-o1-label text-neutral-400 font-mono">
+          <span className="text-o1-label text-o1-muted font-num">
             {scannedMeal.servingDescription || `${weight}g portion`}
           </span>
         </div>
         {isBarcode ? (
-          <span className="text-o1-label font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3 text-emerald-400" />
+          <span className="text-o1-label font-num px-2 py-0.5 rounded-full bg-o1-olive/20 text-o1-olive border border-o1-olive/40 flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3 text-o1-olive" />
             100% Match
           </span>
         ) : confidence !== null && confidence > 0 ? (
-          <span className="text-o1-label font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">
+          <span className="text-o1-label font-num px-2 py-0.5 rounded-full bg-o1-teal/15 text-o1-teal border border-o1-teal/30">
             {confidence}% Match
           </span>
         ) : null}
@@ -94,7 +94,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       {/* Universal Modifiers */}
       <div className="space-y-1.5 pt-1 border-t border-white/[0.05] text-o1-label">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-mono text-neutral-400 w-9">Prep:</span>
+          <span className="font-num text-o1-muted w-9">Prep:</span>
           {(['lean', 'oil'] as const).map((p) => (
             <button
               key={p}
@@ -106,7 +106,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
               className={`px-2 py-0.5 rounded-xl font-tactical font-bold transition cursor-pointer border ${
                 prep === p
                   ? 'bg-o1-crimson text-white border-o1-crimson'
-                  : 'bg-white/5 text-neutral-400 border-white/[0.07]'
+                  : 'bg-white/5 text-o1-muted border-white/[0.07]'
               }`}
             >
               {p === 'lean' ? 'Lean / Air-Fried' : 'Cooked in Oil (+8g Fat)'}
@@ -114,7 +114,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
           ))}
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-mono text-neutral-400 w-9">Extra:</span>
+          <span className="font-num text-o1-muted w-9">Extra:</span>
           {(['plain', 'sauce'] as const).map((d) => (
             <button
               key={d}
@@ -125,8 +125,8 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
               }}
               className={`px-2 py-0.5 rounded-xl font-tactical font-bold transition cursor-pointer border ${
                 dressing === d
-                  ? 'bg-amber-600 text-black border-amber-600'
-                  : 'bg-white/5 text-neutral-400 border-white/[0.07]'
+                  ? 'bg-o1-yellow text-black border-o1-yellow'
+                  : 'bg-white/5 text-o1-muted border-white/[0.07]'
               }`}
             >
               {d === 'plain' ? 'Plain' : 'Sauce (+6g C, +4g F)'}
@@ -137,7 +137,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
 
       {/* Stepper (+/- 10g & +/- 25g) */}
       <div className="p-2 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1.5">
-        <div className="flex items-center justify-between text-xs font-tactical font-bold text-neutral-300">
+        <div className="flex items-center justify-between text-xs font-tactical font-bold text-o1-stone">
           <span>Portion Weight</span>
           <div className="flex items-center gap-1 bg-black px-2 py-0.5 rounded-xl border border-white/[0.07]">
             <input
@@ -147,9 +147,9 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
               placeholder="0"
               onFocus={(e) => e.currentTarget.select()}
               onChange={(e) => setWeightText(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              className="w-12 bg-transparent text-center font-mono font-bold text-xs text-white focus:outline-hidden"
+              className="w-12 bg-transparent text-center font-num font-bold text-xs text-white focus:outline-hidden"
             />
-            <span className="text-o1-label font-mono text-neutral-400">g</span>
+            <span className="text-o1-label font-num text-o1-muted">g</span>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-1.5">
@@ -161,7 +161,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
                 tactileEngine.triggerSelectionBuzz();
                 setWeight((w) => w + delta);
               }}
-              className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-o1-label font-mono font-bold text-neutral-200 transition cursor-pointer active:scale-95"
+              className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-o1-label font-num font-bold text-o1-ink-soft transition cursor-pointer active:scale-95"
             >
               {delta > 0 ? `+${delta}g` : `${delta}g`}
             </button>
@@ -174,20 +174,20 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
         {[
           { label: 'CAL', val: calories ?? '--', color: 'text-white' },
           { label: 'PRO', val: protein === null ? '--' : `${protein}g`, color: 'text-o1-crimson' },
-          { label: 'CARB', val: carbs === null ? '--' : `${carbs}g`, color: 'text-amber-400' },
-          { label: 'FAT', val: fat === null ? '--' : `${fat}g`, color: 'text-emerald-400' },
+          { label: 'CARB', val: carbs === null ? '--' : `${carbs}g`, color: 'text-o1-yellow' },
+          { label: 'FAT', val: fat === null ? '--' : `${fat}g`, color: 'text-o1-olive' },
         ].map((m) => (
           <div key={m.label} className="p-1.5 rounded-xl bg-o1-well border border-white/[0.07]">
-            <span className="text-o1-label text-neutral-400 block font-sans font-semibold">
+            <span className="text-o1-label text-o1-muted block font-sans font-semibold">
               {m.label}
             </span>
-            <span className={`text-xs font-bold font-mono ${m.color}`}>{m.val}</span>
+            <span className={`text-xs font-bold font-num ${m.color}`}>{m.val}</span>
           </div>
         ))}
       </div>
 
       {!hasAllMacros && (
-        <p className="text-o1-label font-mono text-amber-400 text-center">
+        <p className="text-o1-label font-num text-o1-yellow text-center">
           Some macros could not be read. Add this meal manually to log exact values.
         </p>
       )}
@@ -204,7 +204,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       </button>
 
       {/* Apple 1.4.1 / Google Health Compliance Disclaimer Footer */}
-      <p className="text-o1-label font-mono text-neutral-400 text-center leading-tight pt-0.5">
+      <p className="text-o1-label font-num text-o1-muted text-center leading-tight pt-0.5">
         Nutritional values are estimates for general wellness only. Not medical or dietetic advice.
       </p>
     </div>
