@@ -23,7 +23,7 @@ export interface CardioTelemetryResult {
 }
 
 /** How long the app waits for the photo reader: its AI attempt, then its backup, with room to spare. */
-export const SCAN_WAIT_MS = 55_000;
+export const SCAN_WAIT_MS = 60_000;
 
 export interface MealNutrientsResult {
   mealName: string;

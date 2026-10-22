@@ -1,4 +1,4 @@
-﻿import type { Express } from 'express';
+import type { Express } from 'express';
 import { recognizeTelemetryFromBuffer } from '../../src/services/ocrTelemetryParser';
 import {
   generateContentWithFallback,
@@ -9,11 +9,15 @@ import {
 import { errorMessage } from '../../shared/errorMessage';
 
 /**
- * Time allowed for the AI reader on a photo, then for the backup reader. Together they stay inside
- * the 55 seconds the app waits, so a busy model gives an answer instead of a silent timeout.
+ * Time allowed for the AI reader on a photo. Gemini sometimes takes half a minute to answer one, so
+ * a second model is raced against it after 6 seconds. The on-server text reader starts at the same
+ * time as Gemini, so when Gemini gives up its answer is usually ready. Both stay inside the 60
+ * seconds the app waits.
  */
-const SCAN_AI_LIMITS = { attemptTimeoutMs: 12_000, budgetMs: 22_000 };
-const OCR_FALLBACK_MS = 20_000;
+const SCAN_AI_LIMITS = { attemptTimeoutMs: 24_000, budgetMs: 26_000, hedgeAfterMs: 6_000 };
+const OCR_FALLBACK_MS = 22_000;
+/** A meal photo has no backup reader, and the app waits 75 seconds for it. */
+const MEAL_AI_LIMITS = { attemptTimeoutMs: 45_000, budgetMs: 60_000, hedgeAfterMs: 8_000 };
 
 /** Photo reading: cardio consoles and watches, and meal photos. */
 export function registerVisionRoutes(app: Express): void {
@@ -26,9 +30,14 @@ export function registerVisionRoutes(app: Express): void {
       }
       const cleanBase64 = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
 
-      // Tesseract is slow on the hosted CPU, so it only runs when Gemini is unavailable or reads nothing.
+      // Tesseract is slow on the hosted CPU, so it starts now and works while Gemini is asked.
+      // Its reading backs up Gemini, and stands in when Gemini cannot answer.
       const imgBuffer = Buffer.from(cleanBase64, 'base64');
       let ocrExtracted = null as Awaited<ReturnType<typeof recognizeTelemetryFromBuffer>> | null;
+      const ocrRead = recognizeTelemetryFromBuffer(imgBuffer).then(
+        (reading) => (ocrExtracted = reading),
+        () => null,
+      );
 
       const genAI = getGenAI();
       // True when the AI reader could not answer, so "nothing found" below does not mean the screen was empty.
@@ -184,7 +193,7 @@ Return STRICT JSON matching this schema:
       }
 
       ocrExtracted = await Promise.race([
-        recognizeTelemetryFromBuffer(imgBuffer),
+        ocrRead,
         new Promise<null>((resolve) => setTimeout(() => resolve(null), OCR_FALLBACK_MS)),
       ]);
       if (
@@ -331,6 +340,7 @@ Return valid JSON only matching:
               responseMimeType: 'application/json',
               thinkingConfig: QUICK_READ_THINKING,
             },
+            MEAL_AI_LIMITS,
           );
 
           const text = response.text || '';
