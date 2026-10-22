@@ -166,7 +166,7 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
                 tactileEngine.triggerLightTick();
                 onSelect(story.category, 'ALL');
               }}
-              className="group flex flex-col items-center shrink-0 w-[80px] cursor-pointer active:scale-95 transition-transform duration-200 focus-visible:outline-none"
+              className="group flex flex-col items-center shrink-0 w-[88px] cursor-pointer active:scale-95 transition-transform duration-200 focus-visible:outline-none"
             >
               <span
                 className={`relative block w-[76px] h-[76px] rounded-full p-[2px] transition-all duration-300 group-focus-visible:ring-white/60 ${ring}`}
