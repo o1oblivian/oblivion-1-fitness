@@ -18,6 +18,8 @@ export interface FoodItemRecord {
   country: string;
   is_custom?: boolean;
   source?: 'openfoodfacts' | 'custom' | 'usda';
+  /** Full-size product photo. Rows draw it small so it stays sharp. */
+  image?: string;
   /** What the food database states about vegan, gluten free and similar. */
   diet?: DietFacts;
 }

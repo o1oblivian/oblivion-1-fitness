@@ -25,7 +25,8 @@ export interface DialInputModalProps {
   step?: number;
   presets?: number[];
   accentColor?: string;
-  onConfirm: (val: number) => void;
+  /** Return true to keep the dial open (the next field is ready). */
+  onConfirm: (val: number) => void | boolean;
 }
 
 export const DialInputModal: React.FC<DialInputModalProps> = ({
@@ -45,12 +46,15 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
   const { value, setValue, svgRef, handlePointerDown } = useDialDrag(config, initialValue);
 
   useEffect(() => {
-    if (isOpen) {
-      setValue(initialValue);
-      const style = readAthleteSettingsSnapshot().inputStyle;
-      setMode(style === 'Keypad' ? 'numpad' : 'dial');
-    }
+    if (!isOpen) return;
+    setValue(initialValue);
   }, [isOpen, initialValue, setValue]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const style = readAthleteSettingsSnapshot().inputStyle;
+    setMode(style === 'Keypad' ? 'numpad' : 'dial');
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -108,7 +112,6 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
             config={config}
             svgRef={svgRef}
             onPointerDown={handlePointerDown}
-            onCenterClick={() => setMode('numpad')}
           />
         ) : (
           <DialNumpad
@@ -126,7 +129,7 @@ export const DialInputModal: React.FC<DialInputModalProps> = ({
           accentColor={config.accentColor}
           onSelectPreset={(val) => setValue(val)}
           onConfirm={() => {
-            onConfirm(value);
+            if (onConfirm(value)) return;
             onClose();
           }}
         />

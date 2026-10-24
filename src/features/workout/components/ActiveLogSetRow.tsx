@@ -8,8 +8,8 @@ import { setIsPr } from '../services/sessionPr';
 import { nextSetCue } from '../services/setCue';
 import { SwipeToReveal } from './SwipeToReveal';
 import { useSimpleMode } from '../../../stores/useDisplayPrefs';
+import type { DialFollowStep } from './activeLog/useSetDial';
 
-const RPE_CHOICES = [6, 7, 8, 9, 10];
 /** Simple mode asks in words; each answer is stored as the RPE it stands for. */
 const FEEL_CHOICES: { label: string; rpe: number }[] = [
   { label: 'Easy', rpe: 6 },
@@ -32,7 +32,11 @@ export interface ActiveLogSetRowProps {
   swipeHint?: boolean;
   removeLabel?: string;
   removeAriaLabel?: string;
-  onOpenDial: (type: 'weight' | 'reps' | 'rpe', currentVal: number) => void;
+  onOpenDial: (
+    type: 'weight' | 'reps' | 'rpe',
+    currentVal: number,
+    follow?: DialFollowStep[],
+  ) => void;
   onRemoveSet: () => void;
   onToggleDone?: () => void;
   onQuickUpdateSet?: (updates: Partial<ExerciseSet>) => void;
@@ -59,6 +63,8 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   const [pendingTick, setPendingTick] = useState(false);
   const [touched, setTouched] = useState({ reps: false, weight: false });
   const awaitingRpe = useRef(false);
+  /** First pass from the reps box walks reps, then weight, then effort. A later tap opens that box only. */
+  const guided = useRef(true);
   const doneRef = useRef(Boolean(isDone));
   const toggleRef = useRef(onToggleDone);
   const wasDone = useRef(Boolean(isDone));
@@ -98,7 +104,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   });
   const repsCue = cue === 'values' && !(hasReps && touched.reps);
   const weightCue = cue === 'values' && hasWeight && !touched.weight;
-  const showRpe = Boolean(onQuickUpdateSet) && (rpeOpen || (simple && cue === 'effort'));
+  const showRpe = Boolean(onQuickUpdateSet) && simple && (rpeOpen || cue === 'effort');
 
   useEffect(() => {
     doneRef.current = Boolean(isDone);
@@ -121,6 +127,7 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   useEffect(() => {
     if (!awaitingRpe.current || !hasRpe) return;
     awaitingRpe.current = false;
+    guided.current = false;
     setTouched({ reps: true, weight: true });
     if (!isDone && hasReps) setPendingTick(true);
   }, [hasRpe, rpeVal, isDone, hasReps]);
@@ -164,25 +171,25 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
       setLockNote(true);
       return;
     }
-    if (type === 'rpe') awaitingRpe.current = true;
-    else setTouched((t) => ({ ...t, [type]: true }));
-    onOpenDial(type, value);
-  };
-
-  const toggleRpePanel = () => {
-    tactileEngine.triggerSelectionBuzz();
-    if (isDone) {
-      setLockNote(true);
-      return;
-    }
-    setPendingTick(false);
-    setRpeOpen((open) => !open);
+    const chain = type === 'reps' && guided.current;
+    if (type === 'rpe' || (chain && !simple)) awaitingRpe.current = true;
+    if (type !== 'rpe') setTouched((t) => ({ ...t, [type]: true }));
+    const follow: DialFollowStep[] = chain
+      ? simple
+        ? [{ field: 'weight', value: weightKg }]
+        : [
+            { field: 'weight', value: weightKg },
+            { field: 'rpe', value: rpeVal },
+          ]
+      : [];
+    onOpenDial(type, value, follow);
   };
 
   /** Effort picked: close the panel and let the set tick itself unless undone. */
   const pickRpe = (rpe: number) => {
     tactileEngine.triggerSelectionBuzz();
     onQuickUpdateSet?.({ rpe });
+    guided.current = false;
     setRpeOpen(false);
     setTouched({ reps: true, weight: true });
     if (!isDone && hasReps) setPendingTick(true);
@@ -191,7 +198,11 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
   const undoAutoTick = () => {
     tactileEngine.triggerSelectionBuzz();
     setPendingTick(false);
-    setRpeOpen(true);
+    if (simple) {
+      setRpeOpen(true);
+      return;
+    }
+    openValue('rpe', rpeVal);
   };
 
   const handleQuickWeight = (displayDelta: number) => {
@@ -261,9 +272,8 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
           {simple ? null : (
             <button
               type="button"
-              onClick={toggleRpePanel}
-              aria-expanded={showRpe}
-              className={`${pill} ${valueTone} ${cue === 'effort' && !showRpe ? 'o1-cue-shake' : ''}`}
+              onClick={() => openValue('rpe', rpeVal)}
+              className={`${pill} ${valueTone} ${cue === 'effort' ? 'o1-cue-shake' : ''}`}
               aria-label={`RPE ${hasRpe ? rpeVal : 'not set'}${isDone ? ', locked' : ''}`}
             >
               {hasRpe ? rpeVal : '--'}
@@ -322,43 +332,6 @@ export const ActiveLogSetRow: React.FC<ActiveLogSetRowProps> = ({
                 {label}
               </button>
             ))}
-          </div>
-        )}
-
-        {showRpe && !simple && (
-          <div
-            className="flex items-center gap-1.5 px-1 animate-in fade-in duration-150"
-            role="group"
-            aria-label="How hard was that set?"
-          >
-            {RPE_CHOICES.map((value) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => pickRpe(value)}
-                aria-pressed={rpeVal === value}
-                className={`flex-1 h-7 rounded-lg border font-num text-o1-body cursor-pointer active:scale-[0.97] transition ${
-                  rpeVal === value
-                    ? 'border-o1-crimson text-o1-text bg-o1-sheet'
-                    : 'border-white/[0.07] text-o1-muted hover:text-o1-text'
-                }`}
-              >
-                {value}
-              </button>
-            ))}
-            {isDone ? null : (
-              <button
-                type="button"
-                onClick={() => {
-                  setRpeOpen(false);
-                  openValue('rpe', rpeVal);
-                }}
-                aria-label="More RPE values"
-                className="w-8 h-7 shrink-0 rounded-lg border border-white/[0.07] text-o1-body text-o1-muted hover:text-o1-text cursor-pointer active:scale-[0.97] transition"
-              >
-                …
-              </button>
-            )}
           </div>
         )}
 

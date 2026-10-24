@@ -42,26 +42,24 @@ export const BlueprintCard: React.FC<BlueprintCardProps> = ({
           : 'border-white/[0.07] hover:border-white/[0.14]'
       }`}
     >
-      <div className="p-3 space-y-2.5">
-        <div className="flex items-start gap-3">
-          <div className="w-15 h-15 rounded-xl overflow-hidden shrink-0 bg-white/[0.08] relative">
-            <img src={bp.image} alt={bp.title} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <span className="absolute bottom-1 left-1 right-1 text-o1-label font-medium text-white text-center truncate">
-              {bp.badge}
-            </span>
+      <div className="relative h-40 w-full overflow-hidden bg-o1-well">
+        <img src={bp.image} alt="" className="o1-photo absolute inset-0 h-full w-full" />
+        <div className="o1-photo-scrim pointer-events-none absolute inset-0" />
+        <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 px-3 pb-3">
+          <div className="min-w-0">
+            <p className="o1-editorial text-o1-caption text-white/80">{bp.badge}</p>
+            <h4 className="truncate text-o1-title font-bold leading-tight text-white">{bp.title}</h4>
           </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-1">
-              <h4 className="text-xs font-medium text-white truncate">{bp.title}</h4>
-              {isActive && (
-                <span className="px-1.5 py-0.5 rounded text-o1-label font-num font-medium bg-o1-crimson/10 text-o1-crimson shrink-0">
-                  Active
-                </span>
-              )}
-            </div>
-            <p className="text-o1-label text-o1-muted truncate mt-0.5">{bp.subtitle}</p>
+          {isActive && (
+            <span className="mb-0.5 shrink-0 rounded px-1.5 py-0.5 text-o1-label font-num font-medium bg-o1-crimson/10 text-o1-crimson">
+              Active
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="space-y-2.5 p-3">
+        <div className="min-w-0">
+            <p className="text-o1-label text-o1-muted truncate">{bp.subtitle}</p>
             <div className="flex items-center gap-3 mt-1.5 text-o1-label font-num text-o1-muted">
               <span className="flex items-center gap-1">
                 <Clock className="w-3 h-3 text-o1-muted" />
@@ -73,7 +71,6 @@ export const BlueprintCard: React.FC<BlueprintCardProps> = ({
               </span>
             </div>
           </div>
-        </div>
 
         <div className="flex flex-wrap gap-1">
           {bp.targetMuscles.slice(0, 4).map((muscle) => (

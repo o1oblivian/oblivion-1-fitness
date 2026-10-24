@@ -1,8 +1,10 @@
 import React from 'react';
 import { Plus, Trash2, Camera } from 'lucide-react';
+import { StillThumb } from '../../../components/StillThumb';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { MealItem } from '../store/useFuelStore';
 import { MealSlotConfig, SlotKey } from '../constants/fuelConstants';
+import { foodStill } from '../utils/foodStill';
 
 const SLOT_NOTE: Partial<Record<SlotKey, string>> = {
   drinks: 'Hydration & electrolytes',
@@ -100,7 +102,8 @@ export const FuelIntakeSlotCard: React.FC<FuelIntakeSlotCardProps> = ({
               key={item.id}
               className="flex items-center justify-between gap-2 pl-3.5 pr-2 py-2.5 rounded-2xl bg-o1-well border border-white/[0.07]"
             >
-              <div className="min-w-0">
+              <StillThumb src={foodStill(item)} />
+              <div className="min-w-0 flex-1">
                 <span className="block text-o1-body font-medium text-o1-text truncate">
                   {item.name}
                 </span>

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
+import { StillThumb } from '../../../components/StillThumb';
 import { ExerciseDefinition } from '../../../types/workout';
 import { calculateCalorieBurn, getAthleteWeightKg } from '../../../utils/physiologyEngine';
+import { exerciseStill } from '../utils/exerciseStill';
 
 interface ManualModeExerciseCardProps {
   exercise: ExerciseDefinition;
@@ -23,6 +25,7 @@ export const ManualModeExerciseCard: React.FC<ManualModeExerciseCardProps> = ({
 
   return (
     <div className="p-3 bg-o1-card border border-white/[0.07] rounded-xl text-white shadow-xs flex items-center justify-between gap-3 select-none transition-colors">
+      <StillThumb src={exerciseStill(exercise.name, exercise.movementPattern)} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-o1-label font-num text-o1-muted font-medium tracking-wider">

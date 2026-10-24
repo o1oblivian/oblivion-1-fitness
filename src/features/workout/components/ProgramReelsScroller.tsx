@@ -73,7 +73,7 @@ const StoryCover: React.FC<{ src: string; fallback: string; dim: boolean }> = ({
       src={failed === src ? fallback : src}
       alt=""
       onError={() => setFailed(src)}
-      className={`w-full h-full object-cover object-center transition-all duration-300 group-hover:scale-105 ${dim ? 'opacity-70' : ''}`}
+      className={`o1-photo h-full w-full transition-all duration-300 group-hover:scale-105 ${dim ? 'opacity-70' : ''}`}
       loading="lazy"
       decoding="async"
     />

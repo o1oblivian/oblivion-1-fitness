@@ -18,7 +18,9 @@ interface FuelCommandHeroProps {
   burnedKcal: number;
   macros: MacroMeter[];
   weekSlide: React.ReactNode;
-  /** Sits at the foot of the card, under the water row. */
+  /** Weight trend, inside the dashboard card under today's numbers. */
+  trend?: React.ReactNode;
+  /** Sits below the dashboard card, with water. */
   insight?: React.ReactNode;
   waterL: number;
   waterGoalL: number | null;
@@ -95,6 +97,7 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
   burnedKcal,
   macros,
   weekSlide,
+  trend,
   insight,
   waterL,
   waterGoalL,
@@ -305,7 +308,12 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
           ))}
         </div>
 
-        <div className="mt-1.5 pt-3 border-t border-white/[0.08]">
+        {trend}
+
+      </div>
+
+      <div className="mt-3 rounded-3xl border border-white/[0.1] bg-gradient-to-b from-o1-sheet to-o1-surface p-4">
+        <div>
           <div className="flex items-center gap-3">
             <Droplet className="w-4 h-4 text-o1-teal shrink-0" aria-hidden />
             <div className="flex-1 min-w-0">
@@ -353,8 +361,12 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
             </button>
           </div>
         </div>
-        {insight}
       </div>
+      {insight ? (
+        <div className="mt-3 rounded-3xl border border-white/[0.1] bg-gradient-to-b from-o1-sheet to-o1-surface px-4 py-3">
+          {insight}
+        </div>
+      ) : null}
     </section>
   );
 };

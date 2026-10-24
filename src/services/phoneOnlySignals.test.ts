@@ -33,6 +33,7 @@ describe('planReminders', () => {
       workoutTime: '18:00',
       selectedDays: ['Mon'],
       recoveryOn: false,
+      weighInOn: false,
     });
     expect(plan).toEqual([expect.objectContaining({ weekday: 1, hour: 17, minute: 30 })]);
   });
@@ -43,6 +44,7 @@ describe('planReminders', () => {
       workoutTime: '00:15',
       selectedDays: ['Sun'],
       recoveryOn: false,
+      weighInOn: false,
     });
     expect(plan).toEqual([expect.objectContaining({ weekday: 6, hour: 23, minute: 45 })]);
   });
@@ -55,11 +57,14 @@ describe('planReminders', () => {
     };
     const held = planReminders(on, config, true);
     expect(planReminders(on, config).length).toBe(held.length + 2);
-    expect(held).toEqual([expect.objectContaining({ body: expect.stringContaining('Wind down') })]);
+    expect(held).toEqual([
+      expect.objectContaining({ body: expect.stringContaining('Wind down') }),
+      expect.objectContaining({ weekday: 1, body: expect.stringContaining('scale') }),
+    ]);
   });
 
-  it('adds a daily weigh-in nudge only when asked for', () => {
-    const base = { ...DEFAULT_REMINDERS, recoveryOn: false };
+  it('adds a Monday weigh-in nudge, and skips it when turned off', () => {
+    const base = { ...DEFAULT_REMINDERS, recoveryOn: false, weighInOn: false };
     expect(planReminders(on, { ...base, selectedDays: [] })).toEqual([]);
     const plan = planReminders(on, {
       ...base,
@@ -68,9 +73,13 @@ describe('planReminders', () => {
       weighInTime: '06:45',
     });
     expect(plan).toEqual([
-      expect.objectContaining({ hour: 6, minute: 45, body: expect.stringContaining('scale') }),
+      expect.objectContaining({
+        weekday: 1,
+        hour: 6,
+        minute: 45,
+        body: expect.stringContaining('scale'),
+      }),
     ]);
-    expect(plan[0].weekday).toBeUndefined();
   });
 
   it('gives every reminder its own id', () => {
@@ -85,7 +94,13 @@ describe('planReminders', () => {
   it('spreads water reminders from 8am to 8pm with unique ids', () => {
     const plan = planReminders(
       { osPushEnabled: true, preWorkoutReminder: false },
-      { ...DEFAULT_REMINDERS, recoveryOn: false, hydrationOn: true, hydrationHours: 3 },
+      {
+        ...DEFAULT_REMINDERS,
+        recoveryOn: false,
+        weighInOn: false,
+        hydrationOn: true,
+        hydrationHours: 3,
+      },
     );
     expect(plan.map((p) => p.hour)).toEqual([8, 11, 14, 17, 20]);
     expect(new Set(plan.map((p) => p.id)).size).toBe(plan.length);

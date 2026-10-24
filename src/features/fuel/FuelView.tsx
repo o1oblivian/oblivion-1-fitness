@@ -19,8 +19,6 @@ import {
 import { FuelWeekSlide } from './components/FuelWeekSlide';
 import { FuelUsualsRow } from './components/FuelUsualsRow';
 import { WeightCard } from '../weight/WeightCard';
-import { EnergyPanel } from '../weight/EnergyPanel';
-import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
 import { logWeighIn } from '../weight/weighInStore';
 import { buildUsuals, slotForHour, Usual } from './utils/fuelUsuals';
 import { useTelemetryHistoryStore } from '../log/store/useTelemetryHistoryStore';
@@ -60,7 +58,6 @@ export const FuelView: React.FC = () => {
   } = useFuelStore.getState();
   const profileWeight = useUserStore((s) => s.weightKg);
   const setProfileWeight = useUserStore((s) => s.setWeightKg);
-  const goalWeightKg = useUserStore((s) => s.targetWeightKg);
 
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -228,34 +225,21 @@ export const FuelView: React.FC = () => {
             onOpenDietModal={() => modals.setIsDietModalOpen(true)}
             onAddMealItem={addMealItem}
             showToast={showToast}
+            detached
+          />
+        }
+        trend={
+          <WeightCard
+            embedded
+            onSaveWeight={saveWeighIn}
+            onToast={showToast}
+            onSetGoal={() => setCalculatorOpen(true)}
           />
         }
         waterL={hydrationCurrentL}
         waterGoalL={hydrationGoalLiters(hydrationTargetL, weightKg)}
         onAddWater={logHydration}
         onOpenSettings={() => setSettingsOpen(true)}
-      />
-
-      <WeightCard
-        onSaveWeight={saveWeighIn}
-        onToast={showToast}
-        onSetGoal={() => setCalculatorOpen(true)}
-        footer={
-          <EnergyPanel
-            weightKg={weightKg}
-            goalKg={goalWeightKg}
-            heightCm={body.heightCm}
-            ageYears={body.ageYears}
-            sex={body.sex}
-            calorieTarget={calorieTarget}
-            unit={readAthleteSettingsSnapshot().weightUnit}
-            onApply={(kcal, grams) => {
-              setEnergyTargets(kcal, grams.proteinG, grams.carbsG, grams.fatsG);
-              showToast(`Target saved · ${kcal.toLocaleString()} kcal`);
-            }}
-            onEditDetails={() => setCalculatorOpen(true)}
-          />
-        }
       />
 
       <FuelUsualsRow

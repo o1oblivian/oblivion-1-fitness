@@ -1,7 +1,9 @@
 import React from 'react';
 import { RotateCw } from 'lucide-react';
+import { StillThumb } from '../../../../components/StillThumb';
 import { ExerciseDefinition } from '../../../../types/workout';
 import { tactileEngine } from '../../../../services/tactileEngine';
+import { exerciseStill } from '../../utils/exerciseStill';
 
 interface AutoModeRoutineListProps {
   routineItems: ExerciseDefinition[];
@@ -43,8 +45,8 @@ export const AutoModeRoutineList: React.FC<AutoModeRoutineListProps> = ({
             key={`${exercise.id}-${index}`}
             className="bg-o1-well rounded-xl p-2.5 text-white flex items-center justify-between transition-colors border border-white/[0.07]"
           >
-            {/* Left: Index, Title & Subtitle */}
-            <div>
+            <StillThumb src={exerciseStill(exercise.name, exercise.movementPattern)} />
+            <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2">
                 <span className="text-xs font-medium text-o1-muted font-num">{index + 1}</span>
                 <span className="text-sm font-semibold text-white">{exercise.name}</span>

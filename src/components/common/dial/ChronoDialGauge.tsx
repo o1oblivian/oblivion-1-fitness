@@ -12,7 +12,6 @@ interface ChronoDialGaugeProps {
   config: DialConfig;
   svgRef: React.RefObject<SVGSVGElement | null>;
   onPointerDown: (e: React.PointerEvent<SVGSVGElement>) => void;
-  onCenterClick?: () => void;
 }
 
 const INK = COLOR.text;
@@ -31,7 +30,6 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
   config,
   svgRef,
   onPointerDown,
-  onCenterClick,
 }) => {
   const { min, max, unit, accentColor } = config;
   const currentPercent = Math.min(Math.max((value - min) / (max - min), 0), 1);
@@ -121,18 +119,12 @@ export const ChronoDialGauge: React.FC<ChronoDialGaugeProps> = ({
       </svg>
 
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <button
-          type="button"
-          onClick={onCenterClick}
-          aria-label={`${value} ${unit}. Tap for numpad`}
-          className="w-32 h-32 rounded-full flex flex-col items-center justify-center text-center cursor-pointer pointer-events-auto active:scale-95 transition-transform"
-        >
+        <div className="w-32 h-32 rounded-full flex flex-col items-center justify-center text-center">
           <span className="text-o1-label font-normal tracking-[0.16em] text-o1-muted">{unit}</span>
           <span className="text-5xl font-num font-light text-o1-text tracking-tight leading-none my-1.5 tabular-nums">
             {value}
           </span>
-          <span className="text-o1-label font-normal text-o1-muted">tap for numpad</span>
-        </button>
+        </div>
       </div>
     </div>
   );

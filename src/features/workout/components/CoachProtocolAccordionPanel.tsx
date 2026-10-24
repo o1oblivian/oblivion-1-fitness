@@ -1,8 +1,10 @@
 import React from 'react';
 import { User, Sparkles, Play } from 'lucide-react';
+import { StillThumb } from '../../../components/StillThumb';
 import { useCoachStore } from '../../../stores/useCoachStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { resolveTodaySession, startTodaySession } from '../../log/todaySession';
+import { exerciseStill } from '../utils/exerciseStill';
 
 interface CoachProtocolAccordionPanelProps {
   onClose: () => void;
@@ -98,9 +100,12 @@ export const CoachProtocolAccordionPanel: React.FC<CoachProtocolAccordionPanelPr
               {workout.exercises.map((exercise) => (
                 <div
                   key={exercise.id}
-                  className="px-3 py-1.5 rounded-xl bg-white/[0.08] text-o1-ink-soft text-xs font-num font-medium border border-white/[0.07]"
+                  className="px-2 py-1.5 rounded-xl bg-white/[0.08] text-o1-ink-soft text-xs font-num font-medium border border-white/[0.07] flex items-center gap-2"
                 >
-                  {exercise.name} ({exercise.sets}×{exercise.reps} reps)
+                  <StillThumb src={exerciseStill(exercise.name)} />
+                  <span className="min-w-0 truncate">
+                    {exercise.name} ({exercise.sets}×{exercise.reps} reps)
+                  </span>
                 </div>
               ))}
             </div>

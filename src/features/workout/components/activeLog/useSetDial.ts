@@ -3,8 +3,34 @@ import type { ExerciseItem } from '../../../../types';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { readAthleteSettingsSnapshot } from '../../../../utils/athleteSettingsSnapshot';
 import { displayToKg, kgToDisplay, loadUnitLabel } from '../../../../utils/weightUnits';
+import type { WeightUnit } from '../../../../hooks/useAthleteSettings';
 
 export type DialField = 'weight' | 'reps' | 'rpe';
+
+/** A later field the dial should open after the current one is confirmed. Weight is kilograms. */
+export interface DialFollowStep {
+  field: DialField;
+  value: number;
+}
+
+/** What the dial shows for a field. Empty reps start at 10, empty effort at 8. */
+export function dialDisplayValue(field: DialField, value: number, weightUnit: WeightUnit): number {
+  if (field === 'weight') return kgToDisplay(Number(value) || 0, weightUnit);
+  const n = Number(value) || 0;
+  if (n > 0) return n;
+  return field === 'reps' ? 10 : 8;
+}
+
+/** The next dial in a reps → weight → effort sequence, or null when this confirm closes it. */
+export function nextDialStep(follow: DialFollowStep[], weightUnit: WeightUnit) {
+  const [next, ...rest] = follow;
+  if (!next) return null;
+  return {
+    field: next.field,
+    initialValue: dialDisplayValue(next.field, next.value, weightUnit),
+    follow: rest,
+  };
+}
 
 interface DialConfig {
   isOpen: boolean;
@@ -14,6 +40,7 @@ interface DialConfig {
   setIndex?: number;
   type: DialField;
   initialValue: number;
+  follow: DialFollowStep[];
 }
 
 type SetExercises = (update: (prev: ExerciseItem[]) => ExerciseItem[]) => void;
@@ -56,6 +83,7 @@ const CLOSED: DialConfig = {
   setNumber: 1,
   type: 'weight',
   initialValue: 0,
+  follow: [],
 };
 
 /** State for the rotary dial that edits a set's weight, reps or effort. */
@@ -72,9 +100,11 @@ export function useSetDial(
     currentVal: number,
     setId?: string,
     setIndex?: number,
+    follow: DialFollowStep[] = [],
   ) => {
     tactileEngine.triggerSelectionBuzz();
     completeEarlierSets(exerciseId, setNumber);
+    const weightUnit = readAthleteSettingsSnapshot().weightUnit;
     setConfig({
       isOpen: true,
       exerciseId,
@@ -82,21 +112,29 @@ export function useSetDial(
       setId,
       setIndex,
       type,
-      initialValue:
-        type === 'weight'
-          ? kgToDisplay(currentVal ?? 0, readAthleteSettingsSnapshot().weightUnit)
-          : (currentVal ?? (type === 'reps' ? 10 : 8)),
+      initialValue: dialDisplayValue(type, currentVal ?? 0, weightUnit),
+      follow,
     });
   };
 
   const close = () => setConfig((prev) => ({ ...prev, isOpen: false }));
 
-  const confirm = (val: number) => {
-    if (!config.exerciseId) return;
+  /** Writes the value. Returns true when the dial should stay open on the next field. */
+  const confirm = (val: number): boolean => {
+    if (!config.exerciseId) return false;
     tactileEngine.triggerSelectionBuzz();
     const weightUnit = readAthleteSettingsSnapshot().weightUnit;
     const value = config.type === 'weight' ? displayToKg(Number(val), weightUnit) : Number(val);
     setExercises((prev) => applyDialValue(prev, config, config.type, value));
+    const next = nextDialStep(config.follow, weightUnit);
+    if (!next) return false;
+    setConfig((prev) => ({
+      ...prev,
+      type: next.field,
+      initialValue: next.initialValue,
+      follow: next.follow,
+    }));
+    return true;
   };
 
   const unitLabel =

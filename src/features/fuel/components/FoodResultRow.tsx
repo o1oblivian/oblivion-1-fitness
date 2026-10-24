@@ -1,6 +1,8 @@
 import React from 'react';
-import { Flame, Utensils } from 'lucide-react';
+import { Flame } from 'lucide-react';
+import { StillThumb } from '../../../components/StillThumb';
 import type { FoodItemRecord } from '../../../services/foodCatalogService';
+import { foodStill } from '../utils/foodStill';
 
 /** One food in the Add Food list: name, brand, calories, serving and macros. Tap to pick a portion. */
 export const FoodResultRow: React.FC<{
@@ -12,9 +14,7 @@ export const FoodResultRow: React.FC<{
     onClick={() => onSelect(food)}
     className="w-full text-left p-3 rounded-2xl bg-o1-surface border border-white/[0.08] flex items-center justify-between gap-3 transition-colors cursor-pointer active:scale-[0.99]"
   >
-    <div className="w-10 h-10 rounded-2xl bg-o1-sheet border border-white/[0.08] flex items-center justify-center shrink-0">
-      <Utensils className="w-4 h-4 text-o1-muted" />
-    </div>
+    <StillThumb src={foodStill(food)} />
 
     <div className="min-w-0 flex-1">
       <div className="flex items-baseline justify-between gap-2">

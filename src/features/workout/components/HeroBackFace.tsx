@@ -92,14 +92,17 @@ export const HeroBackFace: React.FC<HeroBackFaceProps> = ({
           src={activeWallpaper}
           alt=""
           aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 select-none pointer-events-none"
-          style={{ filter: `brightness(${wallpaperBrightness / 100})` }}
+          className="o1-photo absolute inset-0 h-full w-full transition-opacity duration-1000 select-none pointer-events-none"
+          style={{
+            filter: `brightness(${wallpaperBrightness / 100}) contrast(1.08) saturate(0.86)`,
+          }}
           onError={(e) => {
             (e.currentTarget as HTMLElement).style.display = 'none';
             useWallpaperStore.getState().reportBroken(activeWallpaper);
           }}
         />
       )}
+      <div className="o1-photo-scrim pointer-events-none absolute inset-0" aria-hidden="true" />
 
       <div
         className="relative w-full h-full flex flex-col justify-between p-3 pb-3.5 select-none"

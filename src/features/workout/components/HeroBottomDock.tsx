@@ -76,7 +76,7 @@ export const HeroBottomDock: React.FC<HeroBottomDockProps> = ({
           <span className="text-white/40" aria-hidden>
             ·
           </span>
-          <span className="font-light truncate">{activeSplitLabel}</span>
+          <span className="o1-editorial truncate">{activeSplitLabel}</span>
         </>
       )}
     </button>

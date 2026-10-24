@@ -18,6 +18,8 @@ export interface FoodRow {
   servingGrams: number;
   country: string;
   source: 'usda' | 'openfoodfacts';
+  /** Full-size product photo. The row draws it small so it stays sharp. */
+  image?: string;
   /** What the database states about vegan, gluten free and similar. Absent when it states nothing. */
   diet?: DietFacts;
 }
@@ -52,6 +54,8 @@ const OFF_FIELDS = [
   'labels_tags',
   'allergens_tags',
   'ingredients_analysis_tags',
+  'image_front_url',
+  'image_url',
 ].join(',');
 export const USER_AGENT = 'Oblivion1Fitness-FuelOS/1.0 (o1oblivionfitness@gmail.com)';
 
@@ -66,6 +70,8 @@ export interface OffProduct extends OffDietTags {
   brands?: string;
   brand_owner?: string;
   nutriments?: Record<string, number | string | undefined>;
+  image_front_url?: string;
+  image_url?: string;
 }
 
 export function rowFromOff(product: OffProduct, country: string): FoodRow | null {
@@ -78,6 +84,7 @@ export function rowFromOff(product: OffProduct, country: string): FoodRow | null
   const carbs = round1(Number(n.carbohydrates_100g) || 0);
   const fats = round1(Number(n.fat_100g) || 0);
   if (kcal <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) return null;
+  const image = String(product.image_front_url || product.image_url || '').trim();
   return {
     id: `off-${product.code ?? name.toLowerCase().replace(/\W+/g, '-')}`,
     name,
@@ -92,6 +99,7 @@ export function rowFromOff(product: OffProduct, country: string): FoodRow | null
     servingGrams: 100,
     country,
     source: 'openfoodfacts',
+    image: image || undefined,
     diet: dietFactsFromOff(product),
   };
 }

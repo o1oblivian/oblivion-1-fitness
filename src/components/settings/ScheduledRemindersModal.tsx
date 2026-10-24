@@ -176,7 +176,7 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
           <div className="space-y-0.5 min-w-0">
             <span className="text-xs font-tactical font-bold text-white block">Weigh-in</span>
             <span className="text-o1-label text-o1-muted block">
-              Every morning: step on the scale and log it
+              Monday morning: step on the scale and log it
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">

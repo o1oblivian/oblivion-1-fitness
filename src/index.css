@@ -51,6 +51,29 @@
   font-display: block;
   unicode-range: U+002D;
 }
+/* Gotham stand-in for display. Hublot's Gotham is commercial; Montserrat is the open geometric match. */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/montserrat-latin-wght-normal.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+/* Copernicus stand-in. The italic line under a Hublot headline. */
+@font-face {
+  font-family: 'Newsreader';
+  src: url('/fonts/newsreader-latin-400-italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Newsreader';
+  src: url('/fonts/newsreader-latin-600-italic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -63,8 +86,9 @@
 
 @theme {
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-tactical: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'Montserrat', 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-tactical: 'Montserrat', 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
   /* Organic vivid — OLED canvas, bone ink, crimson accent, earth pigments */
   --color-o1-canvas: #000000;
@@ -212,14 +236,36 @@ html {
   h3,
   h4 {
     font-family:
+      'Montserrat',
       'Manrope',
       -apple-system,
       BlinkMacSystemFont,
       system-ui,
       sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
   }
+}
+
+/* The sentence under a headline. Hublot sets this in a serif italic. */
+.o1-editorial {
+  font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+/* Studio photo: slightly cooled, subject high in the frame, shade at the top and bottom
+   so a title can sit on the picture the way Fitmusk cards and the Hublot hero do. */
+.o1-photo {
+  object-fit: cover;
+  object-position: center 18%;
+}
+.o1-photo-scrim {
+  background:
+    linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.04) 30%, rgb(0 0 0 / 0.08) 58%, rgb(0 0 0 / 0.78) 100%);
 }
 
 /* Words and everyday figures (font-num, tabular-nums): Manrope, tabular so prices and stats align. */

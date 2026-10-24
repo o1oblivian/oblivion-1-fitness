@@ -10,9 +10,11 @@ import { estimatedMaxKg, localTodayKey, priorBestSet } from '../services/session
 import { lastSessionSets, nextSetAdvice, type SetAdvice } from '../services/setCoach';
 import { athleteDose } from '../utils/equipmentAccess';
 import { useConsultationStore } from '../../induction/useConsultationStore';
+import { StillThumb } from '../../../components/StillThumb';
 import { ActiveLogSetRow } from './ActiveLogSetRow';
 import { SwipeToReveal } from './SwipeToReveal';
 import { useSimpleMode } from '../../../stores/useDisplayPrefs';
+import { exerciseStill } from '../utils/exerciseStill';
 
 const BEST_BUBBLE_MS = 5000;
 /** Long enough to read two sentences; a tap closes it sooner. */
@@ -67,6 +69,7 @@ export interface ActiveLogExerciseAccordionProps {
     currentVal: number,
     setId?: string,
     setIndex?: number,
+    follow?: { field: 'weight' | 'reps' | 'rpe'; value: number }[],
   ) => void;
   onToggleSet?: (exerciseId: string, setNumber: number) => void;
   onQuickUpdateSet?: (exerciseId: string, setNumber: number, updates: Partial<ExerciseSet>) => void;
@@ -180,6 +183,7 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
             aria-expanded={isExpanded}
             className="flex-1 min-w-0 min-h-9 flex items-center gap-2 text-left cursor-pointer"
           >
+            <StillThumb src={exerciseStill(exercise.name, exercise.movementPattern)} />
             <span className="min-w-0 text-sm font-medium tracking-tight text-white leading-snug truncate py-0.5">
               {exercise.name}
             </span>
@@ -291,8 +295,8 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                   removeAriaLabel={
                     isLast ? `Remove ${exercise.name}` : `Delete set ${set.setNumber}`
                   }
-                  onOpenDial={(type, currentVal) =>
-                    onOpenDial(exercise.id, set.setNumber, type, currentVal, set.id, setIndex)
+                  onOpenDial={(type, currentVal, follow) =>
+                    onOpenDial(exercise.id, set.setNumber, type, currentVal, set.id, setIndex, follow)
                   }
                   onRemoveSet={() =>
                     isLast ? onRemoveExercise(exercise.id) : onRemoveSet(exercise.id, set.setNumber)

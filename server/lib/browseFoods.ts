@@ -328,6 +328,8 @@ export const OFF_FIELDS_FOR_BROWSE = [
   'allergens_tags',
   'ingredients_analysis_tags',
   'unique_scans_n',
+  'image_front_url',
+  'image_url',
 ].join(',');
 
 /** The request for one Open Food Facts category in one country, most-scanned first. */

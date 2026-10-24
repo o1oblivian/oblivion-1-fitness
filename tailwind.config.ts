@@ -50,6 +50,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Manrope', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        display: ['Montserrat', 'Manrope', '-apple-system', 'system-ui', 'sans-serif'],
+        serif: ['Newsreader', 'Georgia', 'serif'],
         mono: ['IBM Plex Mono', 'ui-monospace', 'monospace'],
       },
       borderRadius: {

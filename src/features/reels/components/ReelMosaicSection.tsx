@@ -39,7 +39,7 @@ function ReelTile({
       <img
         src={item.thumbnail}
         alt=""
-        className="h-full w-full rounded-2xl object-cover object-center transition-transform duration-500 group-hover:scale-105"
+        className="o1-photo h-full w-full rounded-2xl transition-transform duration-500 group-hover:scale-105"
         loading="lazy"
         onError={(event) => {
           const img = event.currentTarget;

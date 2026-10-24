@@ -64,7 +64,7 @@ export const LogHistoryView: React.FC<LogHistoryViewProps> = ({ showToast }) => 
   const [monthOffset, setMonthOffset] = useState(0);
   const [selectedDateStr, setSelectedDateStr] = useState(today.toDateString());
   const [openChannel, setOpenChannel] = useState<TelemetryCategory | null>(null);
-  const [towersOpen, setTowersOpen] = useState(true);
+  const [towersOpen, setTowersOpen] = useState(false);
   const [towerChannel, setTowerChannel] = useState<TelemetryCategory>('workout');
   const [chartSpan, setChartSpan] = useState<ChartSpan>('week');
   const [editor, setEditor] = useState<{

@@ -30,7 +30,7 @@ export interface ReminderConfig {
   recoveryTime: string;
   hydrationOn: boolean;
   hydrationHours: number;
-  /** A morning nudge to step on the scale. Off until the athlete asks for it. */
+  /** A Monday-morning nudge to step on the scale. On unless the athlete turns it off. */
   weighInOn: boolean;
   weighInTime: string;
   selectedDays: string[];
@@ -42,7 +42,7 @@ export const DEFAULT_REMINDERS: ReminderConfig = {
   recoveryTime: '21:00',
   hydrationOn: false,
   hydrationHours: 2,
-  weighInOn: false,
+  weighInOn: true,
   weighInTime: '07:00',
   selectedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
 };
@@ -132,6 +132,7 @@ export function planReminders(
     plan.push({
       id: ID_MIN + 101,
       body: 'Step on the scale and log your weight.',
+      weekday: 1,
       hour: Math.floor(at / 60),
       minute: at % 60,
     });

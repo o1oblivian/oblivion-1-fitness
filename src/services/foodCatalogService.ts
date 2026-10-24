@@ -23,6 +23,7 @@ export interface LiveFoodRow {
   servingGrams?: number | string;
   country?: string;
   source?: string;
+  image?: string;
   diet?: DietFacts;
 }
 
@@ -54,6 +55,7 @@ export function liveRowToRecord(row: LiveFoodRow, country: string): FoodItemReco
     serving_grams: Number(row.servingGrams) || 100,
     country: row.country || country,
     source: row.source === 'usda' ? 'usda' : 'openfoodfacts',
+    image: row.image,
     diet: row.diet,
   };
 }

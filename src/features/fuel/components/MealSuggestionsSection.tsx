@@ -9,7 +9,9 @@ import {
   Utensils,
   Loader2,
 } from 'lucide-react';
+import { StillThumb } from '../../../components/StillThumb';
 import { tactileEngine } from '../../../services/tactileEngine';
+import { foodStill } from '../utils/foodStill';
 import { MealItem } from '../store/useFuelStore';
 import { MacroBudget, MealSlot, slotBudget } from '../data/mealBudget';
 import type { MealSuggestion } from '../../../../shared/mealSuggestion';
@@ -66,7 +68,8 @@ const MealOption: React.FC<{
 }> = ({ meal, isLogged, onLog }) => (
   <li className="rounded-xl bg-o1-well border border-white/[0.08] p-3 space-y-2.5">
     <div className="flex items-start justify-between gap-3">
-      <div className="min-w-0">
+      <StillThumb src={foodStill(meal)} />
+      <div className="min-w-0 flex-1">
         <h4 className="text-o1-body font-semibold text-o1-text leading-snug">{meal.name}</h4>
         <span className="mt-0.5 flex items-center gap-2 text-o1-label text-o1-muted">
           <span className="inline-flex items-center gap-1">
@@ -135,6 +138,8 @@ interface MealSuggestionsSectionProps {
   onOpenDietModal: () => void;
   onAddMealItem: (slot: MealSlot, item: MealItem) => void;
   showToast: (msg: string) => void;
+  /** Drawn in its own card, not as a divider inside the dashboard. */
+  detached?: boolean;
 }
 
 /** The meal worth eating next, found live and sized to this meal's calories, with alternatives a tap away. */
@@ -148,6 +153,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
   onOpenDietModal,
   onAddMealItem,
   showToast,
+  detached = false,
 }) => {
   const [open, setOpen] = useState(false);
   const [showMore, setShowMore] = useState(false);
@@ -202,7 +208,11 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
     <section
       id="o1fc-intel-meal-suggestions-tab"
       aria-label="Eat Insight"
-      className="mt-3 pt-3 border-t border-white/[0.08] space-y-3 select-none"
+      className={
+        detached
+          ? 'space-y-3 select-none'
+          : 'mt-3 pt-3 border-t border-white/[0.08] space-y-3 select-none'
+      }
     >
       <button
         type="button"
@@ -220,9 +230,7 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
             Eat Insight
           </span>
           <span className="mt-0.5 block text-o1-label text-o1-muted tabular-nums">
-            {dayDone
-              ? "You've reached today's calorie target."
-              : `${slotLabel} · about ${budget.kcal.toLocaleString()} kcal · ${remaining.protein}g protein left today`}
+            {dayDone ? "You've reached today's calorie target." : `Ideas for ${slotLabel.toLowerCase()}`}
           </span>
         </span>
         {open && state.status === 'loading' ? (

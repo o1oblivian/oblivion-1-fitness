@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ExerciseItem, ExerciseSet } from '../../../../types';
 import { countUntickedFilledSets, sessionFeel, tickFilledSets } from './sessionSummary';
-import { applyDialValue } from './useSetDial';
+import { applyDialValue, dialDisplayValue, nextDialStep } from './useSetDial';
 
 const set = (n: number, over: Partial<ExerciseSet> = {}): ExerciseSet => ({
   id: `s${n}`,
@@ -59,6 +59,31 @@ describe('sessionFeel', () => {
       ]),
     ];
     expect(sessionFeel(list, false)).toBe('Average effort RPE 7.5');
+  });
+});
+
+describe('nextDialStep', () => {
+  it('walks reps into weight, then effort, then closes', () => {
+    const afterReps = nextDialStep(
+      [
+        { field: 'weight', value: 80 },
+        { field: 'rpe', value: 0 },
+      ],
+      'kg',
+    );
+    expect(afterReps).toEqual({
+      field: 'weight',
+      initialValue: 80,
+      follow: [{ field: 'rpe', value: 0 }],
+    });
+    const afterWeight = nextDialStep(afterReps?.follow ?? [], 'kg');
+    expect(afterWeight).toEqual({ field: 'rpe', initialValue: 8, follow: [] });
+    expect(nextDialStep(afterWeight?.follow ?? [], 'kg')).toBeNull();
+  });
+
+  it('shows an empty rep dial at 10', () => {
+    expect(dialDisplayValue('reps', 0, 'kg')).toBe(10);
+    expect(dialDisplayValue('reps', 6, 'kg')).toBe(6);
   });
 });
 

@@ -10,6 +10,11 @@ import { DialConfig } from './dialTypes';
 
 export function useDialDrag(config: DialConfig, initialValue: number) {
   const [value, setValue] = useState(initialValue);
+  const [seed, setSeed] = useState(initialValue);
+  if (seed !== initialValue) {
+    setSeed(initialValue);
+    setValue(initialValue);
+  }
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
