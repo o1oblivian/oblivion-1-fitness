@@ -230,7 +230,9 @@ export const MealSuggestionsSection: React.FC<MealSuggestionsSectionProps> = ({
             Eat Insight
           </span>
           <span className="mt-0.5 block text-o1-label text-o1-muted tabular-nums">
-            {dayDone ? "You've reached today's calorie target." : `Ideas for ${slotLabel.toLowerCase()}`}
+            {dayDone
+              ? "You've reached today's calorie target."
+              : `Ideas for ${slotLabel.toLowerCase()}`}
           </span>
         </span>
         {open && state.status === 'loading' ? (

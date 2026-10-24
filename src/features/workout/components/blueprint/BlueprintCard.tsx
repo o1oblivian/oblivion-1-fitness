@@ -48,7 +48,9 @@ export const BlueprintCard: React.FC<BlueprintCardProps> = ({
         <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 px-3 pb-3">
           <div className="min-w-0">
             <p className="o1-editorial text-o1-caption text-white/80">{bp.badge}</p>
-            <h4 className="truncate text-o1-title font-bold leading-tight text-white">{bp.title}</h4>
+            <h4 className="truncate text-o1-title font-bold leading-tight text-white">
+              {bp.title}
+            </h4>
           </div>
           {isActive && (
             <span className="mb-0.5 shrink-0 rounded px-1.5 py-0.5 text-o1-label font-num font-medium bg-o1-crimson/10 text-o1-crimson">
@@ -59,18 +61,18 @@ export const BlueprintCard: React.FC<BlueprintCardProps> = ({
       </div>
       <div className="space-y-2.5 p-3">
         <div className="min-w-0">
-            <p className="text-o1-label text-o1-muted truncate">{bp.subtitle}</p>
-            <div className="flex items-center gap-3 mt-1.5 text-o1-label font-num text-o1-muted">
-              <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-o1-muted" />
-                {bp.estimatedTime}
-              </span>
-              <span className="flex items-center gap-1">
-                <Dumbbell className="w-3 h-3 text-o1-muted" />
-                {movements.length} Drills
-              </span>
-            </div>
+          <p className="text-o1-label text-o1-muted truncate">{bp.subtitle}</p>
+          <div className="flex items-center gap-3 mt-1.5 text-o1-label font-num text-o1-muted">
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3 text-o1-muted" />
+              {bp.estimatedTime}
+            </span>
+            <span className="flex items-center gap-1">
+              <Dumbbell className="w-3 h-3 text-o1-muted" />
+              {movements.length} Drills
+            </span>
           </div>
+        </div>
 
         <div className="flex flex-wrap gap-1">
           {bp.targetMuscles.slice(0, 4).map((muscle) => (

@@ -48,7 +48,10 @@ const RULES: ReadonlyArray<readonly [RegExp, StillKey]> = [
   [/bike|assault|echo bike|\bcycle\b/, 'bike'],
   [/sled/, 'sled'],
   [/pull-?up|chin-?up|pulldown/, 'pullup'],
-  [/curl-up|crunch|sit-?up|plank|leg raise|dead bug|rollout|pallof|woodchop|ab wheel|bird-dog|side bridge|dragon flag|hollow/, 'core'],
+  [
+    /curl-up|crunch|sit-?up|plank|leg raise|dead bug|rollout|pallof|woodchop|ab wheel|bird-dog|side bridge|dragon flag|hollow/,
+    'core',
+  ],
   [/curl/, 'curl'],
   [/pushdown|tricep|skull|tate press|jm press/, 'tricep'],
   [/\bdip/, 'dip'],
@@ -69,7 +72,9 @@ const RULES: ReadonlyArray<readonly [RegExp, StillKey]> = [
   [/stretch|mobil|yoga|breath|cat-cow|couch|pigeon|90\/90|hip flexor/, 'mobility'],
 ];
 
-const byName = new Map(EXERCISE_DATABASE.map((exercise) => [exercise.name.toLowerCase(), exercise]));
+const byName = new Map(
+  EXERCISE_DATABASE.map((exercise) => [exercise.name.toLowerCase(), exercise]),
+);
 
 /** Photo of the movement this exercise actually is. */
 export function exerciseStill(name: string, pattern?: string): string {

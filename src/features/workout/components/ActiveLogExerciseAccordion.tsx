@@ -296,7 +296,15 @@ export const ActiveLogExerciseAccordion: React.FC<ActiveLogExerciseAccordionProp
                     isLast ? `Remove ${exercise.name}` : `Delete set ${set.setNumber}`
                   }
                   onOpenDial={(type, currentVal, follow) =>
-                    onOpenDial(exercise.id, set.setNumber, type, currentVal, set.id, setIndex, follow)
+                    onOpenDial(
+                      exercise.id,
+                      set.setNumber,
+                      type,
+                      currentVal,
+                      set.id,
+                      setIndex,
+                      follow,
+                    )
                   }
                   onRemoveSet={() =>
                     isLast ? onRemoveExercise(exercise.id) : onRemoveSet(exercise.id, set.setNumber)

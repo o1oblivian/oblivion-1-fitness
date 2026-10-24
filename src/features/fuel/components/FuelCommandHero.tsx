@@ -309,7 +309,6 @@ export const FuelCommandHero: React.FC<FuelCommandHeroProps> = ({
         </div>
 
         {trend}
-
       </div>
 
       <div className="mt-3 rounded-3xl border border-white/[0.1] bg-gradient-to-b from-o1-sheet to-o1-surface p-4">

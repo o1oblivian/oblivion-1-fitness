@@ -88,7 +88,8 @@
   --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: 'Montserrat', 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
-  --font-tactical: 'Montserrat', 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-tactical:
+    'Montserrat', 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
   /* Organic vivid — OLED canvas, bone ink, crimson accent, earth pigments */
   --color-o1-canvas: #000000;
@@ -264,8 +265,13 @@ html {
   object-position: center 18%;
 }
 .o1-photo-scrim {
-  background:
-    linear-gradient(180deg, rgb(0 0 0 / 0.42) 0%, rgb(0 0 0 / 0.04) 30%, rgb(0 0 0 / 0.08) 58%, rgb(0 0 0 / 0.78) 100%);
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 0.42) 0%,
+    rgb(0 0 0 / 0.04) 30%,
+    rgb(0 0 0 / 0.08) 58%,
+    rgb(0 0 0 / 0.78) 100%
+  );
 }
 
 /* Words and everyday figures (font-num, tabular-nums): Manrope, tabular so prices and stats align. */
