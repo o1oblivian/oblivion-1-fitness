@@ -7,6 +7,7 @@ import {
   QUICK_READ_THINKING,
 } from '../lib/gemini';
 import { errorMessage } from '../../shared/errorMessage';
+import { CARDIO_TELEMETRY_PROMPT } from '../lib/cardioTelemetryPrompt';
 
 /**
  * Time allowed for the AI reader on a photo. Gemini sometimes takes half a minute to answer one, so
@@ -45,40 +46,7 @@ export function registerVisionRoutes(app: Express): void {
 
       if (genAI) {
         try {
-          const prompt = `You are a precision optical character recognition (OCR) and computer vision engine for fitness screens, wearables, and cardio consoles.
-Inspect this image with extreme precision. Extract only physically legible display metrics.
-
-CATEGORIES TO RECOGNIZE:
-1. Wearables & Watches — accept ANY wristwatch. Brand is not a filter.
-   - Smartwatches and bands: Apple Watch, Garmin, Whoop, Fitbit, Polar, Suunto, Coros, and any other OLED, AMOLED, or color LCD sports watch.
-   - Digital sports watches: Casio, G-Shock, Ironman, Timex, and any other inverted LCD, dot-matrix, or segmented display.
-   - Analog and chronograph faces: accept the photo. Read a printed step count, heart rate, or other metric when digits are on the dial or a digital subdial. If the face shows only hands and no printed number for a metric, return null for that metric.
-   - Segmented digits often OCR with a space or comma: "8 083 STEPS", "8083 STEPS", and "6 157" are the same count (8083 or 6157).
-   - Disambiguate clock time: NEVER map current time-of-day clock readouts (e.g. "P 4:11", "4:11 PM", "10/3 SAT", "3:10") to workout elapsed time, duration, calories, or steps.
-2. Gym Machines & Cardio Consoles:
-   - Concept2 (PM3/PM4/PM5 monitors): Parse Time, Distance, Pace (/500m), Stroke Rate, Watts, Calories.
-   - Commercial Treadmills & StairMasters (Life Fitness, Matrix, TechnoGym, Woodway, Precor): Parse Elapsed Time, Distance (km/mi), Calories, Speed, Incline %, Heart Rate.
-   - Air Bikes & Spin Bikes (AssaultBike, Echo Bike, Keiser): Parse RPM, Watts, Calories, Time.
-
-CRITICAL ZERO-HALLUCINATION RULES:
-- NEVER estimate, fabricate, or extrapolate missing values.
-- If a metric is NOT physically legible on the display, return null.
-- Do NOT return 0 for unread or missing metrics. Return null.
-- Only return a non-null number if explicitly identified in the image.
-
-Return STRICT JSON matching this schema:
-{
-  "deviceType": "WATCH" | "CONSOLE",
-  "steps": number | null,
-  "elapsedMinutes": string | number | null,
-  "distanceKm": number | null,
-  "caloriesBurned": number | null,
-  "speedKmh": number | null,
-  "inclinePct": number | null,
-  "avgHeartRateBpm": number | null,
-  "watts": number | null,
-  "pace": string | null
-}`;
+          const prompt = CARDIO_TELEMETRY_PROMPT;
 
           const response = await generateContentWithFallback(
             genAI,
@@ -145,13 +113,24 @@ Return STRICT JSON matching this schema:
             parsed.avgHeartRateBpm !== null && parsed.avgHeartRateBpm !== undefined
               ? Number(parsed.avgHeartRateBpm)
               : (ocrExtracted?.avgHeartRateBpm ?? null);
-          const stepsVal =
-            parsed.steps !== null && parsed.steps !== undefined
-              ? Number(parsed.steps)
-              : (ocrExtracted?.steps ?? null);
+          // Steps come from Gemini alone. When Gemini answered and found none, the backup reader's
+          // step guess is not used: it once read the port number in an address bar as 3,000 steps.
+          const stepsRead =
+            parsed.steps !== null && parsed.steps !== undefined ? Number(parsed.steps) : null;
+          const stepsVal = stepsRead !== null && Number.isFinite(stepsRead) ? stepsRead : null;
           const wattsVal =
             parsed.watts !== null && parsed.watts !== undefined ? Number(parsed.watts) : null;
           const paceVal = parsed.pace || null;
+          // The watch's own clock as "HH:MM" and how sure the reader was. Both come from Gemini.
+          const timestampVal =
+            typeof parsed.timestamp === 'string' &&
+            /^([01]\d|2[0-3]):[0-5]\d$/.test(parsed.timestamp)
+              ? parsed.timestamp
+              : null;
+          const confidenceVal =
+            parsed.confidence === 'high' || parsed.confidence === 'medium'
+              ? parsed.confidence
+              : 'low';
 
           const hasAnyMetric =
             distanceVal !== null ||
@@ -178,6 +157,7 @@ Return STRICT JSON matching this schema:
                 watts: wattsVal,
                 pace: paceVal,
               },
+              reading: { steps: stepsVal, timestamp: timestampVal, confidence: confidenceVal },
               calibrationNote: stepsVal
                 ? `Optical OCR read ${stepsVal.toLocaleString()} steps directly.`
                 : 'Optical OCR calibrated.',
@@ -196,9 +176,12 @@ Return STRICT JSON matching this schema:
         ocrRead,
         new Promise<null>((resolve) => setTimeout(() => resolve(null), OCR_FALLBACK_MS)),
       ]);
+      // The backup reader's step count is used only when Gemini could not answer at all. When Gemini
+      // answered and found no steps, the backup's number is a guess from stray digits, so it is dropped.
+      const ocrSteps = aiFailed ? (ocrExtracted?.steps ?? null) : null;
       if (
         ocrExtracted &&
-        (ocrExtracted.steps ||
+        (ocrSteps ||
           ocrExtracted.distanceKm ||
           ocrExtracted.caloriesBurned ||
           (ocrExtracted.elapsedMinutes ?? 0) > 0)
@@ -214,12 +197,12 @@ Return STRICT JSON matching this schema:
             speedKmh: ocrExtracted.speedKmh,
             inclinePct: ocrExtracted.inclinePct,
             avgHeartRateBpm: ocrExtracted.avgHeartRateBpm,
-            steps: ocrExtracted.steps,
+            steps: ocrSteps,
             watts: null,
             pace: null,
           },
-          calibrationNote: ocrExtracted.steps
-            ? `Optical OCR verified: ${ocrExtracted.steps.toLocaleString()} steps read from display.`
+          calibrationNote: ocrSteps
+            ? `Optical OCR verified: ${ocrSteps.toLocaleString()} steps read from display.`
             : 'Optical OCR telemetry extracted from display.',
         });
       }
