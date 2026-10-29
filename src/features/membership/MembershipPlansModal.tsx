@@ -10,6 +10,8 @@ import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
 import { useStorePlans } from './useStorePlans';
 import { useStorePurchase } from './useStorePurchase';
+import { founderPassLine, isFounderProduct, useFounderPasses } from './useFounderPasses';
+import { freeAccessLine, isFreeAccessProduct, useFreeAccessSpots } from './useFreeAccessSpots';
 
 export interface MembershipPlansModalProps {
   isOpen: boolean;
@@ -45,6 +47,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   const { restorePurchases } = useSubscription();
   const plans = useStorePlans(isOpen);
   const purchase = useStorePurchase();
+  const founder = useFounderPasses(isOpen);
+  const founderLine = founderPassLine(founder);
+  const freeSpots = useFreeAccessSpots(isOpen);
+  const freeLine = freeAccessLine(freeSpots);
 
   const nativeStore = isNativeStorePlatform();
   const currentProducts = userType === 'athletes' ? ATHLETE_PRODUCTS : COACH_PRODUCTS;
@@ -76,11 +82,18 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
       tactileEngine.playPRCelebration();
       const message =
         userType === 'athletes'
-          ? 'Core Free tier active • 90-day full access included!'
+          ? freeSpots && freeSpots.remaining <= 0
+            ? 'Core Free tier active.'
+            : 'Core Free tier active • 90-day full access included!'
           : 'Coach Starter active • Up to 5 athletes, 15% fee on program sales.';
       onShowToast?.(message);
       if (onSelectPlan) onSelectPlan(selectedProductId);
       onClose();
+      return;
+    }
+
+    if (isFounderProduct(selectedProductId) && founder && founder.remaining <= 0) {
+      onShowToast?.('Founder Pass is sold out.');
       return;
     }
 
@@ -181,6 +194,9 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                     {plans.priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass
                   </strong>{' '}
                   — Training OS Pro forever.
+                  {founderLine ? (
+                    <span className="mt-0.5 block tabular-nums text-o1-gold">{founderLine}</span>
+                  ) : null}
                 </p>
               </div>
             </div>
@@ -201,6 +217,13 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                   product={{ ...p, price: plans.priceOf(p) }}
                   isSelected={selectedProductId === p.productId}
                   onSelect={handleSelectPlan}
+                  note={
+                    isFounderProduct(p.productId)
+                      ? founderLine
+                      : isFreeAccessProduct(p.productId)
+                        ? freeLine
+                        : undefined
+                  }
                 />
               </div>
             ))}

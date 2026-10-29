@@ -7,6 +7,8 @@ interface Props {
   product: IAPProductInfo;
   isSelected: boolean;
   onSelect: (productId: string) => void;
+  /** Live line under the description, used for the Founder Pass count. */
+  note?: string;
 }
 
 function badgeTone(badge: string): string {
@@ -17,7 +19,7 @@ function badgeTone(badge: string): string {
   return 'text-o1-stone border-white/[0.14]';
 }
 
-export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSelect }) => {
+export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSelect, note }) => {
   return (
     <div
       onClick={() => {
@@ -62,6 +64,11 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
         <p className="text-o1-label sm:text-o1-label text-o1-muted mt-1 line-clamp-2 leading-snug">
           {product.description}
         </p>
+        {note ? (
+          <p className="text-o1-label font-num tabular-nums text-o1-gold mt-1 leading-snug">
+            {note}
+          </p>
+        ) : null}
       </div>
 
       {/* Price */}

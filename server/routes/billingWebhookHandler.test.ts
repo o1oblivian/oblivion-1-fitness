@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   entitlementChangeFor,
+  founderPassesRemaining,
   webhookAuthorized,
   writableChange,
   type StoredEntitlement,
@@ -12,6 +13,15 @@ const base = {
   store: 'APP_STORE',
   expiration_at_ms: Date.UTC(2026, 10, 14),
 };
+
+describe('founderPassesRemaining', () => {
+  it('starts at 5000 and drops by each pass sold', () => {
+    expect(founderPassesRemaining(0)).toBe(5000);
+    expect(founderPassesRemaining(1)).toBe(4999);
+    expect(founderPassesRemaining(5000)).toBe(0);
+    expect(founderPassesRemaining(5001)).toBe(0);
+  });
+});
 
 describe('webhookAuthorized', () => {
   it('rejects every request when no secret is configured', () => {

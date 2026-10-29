@@ -13,6 +13,11 @@ import {
   clearProSubscription,
   TrialState,
 } from '../services/trialService';
+import {
+  cachedFreeAccess,
+  resolveFreeAccess,
+  withoutFreeAccess,
+} from '../services/freeAccessService';
 import { getAuthenticatedUserId } from '../services/authUser';
 import { useAuthStore } from '../stores/useAuthStore';
 
@@ -70,6 +75,8 @@ const EMPTY_TRIAL = getAthleteTrialState('');
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [trial, setTrial] = useState<TrialState>(EMPTY_TRIAL);
   const [isPro, setIsPro] = useState(false);
+  // False only for members who joined after the first 100,000. They start on Core Free.
+  const [freeAccess, setFreeAccess] = useState(true);
   const [isCreator, setIsCreator] = useState(() => creatorSignedIn());
   const [canPreviewLaunch, setCanPreviewLaunch] = useState(launchPreviewAllowed);
   const authEmail = useAuthStore((s) => s.user?.email || s.profile?.email || '');
@@ -102,6 +109,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setIsLoading(false);
 
       if (!uid) return;
+      setFreeAccess(cachedFreeAccess(uid));
+      void resolveFreeAccess(uid).then((eligible) => {
+        if (mounted) setFreeAccess(eligible);
+      });
       const verified = await verifySubscriptionWithStore(uid);
       if (!verified || !mounted) return;
       if (verified.isActive) {
@@ -185,16 +196,18 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setGatedFeature(null);
   }, []);
 
+  const effectiveTrial = freeAccess ? trial : withoutFreeAccess(trial);
+
   return (
     <SubscriptionContext.Provider
       value={{
         // The owner account has every Club Pass feature without a store purchase.
         isPro: isPro || isCreator,
-        hasFullAccess: isPro || isCreator || trial.isTrialActive,
+        hasFullAccess: isPro || isCreator || effectiveTrial.isTrialActive,
         isCreator,
         canPreviewLaunch,
         currentPlan: isCreator && !isPro ? PLUS_ENTITLEMENT : currentPlan,
-        trialState: trial,
+        trialState: effectiveTrial,
         purchasePro,
         activatePlan,
         restorePurchases,

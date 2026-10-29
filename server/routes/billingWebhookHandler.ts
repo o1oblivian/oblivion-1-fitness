@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { Request, Response } from 'express';
 import { coachPlanFromTier } from '../../shared/coachPlans';
+import { memoizeAsync } from '../lib/memoizeAsync';
 import { getSupabaseAdmin } from '../lib/stripeLedger';
 
 export interface RevenueCatEvent {
@@ -83,6 +84,40 @@ export function writableChange(
     isCoach(existing.tier) &&
     (!existing.expires_at || Date.parse(existing.expires_at) > now);
   return coachIsLive ? null : change;
+}
+
+/** Lifetime passes for sale. Each active Founder Pass row is one sold. */
+export const FOUNDER_PASS_CAP = 5000;
+export const FOUNDER_PASS_PRODUCT = 'o1fc_founder_pass';
+
+export function founderPassesRemaining(sold: number): number {
+  const taken = Number.isFinite(sold) ? Math.max(0, Math.floor(sold)) : 0;
+  return Math.max(0, FOUNDER_PASS_CAP - taken);
+}
+
+async function countFounderPassesSold(): Promise<number | null> {
+  const admin = getSupabaseAdmin();
+  if (!admin) return null;
+  const { count, error } = await admin
+    .from('user_entitlements')
+    .select('user_id', { count: 'exact', head: true })
+    .eq('tier', FOUNDER_PASS_PRODUCT)
+    .eq('status', 'active');
+  return error ? null : (count ?? 0);
+}
+
+/** The paywall polls this, so callers within 10 seconds share one database count. */
+const founderPassesSold = memoizeAsync(countFounderPassesSold, 10_000);
+
+export async function handleFounderPasses(_req: Request, res: Response): Promise<void> {
+  res.setHeader('Cache-Control', 'no-store');
+  const sold = await founderPassesSold().catch(() => null);
+  if (sold === null) {
+    // An unreadable count is not "5,000 left". The app shows no number until the server can say.
+    res.status(503).json({ error: 'Founder pass count is unavailable.' });
+    return;
+  }
+  res.json({ cap: FOUNDER_PASS_CAP, sold, remaining: founderPassesRemaining(sold) });
 }
 
 export function webhookAuthorized(header: string | undefined, secret: string): boolean {

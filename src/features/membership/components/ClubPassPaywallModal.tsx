@@ -8,6 +8,8 @@ import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
 import { COACH_PAYWALL_FEATURE } from '../planCatalog';
 import { useStorePlans } from '../useStorePlans';
 import { useStorePurchase } from '../useStorePurchase';
+import { founderPassLine, isFounderProduct, useFounderPasses } from '../useFounderPasses';
+import { freeAccessLine, isFreeAccessProduct, useFreeAccessSpots } from '../useFreeAccessSpots';
 
 type Audience = 'athletes' | 'coaches';
 
@@ -35,6 +37,9 @@ export const ClubPassPaywallModal: React.FC = () => {
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const storePlans = useStorePlans(isPaywallOpen);
   const purchase = useStorePurchase();
+  const founder = useFounderPasses(isPaywallOpen);
+  const founderLine = founderPassLine(founder);
+  const freeLine = freeAccessLine(useFreeAccessSpots(isPaywallOpen));
 
   // Opening from a coach prompt (roster full) lands on the coach plans; every other entry starts on athletes.
   useEffect(() => {
@@ -79,6 +84,10 @@ export const ClubPassPaywallModal: React.FC = () => {
     setStatusMsg(null);
     if (selected.isFree) {
       closePaywall();
+      return;
+    }
+    if (isFounderProduct(selected.productId) && founder && founder.remaining <= 0) {
+      setStatusMsg('Founder Pass is sold out.');
       return;
     }
     if (availability === 'unavailable') {
@@ -186,6 +195,12 @@ export const ClubPassPaywallModal: React.FC = () => {
                   <span className="text-o1-label font-num text-o1-muted block mt-0.5">
                     {plan.description}
                   </span>
+                  {(isFounderProduct(plan.productId) ? founderLine : '') ||
+                  (isFreeAccessProduct(plan.productId) ? freeLine : '') ? (
+                    <span className="text-o1-label font-num tabular-nums text-o1-gold block mt-0.5">
+                      {isFounderProduct(plan.productId) ? founderLine : freeLine}
+                    </span>
+                  ) : null}
                 </div>
                 <span className="text-sm font-black font-num text-white shrink-0 text-right">
                   {priceOf(plan)}

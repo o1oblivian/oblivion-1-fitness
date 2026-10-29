@@ -7,9 +7,11 @@ import dotenv from 'dotenv';
 import { registerApiGuards } from './server/middleware/apiGuards';
 import { registerAccountRoutes } from './server/routes/accountRoutes';
 import {
+  handleFounderPasses,
   handleRevenueCatWebhook,
   handleSyncEntitlements,
 } from './server/routes/billingWebhookHandler';
+import { handleFreeAccessMe, handleFreeAccessSpots } from './server/routes/freeAccess';
 import { registerDevPreview } from './server/devPreview';
 import { registerFuelRoutes } from './server/routes/fuelRoutes';
 import { registerPublicPages } from './server/routes/publicPages';
@@ -55,6 +57,9 @@ async function startServer() {
 
   // RevenueCat store webhooks and entitlement sync
   app.post('/api/revenuecat/webhook', handleRevenueCatWebhook);
+  app.get('/api/billing/founder-passes', handleFounderPasses);
+  app.get('/api/billing/free-access', handleFreeAccessSpots);
+  app.get('/api/billing/free-access/me', handleFreeAccessMe);
   app.get('/api/billing/sync-entitlements', handleSyncEntitlements);
 
   registerAccountRoutes(app);
