@@ -41,7 +41,7 @@ serve(async (req: Request) => {
     }
 
     const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16', httpClient: Stripe.createFetchHttpClient() });
-    const { returnUrl = 'http://localhost:3000' } = await req.json().catch(() => ({}));
+    const { returnUrl = 'https://oblivion-1-fitness.onrender.com' } = await req.json().catch(() => ({}));
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
     const { data: profile } = await supabaseAdmin

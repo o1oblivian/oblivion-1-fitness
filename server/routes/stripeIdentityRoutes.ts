@@ -8,6 +8,7 @@ import {
   recordSaleDispute,
   recordSaleRefund,
   recordTransferReversal,
+  defaultReturnOrigin,
   safeReturnBase,
 } from '../lib/stripeLedger';
 
@@ -21,10 +22,7 @@ export async function handleCreateIdentitySession(req: Request, res: Response) {
     if (!coachId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    const returnUrl = safeReturnBase(
-      req.body?.returnUrl,
-      String(req.headers.origin || 'http://localhost:3000'),
-    );
+    const returnUrl = safeReturnBase(req.body?.returnUrl, defaultReturnOrigin(req.headers.origin));
     const userEmail = (res.locals.userEmail as string | undefined) || '';
     const stripe = await getStripe();
     if (!stripe) {

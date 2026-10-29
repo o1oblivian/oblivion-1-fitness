@@ -459,6 +459,25 @@ export async function reconcileStuckPayouts(
   }
 }
 
+export const PRODUCTION_ORIGIN = 'https://oblivion-1-fitness.onrender.com';
+
+/**
+ * Where Stripe sends a user back to when the app gave no return URL. A browser on the live site
+ * sends its own origin. The installed app reports https://localhost, which is no place to return
+ * to, so production falls back to the live site. Local development keeps http://localhost:3000.
+ */
+export function defaultReturnOrigin(
+  requestOrigin: unknown,
+  isProduction = process.env.NODE_ENV === 'production',
+): string {
+  const origin = typeof requestOrigin === 'string' ? requestOrigin : '';
+  if (!isProduction) return origin || 'http://localhost:3000';
+  if (/^https?:\/\//i.test(origin) && !/^https?:\/\/(localhost|127\.0\.0\.1)(:|$)/i.test(origin)) {
+    return origin;
+  }
+  return process.env.PUBLIC_APP_URL?.replace(/\/$/, '') || PRODUCTION_ORIGIN;
+}
+
 /** Only allow Stripe to send the user back to an http(s) page or the app's own URL scheme. */
 export function safeReturnBase(candidate: unknown, fallback: string): string {
   if (typeof candidate !== 'string' || !candidate) return fallback;

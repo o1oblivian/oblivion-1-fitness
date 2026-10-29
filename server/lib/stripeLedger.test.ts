@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { safeReturnBase } from './stripeLedger';
+import { defaultReturnOrigin, PRODUCTION_ORIGIN, safeReturnBase } from './stripeLedger';
 
 describe('safeReturnBase', () => {
   const fallback = 'https://app.example';
@@ -21,5 +21,22 @@ describe('safeReturnBase', () => {
     expect(safeReturnBase(undefined, fallback)).toBe(fallback);
     expect(safeReturnBase('', fallback)).toBe(fallback);
     expect(safeReturnBase('not a url', fallback)).toBe(fallback);
+  });
+});
+
+describe('defaultReturnOrigin', () => {
+  it('returns to the live site in production when the request came from the installed app', () => {
+    expect(defaultReturnOrigin('https://localhost', true)).toBe(PRODUCTION_ORIGIN);
+    expect(defaultReturnOrigin('capacitor://localhost', true)).toBe(PRODUCTION_ORIGIN);
+    expect(defaultReturnOrigin(undefined, true)).toBe(PRODUCTION_ORIGIN);
+  });
+
+  it('keeps a real web origin in production', () => {
+    expect(defaultReturnOrigin('https://o1.club', true)).toBe('https://o1.club');
+  });
+
+  it('keeps http://localhost:3000 for local development', () => {
+    expect(defaultReturnOrigin(undefined, false)).toBe('http://localhost:3000');
+    expect(defaultReturnOrigin('http://127.0.0.1:3000', false)).toBe('http://127.0.0.1:3000');
   });
 });

@@ -11,6 +11,7 @@ import {
   reconcileStuckPayouts,
   resolveCheckoutItem,
   resolveCoachPlan,
+  defaultReturnOrigin,
   safeReturnBase,
 } from '../lib/stripeLedger';
 import { handleCreateIdentitySession, handleStripeWebhook } from './stripeIdentityRoutes';
@@ -74,7 +75,7 @@ export function registerStripeRoutes(app: Express) {
       const admin = getSupabaseAdmin();
       if (!stripe || !admin) return res.status(503).json({ error: 'Stripe is not configured.' });
 
-      const fallbackOrigin = String(req.headers.origin || 'http://localhost:3000');
+      const fallbackOrigin = defaultReturnOrigin(req.headers.origin);
       const base = safeReturnBase(req.body?.returnUrl, fallbackOrigin);
       const withParam = (param: string) => `${base}${base.includes('?') ? '&' : '?'}${param}`;
 
@@ -429,7 +430,7 @@ export function registerStripeRoutes(app: Express) {
         program_id: item.programId || '',
         program_title: item.title.slice(0, 200),
       };
-      const fallbackOrigin = String(req.headers.origin || 'http://localhost:3000');
+      const fallbackOrigin = defaultReturnOrigin(req.headers.origin);
       const base = safeReturnBase(req.body?.returnUrl, fallbackOrigin);
       const withParam = (param: string) => `${base}${base.includes('?') ? '&' : '?'}${param}`;
 
