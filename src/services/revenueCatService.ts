@@ -188,6 +188,16 @@ function isCancelledError(err: unknown): boolean {
   );
 }
 
+/**
+ * The store refusing a second purchase of a plan this Google or Apple account already holds:
+ * RevenueCat code 6 ("This product is already active for the user") or Play's "You already own this item".
+ */
+export function isAlreadyOwnedError(err: unknown): boolean {
+  const e = (err ?? {}) as { code?: unknown; message?: unknown; underlyingErrorMessage?: unknown };
+  const text = `${String(e.message ?? '')} ${String(e.underlyingErrorMessage ?? '')}`;
+  return String(e.code) === '6' || /already (active|own|purchased)|you already own/i.test(text);
+}
+
 function isEntitlementInfo(value: unknown): value is EntitlementInfo {
   const v = value as Partial<EntitlementInfo> | null;
   return Boolean(v) && typeof v?.isActive === 'boolean' && typeof v?.tierId === 'string';
@@ -468,11 +478,26 @@ class RevenueCatManager {
       return { success: true };
     } catch (err: unknown) {
       if (isCancelledError(err)) return { success: false, error: 'Checkout cancelled.' };
+      if (isAlreadyOwnedError(err)) return this.claimOwnedPlan(planId, athleteId);
       const message =
         err instanceof Error ? err.message : String((err as { message?: unknown })?.message ?? err);
       console.warn('[RevenueCat] Store billing error:', err);
       return { success: false, error: explainStoreFailure(message) || 'Store billing error.' };
     }
+  }
+
+  /**
+   * The store says this account already owns the plan, so buying again is the wrong move. Restore the
+   * purchase onto the signed-in account and unlock it, instead of leaving the buyer on an error.
+   */
+  private async claimOwnedPlan(planId: string, athleteId: string): Promise<PurchaseResult> {
+    const { info } = await this.restore(athleteId);
+    const matches = planKind(planId) !== 'coach' || planKind(info.tierId) === 'coach';
+    if (info.isActive && matches) return { success: true };
+    return {
+      success: false,
+      error: `${storeName()} shows this plan as already bought, but it is not linked to the account you are signed in with. Sign in with the account that bought it, then tap Restore Purchases.`,
+    };
   }
 
   private async recordPlan(info: EntitlementInfo, _userId: string): Promise<void> {
