@@ -139,7 +139,6 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
   const [isDurationModalOpen, setIsDurationModalOpen] = useState(false);
   const [prescription, setPrescription] = useState<ExerciseItem[] | null>(null);
   const [builtFor, setBuiltFor] = useState('');
-  const [isDesigning, setIsDesigning] = useState(false);
   const [isLoadReportOpen, setIsLoadReportOpen] = useState(false);
 
   const { deployProtocol, setActiveSession, setMode } = useWorkoutStore();
@@ -167,21 +166,15 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
 
   const handleDesignSession = () => {
     tactileEngine.triggerSelectionBuzz();
-    setIsDesigning(true);
-    const builtKey = optionsKey;
-    setTimeout(() => {
-      // Real live generation from EXERCISE_DATABASE
-      const generated = generateIntelPrescription(
-        trainingGoal,
-        energyLevel,
-        selectedDuration,
-        movementFocus,
-      );
-      tactileEngine.playPRCelebration();
-      setPrescription(generated);
-      setBuiltFor(builtKey);
-      setIsDesigning(false);
-    }, 280);
+    const generated = generateIntelPrescription(
+      trainingGoal,
+      energyLevel,
+      selectedDuration,
+      movementFocus,
+    );
+    tactileEngine.playPRCelebration();
+    setPrescription(generated);
+    setBuiltFor(optionsKey);
   };
 
   const handleLoadPrescription = () => {
@@ -448,12 +441,11 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
             </div>
             <button
               type="button"
-              disabled={isDesigning}
               onClick={handleDesignSession}
               className="min-h-[44px] px-5 rounded-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white active:scale-95 font-num text-xs font-medium tracking-wider shadow-sm flex items-center gap-2 cursor-pointer transition-all shrink-0"
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>{isDesigning ? 'Creating…' : 'Create workout'}</span>
+              <span>Create workout</span>
             </button>
           </>
         )}

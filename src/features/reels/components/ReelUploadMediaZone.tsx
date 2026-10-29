@@ -79,7 +79,9 @@ export const ReelUploadMediaZone: React.FC<ReelUploadMediaZoneProps> = ({
 
           {compressedResult && (
             <p className="px-1 text-o1-label text-o1-muted">
-              {compressedResult.formattedOriginal}
+              {compressedResult.compressed
+                ? `${compressedResult.formattedOriginal} → ${compressedResult.formattedCompressed}`
+                : compressedResult.formattedOriginal}
               {compressedResult.type === 'video' && (compressedResult.durationSecs ?? 0) > 0
                 ? ` · ${compressedResult.durationSecs}s`
                 : ''}

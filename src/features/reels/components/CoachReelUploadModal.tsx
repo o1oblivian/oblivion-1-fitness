@@ -5,6 +5,7 @@ import {
   compressVideo,
   compressPhoto,
   CompressedMediaResult,
+  VideoCompressionError,
 } from '../../../utils/mediaCompressor';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useUserStore } from '../../../stores/useUserStore';
@@ -52,7 +53,7 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
     tactileEngine.triggerSelectionBuzz();
     setFileError('');
     setIsCompressing(true);
-    setCompressionProgress(10);
+    setCompressionProgress(0);
     try {
       if (file.type.startsWith('video/')) {
         const result = await compressVideo(file, { onProgress: (p) => setCompressionProgress(p) });
@@ -72,6 +73,11 @@ export const CoachReelUploadModal: React.FC<CoachReelUploadModalProps> = ({
       }
     } catch (err) {
       console.error('[CoachReelUpload] Compression error:', err);
+      setFileError(
+        err instanceof VideoCompressionError
+          ? err.message
+          : 'This file could not be prepared. Choose a different one.',
+      );
     } finally {
       setIsCompressing(false);
     }

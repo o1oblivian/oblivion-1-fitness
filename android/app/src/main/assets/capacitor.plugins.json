@@ -32,11 +32,19 @@
 		"classpath": "com.capacitorjs.plugins.share.SharePlugin"
 	},
 	{
+		"pkg": "@capacitor/text-zoom",
+		"classpath": "com.capacitorjs.plugins.textzoom.TextZoomPlugin"
+	},
+	{
 		"pkg": "@capgo/capacitor-social-login",
 		"classpath": "ee.forgr.capacitor.social.login.SocialLoginPlugin"
 	},
 	{
 		"pkg": "@revenuecat/purchases-capacitor",
 		"classpath": "com.revenuecat.purchases.capacitor.PurchasesPlugin"
+	},
+	{
+		"pkg": "@whiteguru/capacitor-plugin-video-editor",
+		"classpath": "com.whiteguru.capacitor.plugin.videoeditor.VideoEditorPlugin"
 	}
 ]

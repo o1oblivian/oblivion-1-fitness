@@ -38,11 +38,12 @@
 		"CAPBrowserPlugin",
 		"CAPCameraPlugin",
 		"FilesystemPlugin",
-		"GeolocationPlugin",
 		"LocalNotificationsPlugin",
 		"PreferencesPlugin",
 		"SharePlugin",
+		"TextZoomPlugin",
 		"SocialLoginPlugin",
-		"PurchasesPlugin"
+		"PurchasesPlugin",
+		"VideoEditorPlugin"
 	]
 }

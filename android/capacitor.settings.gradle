@@ -26,8 +26,14 @@ project(':capacitor-preferences').projectDir = new File('../node_modules/@capaci
 include ':capacitor-share'
 project(':capacitor-share').projectDir = new File('../node_modules/@capacitor/share/android')
 
+include ':capacitor-text-zoom'
+project(':capacitor-text-zoom').projectDir = new File('../node_modules/@capacitor/text-zoom/android')
+
 include ':capgo-capacitor-social-login'
 project(':capgo-capacitor-social-login').projectDir = new File('../node_modules/@capgo/capacitor-social-login/android')
 
 include ':revenuecat-purchases-capacitor'
 project(':revenuecat-purchases-capacitor').projectDir = new File('../node_modules/@revenuecat/purchases-capacitor/android')
+
+include ':whiteguru-capacitor-plugin-video-editor'
+project(':whiteguru-capacitor-plugin-video-editor').projectDir = new File('../node_modules/@whiteguru/capacitor-plugin-video-editor/android')

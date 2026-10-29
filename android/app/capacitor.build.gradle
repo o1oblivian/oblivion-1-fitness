@@ -17,8 +17,10 @@ dependencies {
     implementation project(':capacitor-local-notifications')
     implementation project(':capacitor-preferences')
     implementation project(':capacitor-share')
+    implementation project(':capacitor-text-zoom')
     implementation project(':capgo-capacitor-social-login')
     implementation project(':revenuecat-purchases-capacitor')
+    implementation project(':whiteguru-capacitor-plugin-video-editor')
 
 }
 

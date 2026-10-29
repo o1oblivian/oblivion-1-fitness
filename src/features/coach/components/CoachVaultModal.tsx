@@ -4,7 +4,11 @@ import { tactileEngine } from '../../../services/tactileEngine';
 import { useUserStore } from '../../../stores/useUserStore';
 import { useReelsStore } from '../../../stores/useReelsStore';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { compressPhoto, compressVideo } from '../../../utils/mediaCompressor';
+import {
+  compressPhoto,
+  compressVideo,
+  VideoCompressionError,
+} from '../../../utils/mediaCompressor';
 import {
   VaultRow,
   deleteVaultRow,
@@ -111,7 +115,11 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
         source = result.file;
         poster = result.thumbnailUrl;
       } catch (err) {
-        console.warn('[CoachVault] compression skipped:', err);
+        if (err instanceof VideoCompressionError) {
+          flash('error', err.message);
+          return;
+        }
+        console.warn('[CoachVault] photo compression skipped:', err);
       }
       const [media, cover] = await Promise.all([
         uploadMedia(source, 'vault'),

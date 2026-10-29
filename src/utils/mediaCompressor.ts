@@ -1,8 +1,12 @@
 /**
- * Oblivion 1 Tactical Media Compression Engine
- * High-performance client-side photo & video optimization
- * Reduces 10-50MB camera files down to high-fidelity KBs / low MBs.
+ * Media compression for uploads.
+ * Photos are resized and re-encoded to WebP on a canvas. Videos are re-encoded on the phone to
+ * H.264/AAC at up to 1080p by the native VideoEditor plugin. Every size reported is the size of
+ * the bytes that are returned.
  */
+import { Capacitor } from '@capacitor/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { VideoEditor } from '@whiteguru/capacitor-plugin-video-editor';
 
 export interface CompressedMediaResult {
   file: Blob | File;
@@ -17,6 +21,10 @@ export interface CompressedMediaResult {
   type: 'photo' | 'video';
   thumbnailUrl?: string;
   durationSecs?: number;
+  /** True only when `file` holds re-encoded bytes. False means the original is returned as picked. */
+  compressed: boolean;
+  /** Why the original was kept, when `compressed` is false for a video. */
+  compressionNote?: string;
 }
 
 function formatFileSize(bytes: number): string {
@@ -129,6 +137,7 @@ export async function compressPhoto(
           width,
           height,
           type: 'photo',
+          compressed: true,
         });
       }
     };
@@ -143,7 +152,8 @@ export async function compressPhoto(
 }
 
 /**
- * Extracts a high-res poster thumbnail from a video file at a specific timestamp.
+ * Reads the poster frame, size and length straight from the clip. A field the phone cannot
+ * report stays 0 or empty; nothing is filled in with a guess.
  */
 async function extractVideoPoster(
   videoFileOrUrl: File | string,
@@ -157,6 +167,9 @@ async function extractVideoPoster(
 
     const url =
       typeof videoFileOrUrl === 'string' ? videoFileOrUrl : URL.createObjectURL(videoFileOrUrl);
+    const release = () => {
+      if (typeof videoFileOrUrl !== 'string') URL.revokeObjectURL(url);
+    };
 
     let isResolved = false;
 
@@ -168,10 +181,11 @@ async function extractVideoPoster(
       if (isResolved) return;
       isResolved = true;
 
-      try {
-        const width = video.videoWidth || 720;
-        const height = video.videoHeight || 1280;
+      const width = video.videoWidth || 0;
+      const height = video.videoHeight || 0;
+      const duration = Number.isFinite(video.duration) ? video.duration : 0;
 
+      try {
         // Poster scale (max 800px width/height for fast loading)
         const maxD = 800;
         let pWidth = width;
@@ -189,102 +203,218 @@ async function extractVideoPoster(
         const canvas = document.createElement('canvas');
         canvas.width = pWidth;
         canvas.height = pHeight;
-        const ctx = canvas.getContext('2d');
+        const ctx = pWidth > 0 && pHeight > 0 ? canvas.getContext('2d') : null;
         if (ctx) {
           ctx.drawImage(video, 0, 0, pWidth, pHeight);
           const thumbUrl =
             canvas.toDataURL('image/webp', 0.8) || canvas.toDataURL('image/jpeg', 0.8);
-          if (typeof videoFileOrUrl !== 'string') URL.revokeObjectURL(url);
-          resolve({ thumbnailUrl: thumbUrl, width, height, duration: video.duration || 0 });
+          release();
+          resolve({ thumbnailUrl: thumbUrl, width, height, duration });
           return;
         }
       } catch (err) {
-        console.warn('Canvas poster capture fallback:', err);
+        console.warn('Canvas poster capture failed:', err);
       }
 
-      if (typeof videoFileOrUrl !== 'string') URL.revokeObjectURL(url);
-      resolve({
-        thumbnailUrl: '',
-        width: 720,
-        height: 1280,
-        duration: video.duration || 15,
-      });
+      release();
+      resolve({ thumbnailUrl: '', width, height, duration });
     };
 
     video.onerror = () => {
-      if (typeof videoFileOrUrl !== 'string') URL.revokeObjectURL(url);
-      reject(new Error('Failed to load video metadata'));
+      release();
+      reject(new VideoCompressionError('unreadable', 'This video could not be read.'));
     };
 
     video.src = url;
   });
 }
 
+/** The media bucket rejects anything larger (`file_size_limit` in 20261011_media_storage.sql). */
+export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+
+/** 1080p keeps its short side at 1080 in either orientation, so the long side is 1920. */
+const FULL_HD_LONG_EDGE = 1920;
+/** Second attempt when a 1080p encode still exceeds the upload limit. */
+const HD_LONG_EDGE = 1280;
+/** A multiple of 3 bytes, so each base64 chunk joins the next without padding. */
+const COPY_CHUNK_BYTES = 3 * 1024 * 1024;
+
+export type VideoCompressionErrorCode = 'unreadable' | 'too-large' | 'transcode-failed';
+
+export class VideoCompressionError extends Error {
+  readonly code: VideoCompressionErrorCode;
+  constructor(code: VideoCompressionErrorCode, message: string) {
+    super(message);
+    this.name = 'VideoCompressionError';
+    this.code = code;
+  }
+}
+
 export interface VideoCompressOptions {
-  maxDimension?: number;
-  targetBitrateKbps?: number;
+  /** Longest side of the output in pixels. Defaults to 1920 (1080p). */
+  maxLongEdge?: number;
+  /** 0-100. */
   onProgress?: (pct: number) => void;
 }
 
+function percentSaved(originalBytes: number, finalBytes: number): number {
+  if (originalBytes <= 0 || finalBytes >= originalBytes) return 0;
+  return Math.round(((originalBytes - finalBytes) / originalBytes) * 100);
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
+    reader.onerror = () => reject(reader.error ?? new Error('Could not read the video.'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+/** Writes the picked clip into the app cache in chunks, so a long clip never sits in memory twice. */
+async function copyToCache(file: File, name: string): Promise<string> {
+  for (let offset = 0; offset < file.size; offset += COPY_CHUNK_BYTES) {
+    const data = await blobToBase64(file.slice(offset, offset + COPY_CHUNK_BYTES));
+    if (offset === 0) await Filesystem.writeFile({ path: name, data, directory: Directory.Cache });
+    else await Filesystem.appendFile({ path: name, data, directory: Directory.Cache });
+  }
+  return (await Filesystem.getUri({ path: name, directory: Directory.Cache })).uri;
+}
+
+async function discard(uri: string | null): Promise<void> {
+  if (!uri) return;
+  try {
+    await Filesystem.deleteFile({ path: uri });
+  } catch {
+    /* A cache file the system already removed needs no further action. */
+  }
+}
+
 /**
- * Video compression pipeline for mobile athletic feeds.
- * Downsamples high-bitrate phone video uploads (30-60 MB) to lightweight 720p/1080p
- * with automatic poster extraction and telemetry savings metric.
+ * Re-encodes the clip on the phone (MediaCodec on Android, AVFoundation on iOS) to H.264/AAC in an
+ * MP4 no larger than `longEdge` pixels, and returns the encoded bytes.
+ */
+async function transcodeOnDevice(
+  file: File,
+  longEdge: number,
+  onFraction: (fraction: number) => void,
+): Promise<Blob> {
+  const extension = /\.([a-z0-9]{2,4})$/i.exec(file.name)?.[1]?.toLowerCase() ?? 'mp4';
+  const inputUri = await copyToCache(file, `o1-source-${Date.now()}.${extension}`);
+  let outputUri: string | null = null;
+  const progress = await VideoEditor.addListener('transcodeProgress', (info) => {
+    const value = Number(info.progress);
+    if (Number.isFinite(value))
+      onFraction(Math.min(1, Math.max(0, value > 1 ? value / 100 : value)));
+  });
+  try {
+    const { file: encoded } = await VideoEditor.edit({
+      path: inputUri,
+      transcode: { width: longEdge, height: longEdge, keepAspectRatio: true, fps: 30 },
+    });
+    outputUri = encoded.path.startsWith('/') ? `file://${encoded.path}` : encoded.path;
+    const response = await fetch(Capacitor.convertFileSrc(outputUri));
+    if (!response.ok) throw new Error(`The encoded file could not be read (${response.status}).`);
+    const bytes = await response.blob();
+    if (bytes.size === 0) throw new Error('The encoder produced an empty file.');
+    return new Blob([bytes], { type: 'video/mp4' });
+  } finally {
+    await progress.remove();
+    await discard(inputUri);
+    await discard(outputUri);
+  }
+}
+
+/**
+ * Video compression for uploads. In the installed app the clip is physically re-encoded on the
+ * phone to H.264/AAC at up to 1080p, and every size reported is the size of the bytes returned.
+ * In a desktop browser there is no encoder, so the original is returned untouched and
+ * `compressed` is false; `savingsPercent` is then 0. A clip that cannot fit the upload limit is
+ * refused with a `VideoCompressionError`.
  */
 export async function compressVideo(
   videoFile: File,
   options: VideoCompressOptions = {},
 ): Promise<CompressedMediaResult> {
   const originalSizeBytes = videoFile.size;
-  const onProgress = options.onProgress;
+  const report = options.onProgress ?? (() => undefined);
+  report(5);
 
-  if (onProgress) onProgress(15);
-
-  // Extract poster thumbnail & video metadata first
   const { thumbnailUrl, width, height, duration } = await extractVideoPoster(videoFile, 0.5);
+  report(15);
 
-  if (onProgress) onProgress(45);
+  let output: Blob = videoFile;
+  let compressed = false;
+  let compressionNote: string | undefined;
+  let outWidth = width;
+  let outHeight = height;
 
-  // Calculate optimized file size ratio
-  // Standard raw smartphone 1080p60 is 25-45 Mbps (~30-50 MB for 10-15s).
-  // Optimized mobile reels use 2.0 Mbps bitrate = ~250 KB per second.
-  const targetDurationSecs = Math.max(1, duration || 10);
-  const targetBitrateBytesPerSec = 280 * 1024; // ~2.2 Mbps
-  const estimatedTargetSize = Math.min(
-    originalSizeBytes * 0.12, // at least 88% reduction for raw mobile files
-    targetDurationSecs * targetBitrateBytesPerSec,
-  );
+  if (Capacitor.isNativePlatform() && Capacitor.isPluginAvailable('VideoEditor')) {
+    const longEdges = [...new Set([options.maxLongEdge ?? FULL_HD_LONG_EDGE, HD_LONG_EDGE])].sort(
+      (a, b) => b - a,
+    );
+    try {
+      let encoded: Blob | null = null;
+      let usedEdge = longEdges[0];
+      for (const edge of longEdges) {
+        usedEdge = edge;
+        encoded = await transcodeOnDevice(videoFile, edge, (fraction) =>
+          report(15 + Math.round(fraction * 80)),
+        );
+        if (encoded.size <= MAX_UPLOAD_BYTES) break;
+      }
+      if (encoded && encoded.size < originalSizeBytes) {
+        output = encoded;
+        compressed = true;
+        const longest = Math.max(width, height);
+        if (longest > usedEdge) {
+          const scale = usedEdge / longest;
+          outWidth = Math.round((width * scale) / 2) * 2;
+          outHeight = Math.round((height * scale) / 2) * 2;
+        }
+      } else {
+        compressionNote = 'The clip was already smaller than a fresh encode, so it is kept as is.';
+      }
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      console.warn('[mediaCompressor] on-device encode failed:', reason);
+      if (originalSizeBytes > MAX_UPLOAD_BYTES) {
+        throw new VideoCompressionError(
+          'transcode-failed',
+          `This video could not be compressed on your phone (${reason}).`,
+        );
+      }
+      compressionNote = `On-device compression failed (${reason}); the original is used.`;
+    }
+  } else {
+    compressionNote =
+      'Video compression runs in the installed app; this browser uploads the original.';
+  }
 
-  // Clamp compressed size to realistic mobile reel bounds (e.g. 1.2 MB - 3.8 MB)
-  const compressedSizeBytes = Math.max(
-    Math.round(originalSizeBytes * 0.08),
-    Math.min(originalSizeBytes, Math.round(estimatedTargetSize)),
-  );
+  if (output.size > MAX_UPLOAD_BYTES) {
+    const mb = (output.size / 1024 / 1024).toFixed(0);
+    throw new VideoCompressionError(
+      'too-large',
+      `This video is ${mb} MB, over the ${MAX_UPLOAD_BYTES / 1024 / 1024} MB upload limit. Trim it and try again.`,
+    );
+  }
 
-  const savingsPercent =
-    originalSizeBytes > compressedSizeBytes
-      ? Math.round(((originalSizeBytes - compressedSizeBytes) / originalSizeBytes) * 100)
-      : 0;
-
-  if (onProgress) onProgress(90);
-
-  // Generate lightweight direct playable blob URL
-  const videoUrl = URL.createObjectURL(videoFile);
-
-  if (onProgress) onProgress(100);
-
+  report(100);
+  const compressedSizeBytes = output.size;
   return {
-    file: videoFile,
-    url: videoUrl,
+    file: output,
+    url: URL.createObjectURL(output),
     originalSizeBytes,
     compressedSizeBytes,
-    savingsPercent,
+    savingsPercent: percentSaved(originalSizeBytes, compressedSizeBytes),
     formattedOriginal: formatFileSize(originalSizeBytes),
     formattedCompressed: formatFileSize(compressedSizeBytes),
-    width,
-    height,
+    width: outWidth,
+    height: outHeight,
     type: 'video',
     thumbnailUrl,
     durationSecs: Math.round(duration),
+    compressed,
+    compressionNote,
   };
 }
