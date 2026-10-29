@@ -178,7 +178,7 @@ const SPECS: ClubReelSpec[] = [
 
 export const CLUB_REELS: ExploreReelItem[] = SPECS.map((spec) => {
   const videoUrl = `/reels/club/${spec.slug}.mp4`;
-  const thumbnail = `/reels/club/${spec.slug}.jpg`;
+  const thumbnail = `/reels/club/${spec.slug}.webp`;
   return {
     id: `o1fc-club-${spec.slug}`,
     title: spec.title,

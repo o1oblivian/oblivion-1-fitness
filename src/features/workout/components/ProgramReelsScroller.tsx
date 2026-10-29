@@ -9,14 +9,14 @@ import {
   getSystemTodayCode,
   useDayRoutineRevision,
 } from '../services/dayRoutineService';
-import reelsImg from '../../../assets/images/reels/reels.jpg';
-import tutorialImg from '../../../assets/images/reels/tutorial.jpg';
-import hypertrophyImg from '../../../assets/images/reels/hypertrophy.jpg';
-import biomechanicsImg from '../../../assets/images/reels/biomechanics.jpg';
-import strengthImg from '../../../assets/images/reels/strength.jpg';
-import mobilityImg from '../../../assets/images/reels/mobility.jpg';
-import conditioningImg from '../../../assets/images/reels/conditioning.jpg';
-import rehabImg from '../../../assets/images/reels/rehab.jpg';
+import reelsImg from '../../../assets/images/reels/reels.webp';
+import tutorialImg from '../../../assets/images/reels/tutorial.webp';
+import hypertrophyImg from '../../../assets/images/reels/hypertrophy.webp';
+import biomechanicsImg from '../../../assets/images/reels/biomechanics.webp';
+import strengthImg from '../../../assets/images/reels/strength.webp';
+import mobilityImg from '../../../assets/images/reels/mobility.webp';
+import conditioningImg from '../../../assets/images/reels/conditioning.webp';
+import rehabImg from '../../../assets/images/reels/rehab.webp';
 import { REEL_CATEGORIES, type ReelCategoryId } from '../../reels/reelCategories';
 import { useVisibleReels } from '../../reels/services/reelSafety';
 

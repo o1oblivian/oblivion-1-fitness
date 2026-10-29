@@ -1,4 +1,4 @@
-import starfield from '../../../assets/images/signin_starfield.jpg';
+import starfield from '../../../assets/images/signin_starfield.webp';
 
 /** The starfield image and dark wash behind every induction screen. */
 export function InductionBackdrop() {

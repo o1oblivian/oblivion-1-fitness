@@ -9,7 +9,7 @@ import { tactileEngine } from '../../services/tactileEngine';
 import { safeStorage } from '../../utils/safeStorage';
 import { useConsultationStore } from '../induction/useConsultationStore';
 import { profileOnboardingComplete } from '../../services/oauthDeepLink';
-import signupBg from '../../assets/images/signin_starfield.jpg';
+import signupBg from '../../assets/images/signin_starfield.webp';
 
 /** Events that mean a person is now signed in. USER_UPDATED covers saving a new password after a reset link. */
 const SIGN_IN_EVENTS = new Set<string>(['SIGNED_IN', 'INITIAL_SESSION', 'USER_UPDATED']);
