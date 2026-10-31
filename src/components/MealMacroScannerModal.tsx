@@ -42,6 +42,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
     handleFileUpload,
     handleBarcodeLookup,
     commitAdjustedMeal,
+    resetScan,
     slot,
   } = useMealMacroScanner(props);
 
@@ -49,7 +50,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim">
-      <div className="o1-sheet-card bg-o1-card overflow-hidden shadow-xl flex flex-col border border-white/[0.07]">
+      <div className="o1-sheet-card o1-sheet-scanner bg-o1-card max-h-[92vh] flex flex-col overflow-hidden shadow-xl border border-white/[0.07]">
         <div className="flex items-center justify-between px-3 py-2.5 bg-black">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white">
@@ -70,55 +71,61 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
           </button>
         </div>
 
-        <div className="px-3 py-2.5 space-y-2.5 overflow-y-auto flex-1">
-          <MealScanModeSelector scanMode={scanMode} onSelectMode={setScanMode} />
-          <MealScanActions
-            scanMode={scanMode}
-            barcodeInput={barcodeInput}
-            setBarcodeInput={setBarcodeInput}
-            onBarcodeLookup={handleBarcodeLookup}
-            isLoading={isLoading || isScanning}
-            cameraInputRef={cameraInputRef}
-            fileInputRef={fileInputRef}
-            onFileUpload={handleFileUpload}
+        {scannedMeal ? (
+          <ScannedMealResultCard
+            scannedMeal={scannedMeal}
+            slotName={slot}
+            thumbnail={selectedImage}
+            onScanAgain={resetScan}
+            onCommitMeal={(name, kcal, p, c, f) => {
+              commitAdjustedMeal(name, kcal, p, c, f);
+              onClose();
+            }}
           />
-
-          {selectedImage ? (
-            <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex items-center justify-center">
-              <img
-                src={selectedImage}
-                alt="Scanned item"
-                className="w-full h-full object-contain"
-              />
-              {(isLoading || isScanning) && <MealScanLoadingBadge scanMode={scanMode} />}
-            </div>
-          ) : scanMode !== 'barcode' && !scannedMeal && !imageFile && !isLoading && !isScanning ? (
-            <div className="rounded-xl border border-white/[0.07] bg-black px-3 py-4 text-center">
-              <p className="text-o1-label text-o1-faint">Your photo shows here.</p>
-            </div>
-          ) : null}
-
-          {error && (
-            <div
-              role="alert"
-              className="w-full px-3 py-2 rounded-xl bg-o1-well border border-o1-crimson/40 text-o1-text text-xs flex items-start gap-2"
-            >
-              <AlertCircle className="w-4 h-4 shrink-0 mt-px text-o1-crimson" />
-              <span className="flex-1 min-w-0 break-words leading-snug">{error}</span>
-            </div>
-          )}
-
-          {scannedMeal && (
-            <ScannedMealResultCard
-              scannedMeal={scannedMeal}
-              slotName={slot}
-              onCommitMeal={(name, kcal, p, c, f) => {
-                commitAdjustedMeal(name, kcal, p, c, f);
-                onClose();
-              }}
+        ) : (
+          <div className="px-3 py-2.5 space-y-2.5 overflow-y-auto flex-1 min-h-0">
+            <MealScanModeSelector scanMode={scanMode} onSelectMode={setScanMode} />
+            <MealScanActions
+              scanMode={scanMode}
+              barcodeInput={barcodeInput}
+              setBarcodeInput={setBarcodeInput}
+              onBarcodeLookup={handleBarcodeLookup}
+              isLoading={isLoading || isScanning}
+              cameraInputRef={cameraInputRef}
+              fileInputRef={fileInputRef}
+              onFileUpload={handleFileUpload}
             />
-          )}
-        </div>
+
+            {selectedImage ? (
+              <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex items-center justify-center">
+                <img
+                  src={selectedImage}
+                  alt="Scanned item"
+                  className="w-full h-full object-contain"
+                />
+                {(isLoading || isScanning) && <MealScanLoadingBadge scanMode={scanMode} />}
+              </div>
+            ) : scanMode !== 'barcode' &&
+              !scannedMeal &&
+              !imageFile &&
+              !isLoading &&
+              !isScanning ? (
+              <div className="rounded-xl border border-white/[0.07] bg-black px-3 py-4 text-center">
+                <p className="text-o1-label text-o1-faint">Your photo shows here.</p>
+              </div>
+            ) : null}
+
+            {error && (
+              <div
+                role="alert"
+                className="w-full px-3 py-2 rounded-xl bg-o1-well border border-o1-crimson/40 text-o1-text text-xs flex items-start gap-2"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 mt-px text-o1-crimson" />
+                <span className="flex-1 min-w-0 break-words leading-snug">{error}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

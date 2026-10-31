@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   analyzeMealImageWithGemini,
   analyzePackageNutritionPhoto,
@@ -79,6 +79,13 @@ export function useMealMacroScanner({
     setScannedMeal(null);
   };
 
+  const resetScan = () => {
+    setScannedMeal(null);
+    setSelectedImage(null);
+    setImageFile(null);
+    setError(null);
+  };
+
   const executeScan = async (action: () => Promise<ScannedMealBreakdown>) => {
     if (!hasFullAccess) {
       openPaywall('Vision Macro & Nutrition Scanner');
@@ -155,6 +162,7 @@ export function useMealMacroScanner({
     handleFileUpload,
     handleBarcodeLookup,
     commitAdjustedMeal,
+    resetScan,
     slot,
   };
 }

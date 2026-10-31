@@ -450,6 +450,11 @@ body {
   border: 2px solid #121214;
 }
 
+.o1-sheet-card.o1-sheet-scanner {
+  max-height: min(92vh, 92dvh) !important;
+  overflow: hidden !important;
+}
+
 .o1-sheet-card.o1-sheet-tall {
   max-height: min(92dvh, 760px) !important;
   border-bottom-left-radius: 0 !important;
