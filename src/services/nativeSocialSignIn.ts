@@ -25,8 +25,8 @@ async function plugin() {
   const { SocialLogin } = await import('@capgo/capacitor-social-login');
   initialized ??= withNativeTimeout(
     SocialLogin.initialize({ apple: { redirectUrl: '' } }),
-    'Apple sign-in did not start. Close the app, open it again and retry.',
-  ).catch((err) => {
+    MSG.start,
+  ).catch((err: unknown) => {
     initialized = null;
     throw err;
   });
@@ -78,34 +78,79 @@ export async function appleRevocationCode(): Promise<string | null> {
   }
 }
 
+/** How long the sign-in service gets to accept Apple's token before the athlete is told to retry. */
+const EXCHANGE_TIMEOUT_MS = 30_000;
+
+/** Messages written for the athlete. Anything else that goes wrong is turned into one of these. */
+const MSG = {
+  start: 'Apple sign-in did not start. Close the app, open it again and retry.',
+  answer: 'Apple sign-in did not answer. Try again.',
+  noToken: 'Apple did not return a sign-in token. Try again.',
+  slow: 'Sign-in is taking too long. Check your connection and try again.',
+  offline: 'Could not reach the sign-in service. Check your connection and try again.',
+  rejected: 'Apple sign-in could not be completed. Try again, or sign in with your email.',
+  noSession:
+    'You are signed in with Apple, but the session did not start. Close the app, open it again and retry.',
+  other: 'Apple sign-in did not finish. Try again, or sign in with your email.',
+} as const;
+const OWN_MESSAGES: ReadonlySet<string> = new Set(Object.values(MSG));
+
+/** Turns whatever failed into a message fit for the screen; provider and network errors never show verbatim. */
+export function explainAppleSignInError(err: unknown): Error {
+  const message = err instanceof Error ? err.message : String(err ?? '');
+  if (OWN_MESSAGES.has(message)) return err instanceof Error ? err : new Error(message);
+  if (
+    /failed to fetch|load failed|network|internet|offline|timed? ?out|econn|enotfound/i.test(
+      message,
+    )
+  ) {
+    return new Error(MSG.offline);
+  }
+  if (
+    /nonce|audience|id.?token|jwt|invalid.*(token|grant|credential)|provider.*(disabled|not enabled)|unsupported provider|bad_jwt/i.test(
+      message,
+    )
+  ) {
+    return new Error(MSG.rejected);
+  }
+  return new Error(MSG.other);
+}
+
 /** Resolves true when signed in, false when the athlete closed the sheet. */
 export async function nativeAppleSignIn(): Promise<boolean> {
   if (!hasNativeAppleSignIn()) {
     throw new Error('Apple native sign-in is not available on this device.');
   }
-  const { SocialLogin } = await plugin();
-  const { raw, hashed } = await nonces();
-  let idToken: string | null = null;
   try {
-    const res = await withNativeTimeout(
-      SocialLogin.login({
-        provider: 'apple',
-        options: { scopes: ['name', 'email'], nonce: hashed },
-      }),
-      'Apple sign-in did not answer. Try again.',
-      NATIVE_PROMPT_TIMEOUT_MS,
+    const { SocialLogin } = await plugin();
+    const { raw, hashed } = await nonces();
+    let idToken: string | null = null;
+    try {
+      const res = await withNativeTimeout(
+        SocialLogin.login({
+          provider: 'apple',
+          options: { scopes: ['name', 'email'], nonce: hashed },
+        }),
+        MSG.answer,
+        NATIVE_PROMPT_TIMEOUT_MS,
+      );
+      idToken = res.result.idToken;
+    } catch (err) {
+      if (cancelled(err)) return false;
+      throw err;
+    }
+    if (!idToken) throw new Error(MSG.noToken);
+    // Apple's identity token goes to the sign-in service with the raw nonce it was hashed from.
+    const { error } = await withNativeTimeout(
+      supabase.auth.signInWithIdToken({ provider: 'apple', token: idToken, nonce: raw }),
+      MSG.slow,
+      EXCHANGE_TIMEOUT_MS,
     );
-    idToken = res.result.idToken;
+    if (error) throw error;
+    // Signed in but no session to read back would otherwise look like the sheet being closed.
+    if (!(await persistAuthenticatedUser())) throw new Error(MSG.noSession);
+    return true;
   } catch (err) {
-    if (cancelled(err)) return false;
-    throw err;
+    throw explainAppleSignInError(err);
   }
-  if (!idToken) throw new Error('Apple did not return a sign-in token.');
-  const { error } = await supabase.auth.signInWithIdToken({
-    provider: 'apple',
-    token: idToken,
-    nonce: raw,
-  });
-  if (error) throw error;
-  return persistAuthenticatedUser();
 }

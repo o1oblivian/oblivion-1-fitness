@@ -62,7 +62,7 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
       setLoaded({
         status: 'unavailable',
         prices: {},
-        issue: 'Prices load in the iOS or Android app.',
+        issue: 'Prices load in the mobile app.',
       });
       return;
     }

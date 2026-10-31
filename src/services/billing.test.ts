@@ -258,7 +258,7 @@ describe('web checkout', () => {
   it('refuses to charge outside the native store apps', async () => {
     expect(await revenueCatService.purchasePackage('o1fc_pro_monthly', 'user-1')).toEqual({
       success: false,
-      error: 'Subscribe in the iOS or Android app to complete checkout.',
+      error: 'Subscribe in the mobile app to complete checkout.',
     });
   });
 

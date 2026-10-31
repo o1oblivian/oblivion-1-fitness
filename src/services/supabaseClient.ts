@@ -43,7 +43,10 @@ function getSafeEnv(key: string): string {
         : undefined;
     const fromMeta = metaEnv?.[key];
     if (fromMeta) return fromMeta;
-    const fromProcess = typeof process !== 'undefined' ? process?.env?.[key] : undefined;
+    // Read through globalThis so the browser build does not need Node's type definitions.
+    const nodeProcess = (globalThis as { process?: { env?: Record<string, string | undefined> } })
+      .process;
+    const fromProcess = nodeProcess?.env?.[key];
     if (fromProcess) return fromProcess;
   } catch {}
   return '';

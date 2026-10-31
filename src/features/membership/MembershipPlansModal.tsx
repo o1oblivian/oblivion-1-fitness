@@ -5,6 +5,7 @@ import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { tactileEngine } from '../../services/tactileEngine';
 import { isNativeStorePlatform } from '../../services/purchasesService';
 import { openLegalUrl } from '../../services/apiBase';
+import { storeCopy } from '../../utils/storeCopy';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
@@ -53,6 +54,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   const freeLine = freeAccessLine(freeSpots);
 
   const nativeStore = isNativeStorePlatform();
+  const store = storeCopy();
   const currentProducts = userType === 'athletes' ? ATHLETE_PRODUCTS : COACH_PRODUCTS;
   const currentSelected =
     [...ATHLETE_PRODUCTS, ...COACH_PRODUCTS].find((p) => p.productId === selectedProductId) ||
@@ -247,8 +249,8 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                   ? 'Core Free includes 90 days full access + permanent workout logger & hydration tracking. No credit card required.'
                   : 'Coach Starter includes up to 5 roster athletes, workout dispatch and the review studio. Program sales carry a 15% platform fee.'
                 : nativeStore
-                  ? 'In-App Subscription: Billed via Google Play or Apple App Store. Your Oblivion 1 Club Pass unlocks across all your devices.'
-                  : 'Billed by the App Store or Google Play.'}
+                  ? store.subscriptionNotice
+                  : 'Billed by the store.'}
             </span>
           </div>
 
@@ -287,7 +289,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               </>
             ) : (
               <>
-                <span>{nativeStore ? 'Subscribe with app store / google play' : 'subscribe'}</span>
+                <span>{nativeStore ? store.subscribeLabel : 'Subscribe'}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -301,7 +303,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
 
           {/* Footer Links & Restore */}
           <div className="flex items-center justify-center gap-2.5 text-o1-label font-num text-o1-muted flex-wrap">
-            <span>App Store or Google Play</span>
+            <span>{store.footerName}</span>
             <span>•</span>
             <span>Cancel Anytime</span>
             <span>•</span>

@@ -4,6 +4,7 @@ import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { planKind } from '../../../services/revenueCatService';
 import { openLegalUrl } from '../../../services/apiBase';
+import { storeCopy } from '../../../utils/storeCopy';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
 import { COACH_PAYWALL_FEATURE } from '../planCatalog';
 import { useStorePlans } from '../useStorePlans';
@@ -30,6 +31,7 @@ const PERKS = [
 ];
 
 export const ClubPassPaywallModal: React.FC = () => {
+  const store = storeCopy();
   const { isPaywallOpen, gatedFeature, closePaywall, restorePurchases } = useSubscription();
   const [audience, setAudience] = useState<Audience>('athletes');
   const [selectedId, setSelectedId] = useState(DEFAULT_PLAN.athletes);
@@ -277,8 +279,8 @@ export const ClubPassPaywallModal: React.FC = () => {
 
           <p className="text-o1-label font-num text-o1-faint text-center leading-tight">
             {kind === 'lifetime'
-              ? 'Founder Pass is a one-time, non-recurring purchase. Billed via Apple App Store or Google Play.'
-              : 'Subscriptions auto-renew unless cancelled 24h before period end. Billed via Apple App Store or Google Play.'}
+              ? `Founder Pass is a one-time, non-recurring purchase. Billed via ${store.billedBy}.`
+              : `Subscriptions auto-renew unless cancelled 24h before period end. Billed via ${store.billedBy}.`}
           </p>
         </div>
       </div>

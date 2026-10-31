@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Lock, Camera, Activity, Trash2 } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
+import { storeCopy } from '../../utils/storeCopy';
 
 interface Props {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface Props {
 
 export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteRequest }) => {
   if (!isOpen) return null;
+  const store = storeCopy();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-150">
@@ -61,8 +63,7 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               <span>2. Zero Third-Party Trackers, Pixels, or Data Brokers</span>
             </div>
             <p className="text-o1-label text-o1-muted">
-              In full compliance with Apple App Tracking Transparency (ATT) and Google Play User
-              Data policies, this application contains{' '}
+              In full compliance with {store.trackingPolicy}, this application contains{' '}
               <strong>
                 zero third-party tracking pixels, zero marketing SDKs, and zero behavioral telemetry
                 scrapers
@@ -135,8 +136,8 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               You can delete your account at any time in Settings &rarr; Delete account. Our server
               then permanently deletes your profile, logs, messages, photos, reels and sign-in, and
               the app clears everything stored on your phone. Payment records for coaching sales are
-              kept as the law requires. A store subscription is cancelled separately in your App
-              Store or Google Play subscription settings.
+              kept as the law requires. A store subscription is cancelled separately in{' '}
+              {store.settings}.
             </p>
             {onDeleteRequest && (
               <button

@@ -1,5 +1,6 @@
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { openLegalUrl } from '../../../services/apiBase';
+import { storeCopy } from '../../../utils/storeCopy';
 import type { PlanCopy } from '../../membership/planCatalog';
 import type { PlanAvailability } from '../../membership/useStorePlans';
 import type { MembershipTier } from '../consultationTypes';
@@ -32,6 +33,7 @@ export function PlanCheckout({
   onStartFree,
   onRestore,
 }: PlanCheckoutProps) {
+  const store = storeCopy();
   return (
     <footer className="mx-auto w-full max-w-[480px] shrink-0 bg-gradient-to-t from-black via-black/90 to-black/0 px-5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-3">
       {error ? (
@@ -75,10 +77,10 @@ export function PlanCheckout({
         {plan.product.isFree
           ? 'No payment needed. Upgrade any time from Settings.'
           : availability !== 'ready'
-            ? 'Prices come from the App Store or Google Play.'
+            ? `Prices come from ${store.inSentence}.`
             : plan.renews
-              ? `Renews monthly at ${price} until cancelled. Cancel at least 24 hours before renewal in your App Store or Google Play settings.`
-              : 'One payment through the App Store or Google Play. It never renews.'}
+              ? `Renews monthly at ${price} until cancelled. Cancel at least 24 hours before renewal in ${store.settings}.`
+              : `One payment through ${store.inSentence}. It never renews.`}
       </p>
       <div className="flex items-center justify-center gap-5 text-o1-label font-normal text-o1-muted">
         <button type="button" onClick={onRestore} disabled={working} className="h-8">

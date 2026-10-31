@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, ShieldCheck, FileText, AlertTriangle } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
+import { storeCopy } from '../../utils/storeCopy';
 
 interface Props {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface Props {
 
 export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
+  const store = storeCopy();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim select-none animate-in fade-in duration-150">
@@ -44,12 +46,11 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <span>1. Subscription Billing &amp; Auto-Renewal</span>
             </div>
             <p className="text-o1-label text-o1-muted">
-              Club Pass subscriptions are billed directly through your Apple ID or Google Play
-              Account, at the price shown in the store before you confirm. Subscriptions
-              automatically renew unless auto-renew is cancelled at least 24 hours prior to the end
-              of the billing cycle in App Store or Play Store account settings. Live 1:1 coaching
-              with a human coach is a real-world service, is paid by card through Stripe, and is not
-              part of Club Pass.
+              Club Pass subscriptions are billed directly through {store.account}, at the price
+              shown in the store before you confirm. Subscriptions automatically renew unless
+              auto-renew is cancelled at least 24 hours prior to the end of the billing cycle in{' '}
+              {store.settings}. Live 1:1 coaching with a human coach is a real-world service, is
+              paid by card through Stripe, and is not part of Club Pass.
             </p>
           </div>
 

@@ -267,7 +267,9 @@ async function resolveAppUserId(preferred?: string): Promise<string | null> {
 /** Name of the store this phone buys from, for messages the athlete reads. */
 function storeName(): string {
   try {
-    return Capacitor.getPlatform() === 'ios' ? 'the App Store' : 'Google Play';
+    const platform = Capacitor.getPlatform();
+    if (platform === 'ios') return 'the App Store';
+    return platform === 'android' ? 'Google Play' : 'the store';
   } catch {
     return 'the store';
   }
@@ -439,7 +441,7 @@ class RevenueCatManager {
       if (!isNativeStorePlatform()) {
         return {
           success: false,
-          error: 'Subscribe in the iOS or Android app to complete checkout.',
+          error: 'Subscribe in the mobile app to complete checkout.',
         };
       }
 
