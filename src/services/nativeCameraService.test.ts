@@ -1,15 +1,25 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   isNative: vi.fn(() => true),
+  platform: vi.fn(() => 'ios'),
   requestPermissions: vi.fn(),
   getPhoto: vi.fn(),
+  pauseListeners: [] as Array<() => void>,
 }));
 
 vi.mock('@capacitor/core', () => ({
-  Capacitor: { isNativePlatform: mocks.isNative, getPlatform: () => 'ios' },
+  Capacitor: { isNativePlatform: mocks.isNative, getPlatform: mocks.platform },
+}));
+vi.mock('@capacitor/app', () => ({
+  App: {
+    addListener: async (_event: string, fn: () => void) => {
+      mocks.pauseListeners.push(fn);
+      return { remove: async () => undefined };
+    },
+  },
 }));
 vi.mock('@capacitor/camera', () => ({
   Camera: { requestPermissions: mocks.requestPermissions, getPhoto: mocks.getPhoto },
@@ -78,6 +88,38 @@ describe('capturePhotoDataUrl', () => {
   it('rejects in a browser with a plain sentence', async () => {
     mocks.isNative.mockReturnValue(false);
     await expect(capturePhotoDataUrl('camera')).rejects.toThrow(/installed app/);
+  });
+});
+
+describe('Android camera that never opens', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mocks.isNative.mockReturnValue(true);
+    mocks.platform.mockReturnValue('android');
+    mocks.pauseListeners.length = 0;
+    mocks.requestPermissions.mockReset().mockResolvedValue({ camera: 'granted' });
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    mocks.platform.mockReturnValue('ios');
+  });
+
+  it('says so after a few seconds instead of spinning', async () => {
+    mocks.getPhoto.mockReset().mockReturnValue(new Promise(() => undefined));
+    const result = capturePhotoDataUrl('camera').catch((e: Error) => e);
+    await vi.advanceTimersByTimeAsync(8_000);
+    expect(((await result) as Error).message).toMatch(/did not open.*gallery/);
+  });
+
+  it('keeps waiting once the camera has covered the app', async () => {
+    let finish: (photo: { base64String: string; format: string }) => void = () => undefined;
+    mocks.getPhoto.mockReset().mockReturnValue(new Promise((done) => (finish = done)));
+    const result = capturePhotoDataUrl('camera');
+    await vi.advanceTimersByTimeAsync(100);
+    mocks.pauseListeners.forEach((fn) => fn());
+    await vi.advanceTimersByTimeAsync(30_000);
+    finish({ base64String: 'BBBB', format: 'jpeg' });
+    await expect(result).resolves.toBe('data:image/jpeg;base64,BBBB');
   });
 });
 

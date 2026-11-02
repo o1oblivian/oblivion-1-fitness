@@ -8,6 +8,8 @@ import {
 import { errorMessage } from '../../shared/errorMessage';
 import { withNativeTimeout } from '../utils/nativeTimeout';
 import { getAuthenticatedUserId, getCachedUserId } from './authUser';
+import { apiFetch } from './apiBase';
+import { supabase } from './supabaseClient';
 import { isNativeStorePlatform, resolveNativeStoreKey } from './purchasesService';
 
 /** RevenueCat entitlement that unlocks Club Pass Pro. */
@@ -286,6 +288,40 @@ function explainStoreFailure(message: string): string {
   return `RevenueCat rejected the ${storeName()} key in this build (ends ...${key.slice(-4)}). Compare it with the key in RevenueCat, Project settings, API keys.`;
 }
 
+/**
+ * The signed-in account's plan as RevenueCat's webhook last recorded it on the server. Used on the web,
+ * where there is no store to ask. Returns null when the server could not answer.
+ */
+async function fetchAccountEntitlement(): Promise<EntitlementInfo | null> {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session?.access_token) return null;
+    const res = await apiFetch('/api/billing/sync-entitlements', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+    if (!res.ok) {
+      console.warn(`[RevenueCat] Account plan unavailable (${res.status})`);
+      return null;
+    }
+    const body = (await res.json()) as { isPro?: unknown; tier?: unknown; expiresAt?: unknown };
+    const tier = typeof body.tier === 'string' ? body.tier : null;
+    if (body.isPro !== true || !tier) return freeEntitlement('web');
+    return {
+      isActive: true,
+      tierId: tier,
+      tierName: PLAN_NAMES[planKind(tier)],
+      platform: 'web',
+      expiresAt: typeof body.expiresAt === 'string' ? body.expiresAt : null,
+      willRenew: false,
+    };
+  } catch (err) {
+    console.warn('[RevenueCat] Account plan request failed', err);
+    return null;
+  }
+}
+
 class RevenueCatManager {
   private ready: { userId: string; connected: Promise<boolean> } | null = null;
   private issue: string | null = null;
@@ -517,6 +553,8 @@ class RevenueCatManager {
 
   /** Asks the store first. Returns null only when the store could not be reached. */
   async verifyWithStore(userId: string = ''): Promise<EntitlementInfo | null> {
+    // The web cannot reach Apple or Google, so it reads the plan the store's signed webhook recorded.
+    if (!isNativeStorePlatform()) return fetchAccountEntitlement();
     try {
       if (!(await this.init(userId))) return null;
       const { customerInfo } = await withStoreTimeout(

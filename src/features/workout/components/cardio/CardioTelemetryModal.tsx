@@ -321,18 +321,9 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="cardio-scan-title"
-      className="fixed inset-0 z-50 flex flex-col justify-end select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex flex-col bg-black/60 select-none animate-in fade-in duration-150"
     >
-      {/* Tap above the card to close. It is clear, so the app behind stays as it is. */}
-      <button
-        type="button"
-        aria-label="Close"
-        tabIndex={-1}
-        onClick={onClose}
-        className="flex-1 min-h-0 w-full cursor-default"
-      />
-
-      <div className="w-full max-w-[420px] mx-auto max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-3xl bg-o1-surface px-4 pt-3 pb-[max(env(safe-area-inset-bottom),16px)] space-y-3 animate-in slide-in-from-bottom-6 duration-200">
+      <div className="w-full max-w-[420px] mx-auto max-h-[92dvh] overflow-y-auto overscroll-contain rounded-b-3xl bg-o1-surface px-4 pt-[max(env(safe-area-inset-top),16px)] pb-4 space-y-3 animate-in slide-in-from-top-6 duration-200">
         <header className="flex items-center justify-between">
           <h2 id="cardio-scan-title" className="text-xl font-light tracking-wide text-o1-text">
             Scan
@@ -516,6 +507,15 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </>
         ) : null}
       </div>
+
+      {/* Tap below the card to close. */}
+      <button
+        type="button"
+        aria-label="Close"
+        tabIndex={-1}
+        onClick={onClose}
+        className="flex-1 min-h-0 w-full cursor-default"
+      />
     </div>,
     document.body,
   );

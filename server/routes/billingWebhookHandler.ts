@@ -204,8 +204,11 @@ export async function handleSyncEntitlements(req: Request, res: Response): Promi
     .select('tier, status, expires_at')
     .eq('user_id', userId)
     .maybeSingle();
+  const expiry = data?.expires_at ? Date.parse(data.expires_at) : NaN;
+  const lapsed = Number.isFinite(expiry) && expiry < Date.now();
+  res.setHeader('Cache-Control', 'no-store');
   res.json({
-    isPro: data?.status === 'active',
+    isPro: data?.status === 'active' && !lapsed,
     tier: data?.tier ?? null,
     expiresAt: data?.expires_at ?? null,
   });
