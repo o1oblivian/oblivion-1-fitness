@@ -1,6 +1,6 @@
 ﻿import React, { useRef, useEffect, useState } from 'react';
 import { Camera, X, AlertCircle } from 'lucide-react';
-import { tryDetectNativeBarcode } from '../../services/barcodeLookupService';
+import { canDetectBarcodes, tryDetectNativeBarcode } from '../../services/barcodeLookupService';
 
 interface LiveBarcodeScannerProps {
   onDetected: (barcode: string) => void;
@@ -23,6 +23,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
 
     async function startCamera() {
       try {
+        if (!canDetectBarcodes()) throw new Error('This device has no barcode reader');
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: 'environment',
@@ -52,9 +53,11 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
             onDetectedRef.current(code);
           }
         }, 200);
-      } catch {
+      } catch (err) {
         setIsStreaming(false);
-        setError('Camera permission denied or unavailable. Use manual lookup or photo upload.');
+        // Show what the device reported (NotAllowedError, NotFoundError, NotReadableError), not a guess.
+        const reason = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+        setError(`Camera error. ${reason}. Use manual lookup or photo upload.`);
       }
     }
 
@@ -86,7 +89,7 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
         </div>
       )}
 
-      {/* Clean Optical Alignment Frame (Zero fake pulsing simulated inference) */}
+      {/* Optical alignment frame */}
       {isStreaming && !error && (
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-4">
           <div className="w-48 h-28 border border-white/[0.07] rounded-xl" />

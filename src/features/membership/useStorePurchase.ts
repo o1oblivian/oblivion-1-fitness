@@ -4,6 +4,7 @@ import { revenueCatService } from '../../services/revenueCatService';
 import { useSubscription } from '../../context/SubscriptionContext';
 
 const BILLING_UNAVAILABLE = 'Store billing is unavailable on this device.';
+const STORE_UNCONFIRMED = 'The store has not confirmed this plan yet. Tap Restore Purchases.';
 
 /**
  * Buys a plan through the store and unlocks it. Every paywall uses this, so they all
@@ -27,8 +28,9 @@ export function useStorePurchase() {
           if (!/cancel/i.test(result.error ?? '')) setError(result.error || BILLING_UNAVAILABLE);
           return false;
         }
-        await activatePlan(productId);
-        return true;
+        if (await activatePlan(productId)) return true;
+        setError(STORE_UNCONFIRMED);
+        return false;
       } catch (err) {
         setError(errorMessage(err, BILLING_UNAVAILABLE));
         return false;

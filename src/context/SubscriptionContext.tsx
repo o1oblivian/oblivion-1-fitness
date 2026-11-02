@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {
   initializeIAP,
-  checkSubscriptionStatus,
   purchasePro as svcPurchasePro,
   restorePurchases as svcRestorePurchases,
   verifySubscriptionWithStore,
   PLUS_ENTITLEMENT,
+  type SubscriptionStatus,
 } from '../services/subscriptionService';
 import {
   getAthleteTrialState,
@@ -21,50 +21,21 @@ import {
 import { getAuthenticatedUserId } from '../services/authUser';
 import { useAuthStore } from '../stores/useAuthStore';
 
-const CREATOR_EMAIL = 'o1oblivianfitness@gmail.com';
-// App Store / Play review account: sees launch-gated features, but still goes through the real paywall.
-const REVIEWER_EMAIL = 'o1oblivianfitness+review@gmail.com';
-
-function signedInAs(email: string): boolean {
-  try {
-    const stored = (localStorage.getItem('o1fc_user_email') || '').trim().toLowerCase();
-    const live = (
-      useAuthStore.getState().user?.email ||
-      useAuthStore.getState().profile?.email ||
-      ''
-    )
-      .trim()
-      .toLowerCase();
-    return stored === email || live === email;
-  } catch {
-    return false;
-  }
-}
-
-/** The owner account only counts when Supabase has a live session for it, never from a saved local value. */
-const creatorSignedIn = (): boolean =>
-  (useAuthStore.getState().user?.email || '').trim().toLowerCase() === CREATOR_EMAIL;
-/** Launch-gated UI. The store reviewer still goes through the real paywall; only the owner gets Pro without paying. */
-const launchPreviewAllowed = (): boolean => creatorSignedIn() || signedInAs(REVIEWER_EMAIL);
-
 export interface SubscriptionContextType {
-  /** Paid: an active store plan (or the owner account). */
+  /** Paid: an active store plan. */
   isPro: boolean;
-  /** Everything Club Pass unlocks: a paid plan, the owner account, or the 90-day full-access window. */
+  /** Everything Club Pass unlocks: a paid plan or the 90-day full-access window. */
   hasFullAccess: boolean;
   currentPlan: string;
   trialState: TrialState;
   purchasePro: (planId?: string) => Promise<boolean>;
-  /** Reflects a plan the store already charged for; never opens checkout. */
-  activatePlan: (planId: string) => Promise<void>;
+  /** Asks the store whether a plan it charged for is active; never opens checkout. True only when the store confirms it. */
+  activatePlan: (planId: string) => Promise<boolean>;
   /** Resolves false when the store answered with nothing to restore. Rejects with a readable message when it did not answer. */
   restorePurchases: () => Promise<boolean>;
   isLoading: boolean;
   isPaywallOpen: boolean;
   gatedFeature: string | null;
-  isCreator: boolean;
-  /** Owner and store reviewers see features that are still behind the launch gate. */
-  canPreviewLaunch: boolean;
   openPaywall: (featureName?: string) => void;
   closePaywall: () => void;
 }
@@ -78,35 +49,36 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [isPro, setIsPro] = useState(false);
   // False only for members who joined after the first 100,000. They start on Core Free.
   const [freeAccess, setFreeAccess] = useState(true);
-  const [isCreator, setIsCreator] = useState(() => creatorSignedIn());
-  const [canPreviewLaunch, setCanPreviewLaunch] = useState(launchPreviewAllowed);
-  const authEmail = useAuthStore((s) => s.user?.email || s.profile?.email || '');
   const authUserId = useAuthStore((s) => s.user?.id || '');
-  useEffect(() => {
-    setIsCreator(creatorSignedIn());
-    setCanPreviewLaunch(launchPreviewAllowed());
-  }, [authEmail]);
   const [currentPlan, setCurrentPlan] = useState<string>('o1fc_core_free');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isPaywallOpen, setIsPaywallOpen] = useState<boolean>(false);
   const [gatedFeature, setGatedFeature] = useState<string | null>(null);
+
+  /** The only place Pro is switched on or off, and only with the store's own answer. */
+  const applyVerified = useCallback((uid: string, verified: SubscriptionStatus): boolean => {
+    if (verified.isActive) {
+      activateProSubscription(uid, verified.tierId);
+      setIsPaywallOpen(false);
+    } else {
+      clearProSubscription(uid);
+    }
+    setTrial(getAthleteTrialState(uid));
+    setIsPro(verified.isActive);
+    setCurrentPlan(verified.isActive ? verified.tierId : 'o1fc_core_free');
+    return verified.isActive;
+  }, []);
 
   useEffect(() => {
     let mounted = true;
     const init = async () => {
       const uid = await getAuthenticatedUserId();
       if (uid) await initializeIAP(uid);
-      const status = checkSubscriptionStatus();
       const trialInfo = getAthleteTrialState(uid || '');
       if (!mounted) return;
 
+      // Pro stays false here. Neither a saved flag nor a cached plan can switch it on.
       setTrial(trialInfo);
-      setIsCreator(creatorSignedIn());
-      setCanPreviewLaunch(launchPreviewAllowed());
-      const hasProEntitlement =
-        trialInfo.hasSubscribedPro || (status.isActive && status.tierId !== 'o1fc_core_free');
-      setIsPro(Boolean(uid) && hasProEntitlement);
-      setCurrentPlan(status.tierId || (hasProEntitlement ? PLUS_ENTITLEMENT : 'o1fc_core_free'));
       setIsLoading(false);
 
       if (!uid) return;
@@ -116,15 +88,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       });
       const verified = await verifySubscriptionWithStore(uid);
       if (!verified || !mounted) return;
-      if (verified.isActive) {
-        if (!trialInfo.hasSubscribedPro || trialInfo.planId !== verified.tierId)
-          activateProSubscription(uid, verified.tierId);
-      } else {
-        clearProSubscription(uid);
-      }
-      setTrial(getAthleteTrialState(uid));
-      setIsPro(verified.isActive);
-      setCurrentPlan(verified.isActive ? verified.tierId : 'o1fc_core_free');
+      applyVerified(uid, verified);
     };
 
     init();
@@ -132,36 +96,32 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       mounted = false;
     };
     // Runs again when someone signs in or out, so a new account gets its own 90-day window.
-  }, [authUserId]);
+  }, [authUserId, applyVerified]);
 
-  const purchasePro = useCallback(async (planId?: string) => {
-    setIsLoading(true);
+  const purchasePro = useCallback(
+    async (planId?: string) => {
+      setIsLoading(true);
+      const uid = await getAuthenticatedUserId();
+      const res = await svcPurchasePro(planId || PLUS_ENTITLEMENT);
+
+      let confirmed = false;
+      if (res.success && uid) {
+        const verified = await verifySubscriptionWithStore(uid);
+        confirmed = verified ? applyVerified(uid, verified) : false;
+      }
+
+      setIsLoading(false);
+      return confirmed;
+    },
+    [applyVerified],
+  );
+
+  const activatePlan = useCallback(async () => {
     const uid = await getAuthenticatedUserId();
-    const chosenPlan = planId || PLUS_ENTITLEMENT;
-    const res = await svcPurchasePro(chosenPlan);
-
-    if (res.success && uid) {
-      activateProSubscription(uid, chosenPlan);
-      const updatedTrial = getAthleteTrialState(uid);
-      setTrial(updatedTrial);
-      setIsPro(true);
-      setCurrentPlan(chosenPlan);
-      setIsPaywallOpen(false);
-    }
-
-    setIsLoading(false);
-    return res.success;
-  }, []);
-
-  const activatePlan = useCallback(async (planId: string) => {
-    const uid = await getAuthenticatedUserId();
-    if (!uid) return;
-    activateProSubscription(uid, planId);
-    setTrial(getAthleteTrialState(uid));
-    setIsPro(true);
-    setCurrentPlan(planId);
-    setIsPaywallOpen(false);
-  }, []);
+    if (!uid) return false;
+    const verified = await verifySubscriptionWithStore(uid);
+    return verified ? applyVerified(uid, verified) : false;
+  }, [applyVerified]);
 
   const restorePurchases = useCallback(async () => {
     setIsLoading(true);
@@ -176,15 +136,16 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       throw new Error(res.error);
     }
     if (res.isPro && uid) {
-      activateProSubscription(uid, res.status.tierId || PLUS_ENTITLEMENT);
-      const updatedTrial = getAthleteTrialState(uid);
-      setTrial(updatedTrial);
-      setIsPro(true);
-      setIsPaywallOpen(false);
+      const verified = await verifySubscriptionWithStore(uid);
+      if (!verified) {
+        setIsLoading(false);
+        throw new Error('The store restored your purchase but could not confirm it. Try again.');
+      }
+      applyVerified(uid, verified);
     }
     setIsLoading(false);
     return res.success;
-  }, []);
+  }, [applyVerified]);
 
   const openPaywall = useCallback((featureName?: string) => {
     setGatedFeature(featureName || 'Club Pass Pro Feature');
@@ -205,17 +166,27 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setGatedFeature(null);
   }, []);
 
-  const effectiveTrial = freeAccess ? trial : withoutFreeAccess(trial);
+  // A saved "subscribed" flag is only a cache. Until the store confirms the plan, the 90-day clock decides.
+  const clockExpired =
+    trial.expiresDate !== '' && Date.now() >= new Date(trial.expiresDate).getTime();
+  const sealedTrial: TrialState =
+    trial.hasSubscribedPro && !isPro
+      ? {
+          ...trial,
+          hasSubscribedPro: false,
+          planId: undefined,
+          isTrialActive: !clockExpired,
+          isTrialExpired: clockExpired,
+        }
+      : trial;
+  const effectiveTrial = freeAccess ? sealedTrial : withoutFreeAccess(sealedTrial);
 
   return (
     <SubscriptionContext.Provider
       value={{
-        // The owner account has every Club Pass feature without a store purchase.
-        isPro: isPro || isCreator,
-        hasFullAccess: isPro || isCreator || effectiveTrial.isTrialActive,
-        isCreator,
-        canPreviewLaunch,
-        currentPlan: isCreator && !isPro ? PLUS_ENTITLEMENT : currentPlan,
+        isPro,
+        hasFullAccess: isPro || effectiveTrial.isTrialActive,
+        currentPlan,
         trialState: effectiveTrial,
         purchasePro,
         activatePlan,
@@ -238,12 +209,10 @@ export const useSubscription = (): SubscriptionContextType => {
     return {
       isPro: false,
       hasFullAccess: false,
-      isCreator: false,
-      canPreviewLaunch: false,
       currentPlan: 'o1fc_core_free',
       trialState: getAthleteTrialState(''),
       purchasePro: async () => false,
-      activatePlan: async () => {},
+      activatePlan: async () => false,
       restorePurchases: async () => false,
       isLoading: false,
       isPaywallOpen: false,
