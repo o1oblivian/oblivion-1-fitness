@@ -8,6 +8,7 @@ import {
 } from '../lib/gemini';
 import { errorMessage } from '../../shared/errorMessage';
 import { CARDIO_TELEMETRY_PROMPT } from '../lib/cardioTelemetryPrompt';
+import { cardioDevice, plausibleHeartRate } from '../lib/cardioReading';
 
 /**
  * Time allowed for the AI reader on a photo. Gemini sometimes takes half a minute to answer one, so
@@ -119,8 +120,9 @@ export function registerVisionRoutes(app: Express): void {
             readingOf(parsed.caloriesBurned) ?? ocrExtracted?.caloriesBurned ?? null;
           const speedVal = readingOf(parsed.speedKmh) ?? ocrExtracted?.speedKmh ?? null;
           const inclineVal = readingOf(parsed.inclinePct) ?? ocrExtracted?.inclinePct ?? null;
-          const heartRateVal =
-            readingOf(parsed.avgHeartRateBpm) ?? ocrExtracted?.avgHeartRateBpm ?? null;
+          const heartRateVal = plausibleHeartRate(
+            readingOf(parsed.avgHeartRateBpm) ?? ocrExtracted?.avgHeartRateBpm ?? null,
+          );
           // Steps come from Gemini alone when it answered: a step count needs the word "steps"
           // beside it, and the backup reader once took a port number in an address bar for 3,000 steps.
           const stepsVal = readingOf(parsed.steps);
@@ -151,12 +153,11 @@ export function registerVisionRoutes(app: Express): void {
             return res.json({
               success: true,
               telemetry: {
-                deviceType:
-                  parsed.deviceType === 'WATCH'
-                    ? 'watch'
-                    : parsed.deviceType === 'CONSOLE'
-                      ? 'console'
-                      : (ocrExtracted?.deviceType ?? null),
+                deviceType: cardioDevice(
+                  parsed.deviceType,
+                  { speedKmh: speedVal, inclinePct: inclineVal, watts: wattsVal },
+                  ocrExtracted?.deviceType ?? null,
+                ),
                 elapsedDisplay: normalizedElapsed,
                 elapsedMinutes: elapsedMinsNumber,
                 distanceKm: distanceVal,
@@ -199,14 +200,22 @@ export function registerVisionRoutes(app: Express): void {
         return res.json({
           success: true,
           telemetry: {
-            deviceType: ocrExtracted.deviceType,
+            deviceType: cardioDevice(
+              undefined,
+              {
+                speedKmh: ocrExtracted.speedKmh,
+                inclinePct: ocrExtracted.inclinePct,
+                watts: null,
+              },
+              ocrExtracted.deviceType,
+            ),
             elapsedDisplay: ocrExtracted.elapsedDisplay,
             elapsedMinutes: ocrExtracted.elapsedMinutes,
             distanceKm: ocrExtracted.distanceKm,
             caloriesBurned: ocrExtracted.caloriesBurned,
             speedKmh: ocrExtracted.speedKmh,
             inclinePct: ocrExtracted.inclinePct,
-            avgHeartRateBpm: ocrExtracted.avgHeartRateBpm,
+            avgHeartRateBpm: plausibleHeartRate(ocrExtracted.avgHeartRateBpm),
             steps: ocrSteps,
             watts: null,
             pace: null,

@@ -16,6 +16,8 @@ CATEGORIES TO RECOGNIZE:
    - Concept2 (PM3/PM4/PM5 monitors): Parse Time, Distance, Pace (/500m), Stroke Rate, Watts, Calories.
    - Commercial Treadmills & StairMasters (Life Fitness, Matrix, TechnoGym, Woodway, Precor): Parse Elapsed Time, Distance (km/mi), Calories, Speed, Incline %, Heart Rate.
    - Air Bikes & Spin Bikes (AssaultBike, Echo Bike, Keiser): Parse RPM, Watts, Calories, Time.
+   - A machine screen that shows an "Apple Watch", "Galaxy Watch" or other pairing badge is still a CONSOLE. "WATCH" means the photo is of a wristwatch itself.
+   - A console heart rate of 0 or "-" means no strap or grip was sensed. Return null for heart rate.
 
 READING AN INVERTED CASIO / GARMIN LCD OR MIP DISPLAY (light segments on a dark background):
 - The step count is the whole number printed directly before the word "STEPS" on the same line, for example "8727 STEPS" gives 8727. Use only those digits.
