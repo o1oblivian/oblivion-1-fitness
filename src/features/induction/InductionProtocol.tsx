@@ -205,7 +205,18 @@ export function InductionProtocol() {
     tactileEngine.triggerSelectionBuzz();
     setStoreError(null);
     setBusy('restore');
-    const ok = await restorePurchases().catch(() => false);
+    let ok = false;
+    try {
+      ok = await restorePurchases();
+    } catch (err) {
+      setBusy(null);
+      setStoreError(
+        err instanceof Error
+          ? err.message
+          : 'Could not reach the store. Check your connection and try again.',
+      );
+      return;
+    }
     if (ok) {
       await finish(picked);
       return;

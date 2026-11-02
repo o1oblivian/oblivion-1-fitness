@@ -79,7 +79,14 @@ export async function restorePurchases(): Promise<{
   success: boolean;
   isPro: boolean;
   status: SubscriptionStatus;
+  /** Set when the store could not be reached, so "nothing to restore" is never shown for it. */
+  error?: string;
 }> {
   const res = await revenueCatService.restore();
-  return { success: res.success, isPro: res.success, status: toStatus(res.info) };
+  return {
+    success: res.success,
+    isPro: res.success,
+    status: toStatus(res.info),
+    ...(res.error ? { error: res.error } : {}),
+  };
 }

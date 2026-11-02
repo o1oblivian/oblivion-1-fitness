@@ -107,7 +107,18 @@ export const ClubPassPaywallModal: React.FC = () => {
     setStatusMsg(null);
     tactileEngine.triggerSelectionBuzz();
     // Through the app's subscription state, so the restored plan unlocks features straight away.
-    const restored = await restorePurchases();
+    let restored = false;
+    try {
+      restored = await restorePurchases();
+    } catch (err) {
+      setIsRestoring(false);
+      setStatusMsg(
+        err instanceof Error
+          ? err.message
+          : 'Could not reach the store. Check your connection and try again.',
+      );
+      return;
+    }
     setIsRestoring(false);
     if (restored) {
       tactileEngine.playPRCelebration();

@@ -1,4 +1,4 @@
-﻿import { Capacitor } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 import {
   Purchases,
   type CustomerInfo,
@@ -493,7 +493,8 @@ class RevenueCatManager {
    * purchase onto the signed-in account and unlock it, instead of leaving the buyer on an error.
    */
   private async claimOwnedPlan(planId: string, athleteId: string): Promise<PurchaseResult> {
-    const { info } = await this.restore(athleteId);
+    const { info, error } = await this.restore(athleteId);
+    if (error) return { success: false, error };
     const matches = planKind(planId) !== 'coach' || planKind(info.tierId) === 'coach';
     if (info.isActive && matches) return { success: true };
     return {
@@ -527,23 +528,34 @@ class RevenueCatManager {
     return (await this.verifyWithStore(userId)) ?? readCachedEntitlement() ?? freeEntitlement();
   }
 
-  async restore(userId: string = ''): Promise<{ success: boolean; info: EntitlementInfo }> {
+  /**
+   * Asks the store to restore. `success` is true only when the store answered and the account owns an
+   * active plan. When the store could not be reached, `error` says why; a cached plan is never
+   * reported as a restored one, and "nothing found" is never reported for a store that did not answer.
+   */
+  async restore(
+    userId: string = '',
+  ): Promise<{ success: boolean; info: EntitlementInfo; error?: string }> {
+    const failed = (error: string) => ({ success: false, info: freeEntitlement(), error });
+    if (!isNativeStorePlatform()) return failed('Restore Purchases works in the mobile app.');
     try {
-      if (await this.init(userId)) {
-        const { customerInfo } = await withStoreTimeout(
-          Purchases.restorePurchases(),
-          'Restoring purchases did not answer.',
-          RESTORE_TIMEOUT_MS,
-        );
-        const info = entitlementFromCustomerInfo(customerInfo, currentPlatform());
-        await this.recordPlan(info, (await resolveAppUserId(userId)) || '');
-        return { success: info.isActive, info };
+      if (!(await this.init(userId))) {
+        return failed(`Billing is unavailable. ${this.issue ?? 'The store did not answer.'}`);
       }
+      const { customerInfo } = await withStoreTimeout(
+        Purchases.restorePurchases(),
+        'Restoring purchases did not answer.',
+        RESTORE_TIMEOUT_MS,
+      );
+      const info = entitlementFromCustomerInfo(customerInfo, currentPlatform());
+      await this.recordPlan(info, (await resolveAppUserId(userId)) || '');
+      return { success: info.isActive, info };
     } catch (err) {
       console.warn('[RevenueCat] Restore failed:', err);
+      const message =
+        err instanceof Error ? err.message : String((err as { message?: unknown })?.message ?? err);
+      return failed(explainStoreFailure(message) || `${storeName()} could not restore purchases.`);
     }
-    const info = readCachedEntitlement() ?? freeEntitlement();
-    return { success: info.isActive, info };
   }
 }
 

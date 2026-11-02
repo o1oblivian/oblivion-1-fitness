@@ -80,54 +80,7 @@ async function authHeaders(): Promise<Record<string, string>> {
   };
 }
 
-interface CoachAccountRow {
-  id: string;
-  stripe_connect_account_id: string | null;
-  stripe_payouts_enabled: boolean;
-  is_id_verified: boolean;
-  identity_status: CoachProfileData['identity_status'] | null;
-  verified_at: string | null;
-  accepting_new_athletes: boolean | null;
-}
-
 export const stripeConnectService = {
-  async getCoachProfile(coachId = ''): Promise<CoachProfileData> {
-    try {
-      const { data: authData } = await supabase.auth.getUser();
-      if (authData?.user?.id) {
-        const { data, error } = await supabase
-          .rpc('my_coach_account')
-          .maybeSingle<CoachAccountRow>();
-
-        if (!error && data) {
-          return {
-            id: data.id,
-            stripe_connect_account_id: data.stripe_connect_account_id || null,
-            stripe_payouts_enabled: Boolean(data.stripe_payouts_enabled),
-            currency: 'AUD',
-            is_id_verified: Boolean(data.is_id_verified),
-            identity_status:
-              data.identity_status || (data.is_id_verified ? 'verified' : 'unverified'),
-            verified_at: data.verified_at ?? undefined,
-            accepting_new_athletes: data.accepting_new_athletes !== false,
-          };
-        }
-      }
-    } catch (err) {
-      console.warn('[StripeConnectService] Supabase coach profile retrieval error:', err);
-    }
-
-    return {
-      id: coachId || '',
-      stripe_connect_account_id: null,
-      stripe_payouts_enabled: false,
-      currency: 'AUD',
-      is_id_verified: false,
-      identity_status: 'unverified',
-      accepting_new_athletes: false,
-    };
-  },
-
   /** Starts (or resumes) Stripe Express onboarding. Auth comes from the Supabase session token. */
   async createConnectAccount(returnUrl?: string): Promise<{ url?: string; error?: string }> {
     try {

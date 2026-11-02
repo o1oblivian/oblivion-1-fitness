@@ -57,6 +57,7 @@ export interface SubscriptionContextType {
   purchasePro: (planId?: string) => Promise<boolean>;
   /** Reflects a plan the store already charged for; never opens checkout. */
   activatePlan: (planId: string) => Promise<void>;
+  /** Resolves false when the store answered with nothing to restore. Rejects with a readable message when it did not answer. */
   restorePurchases: () => Promise<boolean>;
   isLoading: boolean;
   isPaywallOpen: boolean;
@@ -165,7 +166,15 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const restorePurchases = useCallback(async () => {
     setIsLoading(true);
     const uid = await getAuthenticatedUserId();
-    const res = await svcRestorePurchases();
+    const res = await svcRestorePurchases().catch((err: unknown) => {
+      setIsLoading(false);
+      throw err;
+    });
+    if (res.error) {
+      // The store did not answer. That is not the same as having nothing to restore.
+      setIsLoading(false);
+      throw new Error(res.error);
+    }
     if (res.isPro && uid) {
       activateProSubscription(uid, res.status.tierId || PLUS_ENTITLEMENT);
       const updatedTrial = getAthleteTrialState(uid);

@@ -104,3 +104,32 @@ describe('a plan the store says is already owned', () => {
     expect(purchases.restorePurchases).not.toHaveBeenCalled();
   });
 });
+
+describe('restoring purchases', () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    purchases.isConfigured.mockResolvedValue({ isConfigured: false });
+    purchases.configure.mockResolvedValue(undefined);
+    purchases.logOut.mockResolvedValue(undefined);
+    await revenueCatService.logOut();
+  });
+
+  it('reports the store failing as an error, never as a restored plan', async () => {
+    purchases.restorePurchases.mockRejectedValue(new Error('Network error'));
+
+    const result = await revenueCatService.restore('user-1');
+
+    expect(result.success).toBe(false);
+    expect(result.info.isActive).toBe(false);
+    expect(result.error).toBeTruthy();
+  });
+
+  it('reports a store with nothing to restore without an error', async () => {
+    purchases.restorePurchases.mockResolvedValue({ customerInfo: none });
+
+    const result = await revenueCatService.restore('user-1');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeUndefined();
+  });
+});

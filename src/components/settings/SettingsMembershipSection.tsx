@@ -18,7 +18,18 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
   const handleRestore = async () => {
     tactileEngine.triggerSelectionBuzz();
     setIsRestoring(true);
-    const isRestored = await restorePurchases();
+    let isRestored = false;
+    try {
+      isRestored = await restorePurchases();
+    } catch (err) {
+      setIsRestoring(false);
+      onShowToast?.(
+        err instanceof Error
+          ? err.message
+          : 'Could not reach the store. Check your connection and try again.',
+      );
+      return;
+    }
     setIsRestoring(false);
     if (isRestored) {
       tactileEngine.playPRCelebration();

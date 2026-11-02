@@ -126,7 +126,11 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
       }
     } catch (err) {
       console.warn('[Membership] Restore failed:', err);
-      onShowToast?.('No prior active subscription found.');
+      onShowToast?.(
+        err instanceof Error
+          ? err.message
+          : 'Could not reach the store. Check your connection and try again.',
+      );
     }
   };
 
