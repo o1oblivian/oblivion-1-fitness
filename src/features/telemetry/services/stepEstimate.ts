@@ -1,6 +1,6 @@
 const WALK_STEPS_PER_KM = 1400;
 /** Running strides are longer, so a kilometre takes fewer steps. */
-const RUN_STEPS_PER_KM = 1100;
+const RUN_STEPS_PER_KM = 1000;
 /** Above this average speed a session counts as running. */
 const RUN_SPEED_KMH = 7;
 

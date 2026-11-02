@@ -20,7 +20,7 @@ describe('estimateStepsFromKm', () => {
   });
 
   it('uses the running stride at running pace', () => {
-    expect(estimateStepsFromKm(5, 25)).toBe(5500);
+    expect(estimateStepsFromKm(5, 25)).toBe(5000);
   });
 
   it('assumes walking when the time is unknown', () => {
