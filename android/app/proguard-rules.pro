@@ -11,3 +11,8 @@
 
 # Plugins read annotations and generic types by reflection.
 -keepattributes *Annotation*,Signature,Exceptions
+
+# The camera last worked on phones before R8 was on, and R8 removes and rewrites its source and
+# result-type enums and camera flows. Keep the camera plugin and its library as published.
+-keep class com.capacitorjs.plugins.camera.** { *; }
+-keep class io.ionic.libs.ioncameralib.** { *; }
