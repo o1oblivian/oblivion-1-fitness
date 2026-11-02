@@ -13,7 +13,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
   onShowToast,
 }) => {
   const [isRestoring, setIsRestoring] = useState(false);
-  const { trialState, restorePurchases, openPaywall, isPro } = useSubscription();
+  const { restorePurchases, openPaywall, isPro } = useSubscription();
 
   const handleRestore = async () => {
     tactileEngine.triggerSelectionBuzz();
@@ -39,9 +39,6 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
     }
   };
 
-  const isTrialActive = !trialState.hasSubscribedPro && trialState.isTrialActive;
-  const isExpired = trialState.isTrialExpired;
-
   return (
     <div className="space-y-2 select-none">
       <h3 className="text-xs font-tactical tracking-wider text-o1-muted font-bold px-1 flex items-center gap-1.5">
@@ -52,15 +49,11 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="text-xs font-sans font-semibold text-white block truncate">
-              {isPro || trialState.hasSubscribedPro ? 'O1 Club Pass Pro' : 'Core Free'}
+              {isPro ? 'O1 Club Pass Pro' : 'Core Free'}
             </span>
 
             <p className="text-xs text-o1-muted mt-1">
-              {isPro || trialState.hasSubscribedPro
-                ? 'Club Pass is active.'
-                : isTrialActive
-                  ? 'Full access for 90 days.'
-                  : 'Club Pass is available when you want it.'}
+              {isPro ? 'Club Pass is active.' : 'Club Pass is available when you want it.'}
             </p>
           </div>
 
@@ -73,7 +66,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
             }}
             className="o1-pill bg-o1-crimson hover:bg-o1-crimson-hover text-white text-xs font-sans font-semibold cursor-pointer active:scale-95"
           >
-            {isPro || trialState.hasSubscribedPro ? (
+            {isPro ? (
               <span>Plans</span>
             ) : (
               <>
@@ -83,31 +76,6 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
             )}
           </button>
         </div>
-
-        {/* 90-Day Trial Progress Meter if on Core Free */}
-        {isTrialActive && !isPro && (
-          <div className="p-3 rounded-xl bg-o1-well border border-white/[0.07] space-y-1.5">
-            <div className="flex items-center justify-between text-o1-label font-num">
-              <span className="text-o1-stone font-bold">90-Day Complimentary Window</span>
-              <span className="text-o1-crimson font-bold">
-                {isExpired ? 'Ended' : `${trialState.daysRemaining} of 90 days left`}
-              </span>
-            </div>
-            <div className="w-full h-1.5 rounded-full bg-white/[0.08] overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-300 ${isExpired ? 'bg-o1-yellow' : 'bg-o1-crimson'}`}
-                style={{
-                  width: `${Math.min(100, Math.max(5, ((90 - trialState.daysRemaining) / 90) * 100))}%`,
-                }}
-              />
-            </div>
-            <p className="text-o1-label text-o1-muted font-num">
-              {isExpired
-                ? 'Basic workout logging is always free. Premium analytics need an active pass.'
-                : 'Workout Logger and Hydration stay free forever even after 90 days.'}
-            </p>
-          </div>
-        )}
 
         <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-o1-label font-num text-o1-muted">
