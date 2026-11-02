@@ -27,7 +27,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Oblivion 1 needs your camera to scan meals, nutrition labels, barcodes and cardio screens. Photos are used for the scan and are not saved to your account.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Oblivion 1 does not save to your photo library. iOS requires this entry for the photo picker.</string>
+	<string>Oblivion 1 uses your photo library when you take or choose a meal or cardio photo to scan. It never saves photos to your library without asking.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Oblivion 1 needs access to your photo library so you can choose a meal or cardio photo to scan, or a profile picture.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>

@@ -22,9 +22,7 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </div>
             <div>
               <h2 className="text-sm font-black tracking-wider text-o1-bone">Terms of Service</h2>
-              <p className="text-o1-label font-num text-o1-muted">
-                Apple &amp; Google Distribution Compliance
-              </p>
+              <p className="text-o1-label font-num text-o1-muted">Oblivion 1 Fitness Club</p>
             </div>
           </div>
           <button
@@ -117,8 +115,8 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="py-3 border-b border-white/[0.05] space-y-1.5 last:border-0">
             <div className="text-o1-label text-o1-ink-soft font-bold">6. Governing Law</div>
             <p className="text-o1-label text-o1-muted">
-              Governed by commercial digital distribution standards of Apple Inc. and Google LLC.
-              Contact: legal@oblivion1.club.
+              Governed by the digital distribution terms of {store.distributor}. Contact:
+              legal@oblivion1.club.
             </p>
           </div>
         </div>

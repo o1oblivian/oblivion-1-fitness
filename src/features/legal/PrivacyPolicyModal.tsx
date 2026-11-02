@@ -95,10 +95,10 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
             </div>
             <p className="text-o1-label text-o1-muted">
               The app never asks for or collects your location. Bluetooth is used only to read a
-              heart-rate sensor you choose to connect. Club Pass purchases are processed by Apple or
-              Google and RevenueCat; we receive your subscription status, not your card. Coaching
-              payments are processed by Stripe; we receive the sale amount and your name, not your
-              card. Sign-in and cloud backup are provided by Supabase.
+              heart-rate sensor you choose to connect. Club Pass purchases are processed by{' '}
+              {store.processor} and RevenueCat; we receive your subscription status, not your card.
+              Coaching payments are processed by Stripe; we receive the sale amount and your name,
+              not your card. Sign-in and cloud backup are provided by Supabase.
             </p>
           </div>
 

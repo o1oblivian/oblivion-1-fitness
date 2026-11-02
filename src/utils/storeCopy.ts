@@ -22,6 +22,10 @@ export interface StoreCopy {
   subscriptionNotice: string;
   /** The line before "Cancel Anytime" under the subscribe button. */
   footerName: string;
+  /** Who processes the purchase: "Apple", "Google", or "the store". */
+  processor: string;
+  /** The company whose distribution terms apply: "Apple Inc.", "Google LLC", or "the store". */
+  distributor: string;
 }
 
 const NOTICE_TAIL = 'Your Oblivion 1 Club Pass unlocks across all your devices.';
@@ -37,6 +41,8 @@ export function storeCopyFor(platform: string): StoreCopy {
       subscribeLabel: 'Subscribe with App Store',
       subscriptionNotice: `In-App Subscription: Billed via Apple App Store. ${NOTICE_TAIL}`,
       footerName: 'Apple App Store',
+      processor: 'Apple',
+      distributor: 'Apple Inc.',
     };
   }
   if (platform === 'android') {
@@ -49,6 +55,8 @@ export function storeCopyFor(platform: string): StoreCopy {
       subscribeLabel: 'Subscribe with Google Play',
       subscriptionNotice: `In-App Subscription: Billed via Google Play. ${NOTICE_TAIL}`,
       footerName: 'Google Play',
+      processor: 'Google',
+      distributor: 'Google LLC',
     };
   }
   return {
@@ -60,6 +68,8 @@ export function storeCopyFor(platform: string): StoreCopy {
     subscribeLabel: 'Subscribe',
     subscriptionNotice: `In-App Subscription: Billed by the store. ${NOTICE_TAIL}`,
     footerName: 'In-app billing',
+    processor: 'the store',
+    distributor: 'the store',
   };
 }
 
