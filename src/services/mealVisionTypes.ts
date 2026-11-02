@@ -1,9 +1,13 @@
 export type ScanMode = 'plate' | 'package' | 'barcode';
 
-/** Nutrient fields are `null` when the source did not report them; never substitute estimates. */
+/** Every field is `null` when the source did not report it; never substitute estimates or labels. */
 export interface ScannedMealBreakdown {
-  dishName: string;
-  servingDescription: string;
+  dishName: string | null;
+  servingDescription: string | null;
+  /** Grams in one serving. `null` when the source gave no serving weight; the athlete then enters grams. */
+  servingGrams: number | null;
+  /** True when the nutrient figures are per 100 g of product rather than per serving. */
+  per100g?: boolean;
   calories: number | null;
   proteinGrams: number | null;
   carbsGrams: number | null;
@@ -42,4 +46,21 @@ export function resolveCalories(
 export function readConfidence(value: unknown): number | null {
   const n = readNutrient(value);
   return n === null ? null : Math.min(100, n);
+}
+
+/** Trimmed text, or `null` when the source sent nothing usable. */
+export function readText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+/** A positive weight in grams, or `null`. A zero weight cannot scale anything. */
+export function readGrams(value: unknown): number | null {
+  const n = readNutrient(value);
+  return n !== null && n > 0 ? n : null;
+}
+
+/** Grams written in a serving label such as "40 g" or "1 bar (45g)", or `null`. */
+export function gramsInLabel(label: string | null): number | null {
+  const match = label?.match(/(\d+(?:\.\d+)?)\s*g\b/i);
+  return match ? readGrams(match[1]) : null;
 }

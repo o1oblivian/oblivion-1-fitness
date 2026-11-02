@@ -16,9 +16,15 @@ interface ScannedMealResultCardProps {
     p: number,
     c: number,
     f: number,
-    weight: number,
+    /** Grams eaten, or `null` when the source gave no serving weight and the meal was scaled by servings. */
+    weight: number | null,
   ) => void;
 }
+
+const MAX_GRAMS = 5000;
+/** Grams that per-100 g nutrient figures describe. */
+const PER_100G = 100;
+const MAX_SERVINGS = 20;
 
 export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
   scannedMeal,
@@ -26,25 +32,31 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
   onScanAgain,
   onCommitMeal,
 }) => {
-  const parsedWeight = parseInt(
-    scannedMeal.servingDescription?.match(/(\d+)\s*g/i)?.[1] || '100',
-    10,
-  );
-  const baseWeight = parsedWeight > 0 ? parsedWeight : 100;
-  const isBarcode = scannedMeal.confidenceScore === 100 || !!scannedMeal.barcode;
+  // Grams when the figures have a known weight (a serving, or per 100 g); servings otherwise.
+  const servingGrams = scannedMeal.servingGrams;
+  const baseGrams = servingGrams ?? (scannedMeal.per100g ? PER_100G : null);
+  const byGrams = baseGrams !== null;
+  const isBarcode = !!scannedMeal.barcode;
   const confidence = scannedMeal.confidenceScore;
 
-  const perGram = (grams: number | null): number | null =>
-    grams === null ? null : grams / baseWeight;
-  const baseProtPerG = perGram(scannedMeal.proteinGrams);
-  const baseCarbPerG = perGram(scannedMeal.carbsGrams);
-  const baseFatPerG = perGram(scannedMeal.fatsGrams);
-  const hasAllMacros = baseProtPerG !== null && baseCarbPerG !== null && baseFatPerG !== null;
+  const hasAllMacros =
+    scannedMeal.proteinGrams !== null &&
+    scannedMeal.carbsGrams !== null &&
+    scannedMeal.fatsGrams !== null;
 
-  const [weightText, setWeightText] = useState(String(baseWeight));
-  const weight = Math.min(5000, Math.max(0, parseInt(weightText || '0', 10) || 0));
-  const setWeight = (update: (w: number) => number) =>
-    setWeightText(String(Math.min(5000, Math.max(0, update(weight)))));
+  // Per-100 g figures with no serving weight start empty: the athlete enters the grams eaten.
+  const [amountText, setAmountText] = useState(
+    servingGrams !== null ? String(servingGrams) : byGrams ? '' : '1',
+  );
+  const maxAmount = byGrams ? MAX_GRAMS : MAX_SERVINGS;
+  const parsedAmount = Number(amountText);
+  const amount = Number.isFinite(parsedAmount) ? Math.min(maxAmount, Math.max(0, parsedAmount)) : 0;
+  const stepAmount = (delta: number) =>
+    setAmountText(String(Math.min(maxAmount, Math.max(0, amount + delta))));
+  /** How many times the reported serving was eaten. */
+  const scale = byGrams ? amount / baseGrams : amount;
+
+  const [nameText, setNameText] = useState('');
   const [prep, setPrep] = useState<'lean' | 'oil'>('lean');
   const [dressing, setDressing] = useState<'plain' | 'sauce'>('plain');
   const [isLogging, setIsLogging] = useState(false);
@@ -53,27 +65,28 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
   const sauceCarb = dressing === 'sauce' ? 6 : 0;
   const sauceFat = dressing === 'sauce' ? 4 : 0;
 
-  const protein = baseProtPerG === null ? null : Math.max(0, Math.round(weight * baseProtPerG));
-  const carbs =
-    baseCarbPerG === null ? null : Math.max(0, Math.round(weight * baseCarbPerG + sauceCarb));
-  const fat =
-    baseFatPerG === null
-      ? null
-      : Math.max(0, Math.round(weight * baseFatPerG + prepAddedFat + sauceFat));
+  const scaled = (grams: number | null, added: number): number | null =>
+    grams === null ? null : Math.max(0, Math.round(grams * scale + added));
+  const protein = scaled(scannedMeal.proteinGrams, 0);
+  const carbs = scaled(scannedMeal.carbsGrams, sauceCarb);
+  const fat = scaled(scannedMeal.fatsGrams, prepAddedFat + sauceFat);
   const calories =
     protein === null || carbs === null || fat === null
       ? null
       : Math.round(protein * 4 + carbs * 4 + fat * 9);
 
+  const mealName = scannedMeal.dishName ?? (nameText.trim() || null);
+
   const handleSave = () => {
     if (protein === null || carbs === null || fat === null || calories === null) return;
+    if (mealName === null) return;
     setIsLogging(true);
     tactileEngine.playPRCelebration();
     const tag = [prep === 'oil' ? 'Oil' : 'Lean', dressing === 'sauce' ? 'Sauce' : '']
       .filter(Boolean)
       .join(', ');
-    const name = tag ? `${scannedMeal.dishName} (${tag})` : scannedMeal.dishName;
-    onCommitMeal(name, calories, protein, carbs, fat, weight);
+    const name = tag ? `${mealName} (${tag})` : mealName;
+    onCommitMeal(name, calories, protein, carbs, fat, byGrams ? amount : null);
   };
 
   return (
@@ -89,11 +102,27 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
               />
             )}
             <div className="min-w-0">
-              <h4 className="font-bold text-sm text-white font-tactical break-words">
-                {scannedMeal.dishName}
-              </h4>
+              {scannedMeal.dishName !== null ? (
+                <h4 className="font-bold text-sm text-white font-tactical break-words">
+                  {scannedMeal.dishName}
+                </h4>
+              ) : (
+                <input
+                  type="text"
+                  value={nameText}
+                  onChange={(e) => setNameText(e.target.value.slice(0, 80))}
+                  placeholder="Name this meal"
+                  aria-label="Meal name"
+                  className="w-full bg-o1-well border border-white/[0.07] rounded-xl px-2 py-1 font-bold text-sm text-white font-tactical focus:outline-hidden"
+                />
+              )}
               <span className="text-o1-label text-o1-muted font-num block">
-                {scannedMeal.servingDescription || `${weight}g portion`}
+                {scannedMeal.servingDescription ??
+                  (servingGrams !== null
+                    ? `${servingGrams} g serving`
+                    : byGrams
+                      ? 'No serving size listed. Enter the grams you ate.'
+                      : 'Serving size not shown')}
               </span>
               {onScanAgain && (
                 <button
@@ -109,7 +138,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
           {isBarcode ? (
             <span className="text-o1-label font-num px-2 py-0.5 rounded-full bg-o1-olive/20 text-o1-olive border border-o1-olive/40 flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-o1-olive" />
-              100% Match
+              Barcode match
             </span>
           ) : confidence !== null && confidence > 0 ? (
             <span className="text-o1-label font-num px-2 py-0.5 rounded-full bg-o1-teal/15 text-o1-teal border border-o1-teal/30">
@@ -162,35 +191,41 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
           </div>
         </div>
 
-        {/* Stepper (+/- 10g & +/- 25g) */}
+        {/* Portion stepper: grams when the serving weight is known, servings otherwise */}
         <div className="p-2 rounded-2xl bg-o1-well border border-white/[0.07] space-y-1.5">
           <div className="flex items-center justify-between text-xs font-tactical font-bold text-o1-stone">
-            <span>Portion Weight</span>
+            <span>{byGrams ? 'Portion Weight' : 'Servings'}</span>
             <div className="flex items-center gap-1 bg-black px-2 py-0.5 rounded-xl border border-white/[0.07]">
               <input
                 type="text"
-                inputMode="numeric"
-                value={weightText}
-                placeholder="0"
+                inputMode={byGrams ? 'numeric' : 'decimal'}
+                value={amountText}
+                placeholder={byGrams ? 'g' : '0'}
                 onFocus={(e) => e.currentTarget.select()}
-                onChange={(e) => setWeightText(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                onChange={(e) =>
+                  setAmountText(
+                    byGrams
+                      ? e.target.value.replace(/\D/g, '').slice(0, 4)
+                      : e.target.value.replace(/[^\d.]/g, '').slice(0, 4),
+                  )
+                }
                 className="w-12 bg-transparent text-center font-num font-bold text-xs text-white focus:outline-hidden"
               />
-              <span className="text-o1-label font-num text-o1-muted">g</span>
+              <span className="text-o1-label font-num text-o1-muted">{byGrams ? 'g' : '×'}</span>
             </div>
           </div>
           <div className="grid grid-cols-4 gap-1.5">
-            {[-25, -10, 10, 25].map((delta) => (
+            {(byGrams ? [-25, -10, 10, 25] : [-1, -0.5, 0.5, 1]).map((delta) => (
               <button
                 key={delta}
                 type="button"
                 onClick={() => {
                   tactileEngine.triggerSelectionBuzz();
-                  setWeight((w) => w + delta);
+                  stepAmount(delta);
                 }}
                 className="py-1 rounded-xl bg-white/10 hover:bg-white/20 text-o1-label font-num font-bold text-o1-ink-soft transition cursor-pointer active:scale-95"
               >
-                {delta > 0 ? `+${delta}g` : `${delta}g`}
+                {`${delta > 0 ? '+' : ''}${delta}${byGrams ? 'g' : ''}`}
               </button>
             ))}
           </div>
@@ -228,7 +263,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       <div className="sticky bottom-0 z-20 shrink-0 bg-o1-card pt-2 pb-safe px-3 border-t border-white/[0.07] space-y-1.5">
         <button
           type="button"
-          disabled={isLogging || !hasAllMacros || weight <= 0}
+          disabled={isLogging || !hasAllMacros || amount <= 0 || mealName === null}
           onClick={handleSave}
           className="o1-pill mx-auto bg-o1-crimson hover:bg-o1-crimson-hover active:scale-95 text-white font-sans font-semibold text-xs cursor-pointer disabled:opacity-50"
         >

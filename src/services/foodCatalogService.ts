@@ -42,19 +42,35 @@ export interface FoodSearchParams {
   onPartial?: (result: FoodSearchResult) => void;
 }
 
-export function liveRowToRecord(row: LiveFoodRow, country: string): FoodItemRecord {
+/** A reported non-negative figure, or `null`. */
+function reportedNumber(value: number | string | undefined): number | null {
+  if (value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+/** The server's food row, or `null` when it lacks energy, a macro, or its serving weight. */
+export function liveRowToRecord(row: LiveFoodRow, country: string): FoodItemRecord | null {
+  const calories = reportedNumber(row.calories);
+  const protein = reportedNumber(row.protein);
+  const carbs = reportedNumber(row.carbs);
+  const fats = reportedNumber(row.fats);
+  const servingGrams = reportedNumber(row.servingGrams);
+  if (calories === null || protein === null || carbs === null || fats === null) return null;
+  if (servingGrams === null || servingGrams <= 0 || !row.servingSize) return null;
+  const source = row.source === 'usda' ? 'usda' : 'openfoodfacts';
   return {
     id: row.id,
     name: row.name,
-    brand: row.brand || 'Food',
-    calories: Number(row.calories) || 0,
-    protein: Number(row.protein) || 0,
-    carbs: Number(row.carbs) || 0,
-    fats: Number(row.fats) || 0,
-    serving_size: row.servingSize || '100 g',
-    serving_grams: Number(row.servingGrams) || 100,
+    brand: row.brand || (source === 'usda' ? 'USDA' : 'Open Food Facts'),
+    calories,
+    protein,
+    carbs,
+    fats,
+    serving_size: row.servingSize,
+    serving_grams: servingGrams,
     country: row.country || country,
-    source: row.source === 'usda' ? 'usda' : 'openfoodfacts',
+    source,
     image: row.image,
     diet: row.diet,
   };
@@ -90,7 +106,9 @@ async function searchSource(
       return { items: [], failure: json.failed.join(', ') };
     }
     return {
-      items: (json.items ?? []).map((row) => liveRowToRecord(row, params.market)),
+      items: (json.items ?? [])
+        .map((row) => liveRowToRecord(row, params.market))
+        .filter((item): item is FoodItemRecord => item !== null),
       failure: null,
     };
   } catch (err) {

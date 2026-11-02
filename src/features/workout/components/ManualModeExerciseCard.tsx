@@ -47,7 +47,7 @@ export const ManualModeExerciseCard: React.FC<ManualModeExerciseCardProps> = ({
             {exercise.defaultSets || 3} sets × {exercise.defaultReps || 10} reps
           </span>
           <span>•</span>
-          <span>Est: {computedKcal} kcal</span>
+          <span>Est: {computedKcal ?? '--'} kcal</span>
         </div>
       </div>
 

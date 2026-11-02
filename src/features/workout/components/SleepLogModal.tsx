@@ -37,6 +37,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
   const [bedtime, setBedtime] = useState<string>('');
   const [wakeTime, setWakeTime] = useState<string>('');
   const [restingHr, setRestingHr] = useState<number | null>(initialHr);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -73,6 +74,7 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
     if (qualityScore === null) return;
     const bpm = restingHr !== null && restingHr >= 25 && restingHr <= 220 ? restingHr : null;
     tactileEngine.triggerSelectionBuzz();
+    setSaveError(null);
 
     // 1. Update active session in useLogStore
     useLogStore.getState().updateSubModule('sleep', {
@@ -102,8 +104,12 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
         bedtime,
         wakeTime,
       });
-    } catch {
-      // safe fallback
+    } catch (err) {
+      console.error('[Sleep] Could not save tonight to the day log', err);
+      setSaveError(
+        `Sleep was not saved to your log. ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return;
     }
 
     onClose();
@@ -339,6 +345,12 @@ export const SleepLogModal: React.FC<SleepLogModalProps> = ({ isOpen, onClose })
           Bed and wake times fill the duration for you. Resting heart rate is optional; leave it
           blank if you didn&apos;t measure it.
         </p>
+
+        {saveError && (
+          <p role="alert" className="text-o1-label text-o1-crimson leading-relaxed px-0.5">
+            {saveError}
+          </p>
+        )}
 
         {/* Footer Actions */}
         <div className="sticky bottom-0 z-10 -mx-3.5 -mb-3.5 px-3.5 pt-2.5 pb-[max(env(safe-area-inset-bottom),14px)] bg-o1-card border-t border-white/[0.05] flex items-center gap-2">

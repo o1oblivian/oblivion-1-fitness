@@ -10,6 +10,7 @@ import { useFuelStore, FuelMeals } from '../../features/fuel/store/useFuelStore'
 import { tactileEngine } from '../../services/tactileEngine';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { warmApi } from '../../services/apiBase';
+import { ScanError } from '../../services/scanErrors';
 
 const MEAL_SCAN_FAILED = 'Could not read this meal photo. Retake it with the food clearly in view.';
 
@@ -102,26 +103,20 @@ export function useMealMacroScanner({
       setScannedMeal(detected);
       tactileEngine.playPRCelebration();
     } catch (err: unknown) {
+      console.error('[Meal scan] failed', err);
       const failure = err instanceof Error ? err : null;
       let errMsg =
         failure?.message.includes('permission') || failure?.name === 'NotAllowedError'
           ? 'Camera permission denied. Manual macro entry enabled.'
-          : failure?.message || MEAL_SCAN_FAILED;
+          : failure?.message || String(err);
 
-      // Provider and model errors are never shown verbatim.
-      if (
-        /sensor standby|standby mode|gemini|google|genai|api[\s_-]?key|quota|model|\bai\b/i.test(
-          errMsg,
-        )
-      ) {
-        errMsg = MEAL_SCAN_FAILED;
+      // Provider and model errors are never shown verbatim; the status still tells what failed.
+      if (/gemini|google|genai|api[\s_-]?key|quota|model|\bai\b/i.test(errMsg)) {
+        const status = err instanceof ScanError && err.status ? ` (server ${err.status})` : '';
+        errMsg = `${MEAL_SCAN_FAILED}${status}`;
       }
 
       setError(errMsg);
-      triggerToast(
-        'Vision analysis could not resolve plate. Switched to manual macro entry.',
-        'info',
-      );
     } finally {
       setIsScanning(false);
       setIsLoading(false);

@@ -21,20 +21,10 @@ const ENERGY_INTENSITY_MULTIPLIERS: Record<EnergyCheckIn, number> = {
   PRIME: 1.2,
 };
 
-/**
- * Retrieves the current logged athlete weight from user store.
- * Strictly falls back to 75kg only if unlogged.
- */
-export const getAthleteWeightKg = (): number => {
-  try {
-    const userState = useUserStore.getState?.();
-    if (userState && typeof userState.weightKg === 'number' && userState.weightKg > 30) {
-      return userState.weightKg;
-    }
-  } catch {
-    // Fallback if accessed outside reactive lifecycle
-  }
-  return 75;
+/** The athlete's logged bodyweight in kg, or `null` when none is logged. */
+export const getAthleteWeightKg = (): number | null => {
+  const { weightKg } = useUserStore.getState();
+  return typeof weightKg === 'number' && weightKg > 30 ? weightKg : null;
 };
 
 /**
@@ -42,23 +32,23 @@ export const getAthleteWeightKg = (): number => {
  * formula: Calories = (MET * 3.5 * weightKg / 200) * durationMinutes
  *
  * @param baseMET Base Metabolic Equivalent of Task
- * @param weightKg Athlete weight in kilograms (falls back to profile or 75kg)
+ * @param weightKg Athlete weight in kilograms; `null` when unknown, which makes the result `null`
  * @param durationMinutes Duration of movement or exercise block in minutes
  * @param energyLevel Energy check-in intensity adjustment ('LOW' | 'STEADY' | 'PRIME')
  */
 export const calculateCalorieBurn = (
   baseMET: number,
-  weightKg: number = getAthleteWeightKg(),
+  weightKg: number | null = getAthleteWeightKg(),
   durationMinutes: number,
   energyLevel: EnergyCheckIn = 'STEADY',
-): number => {
+): number | null => {
+  if (weightKg === null || weightKg <= 30) return null;
   if (baseMET <= 0 || durationMinutes <= 0) return 0;
-  const safeWeight = weightKg > 30 ? weightKg : 75;
   const multiplier = ENERGY_INTENSITY_MULTIPLIERS[energyLevel] || 1.0;
   const adjustedMET = baseMET * multiplier;
 
   // Standard Compendium formula: (MET * 3.5 * weightKg / 200) * durationMinutes
-  const kcal = ((adjustedMET * 3.5 * safeWeight) / 200) * durationMinutes;
+  const kcal = ((adjustedMET * 3.5 * weightKg) / 200) * durationMinutes;
   return Math.round(kcal);
 };
 
@@ -91,19 +81,20 @@ const isBodyweightMovement = (item: {
 /**
  * 2. Session Volume & Tonnage
  * formula: Total Tonnage = SUM(sets * reps * weightKg)
- * For bodyweight movements: (userBodyweight * 0.65 + addedWeight) * reps
+ * For bodyweight movements: (userBodyweight * 0.65 + addedWeight) * reps.
+ * With no logged bodyweight, a bodyweight movement counts only its added weight.
  *
  * @param exercises List of exercise items
- * @param athleteWeightKg Athlete bodyweight in kg
+ * @param athleteWeightKg Athlete bodyweight in kg, or `null` when unknown
  * @param completedOnly If true, only completed sets are counted; if false, all scheduled sets
  */
 export const calculateSessionTonnage = (
   exercises: ExerciseItem[],
-  athleteWeightKg: number = getAthleteWeightKg(),
+  athleteWeightKg: number | null = getAthleteWeightKg(),
   completedOnly: boolean = false,
 ): number => {
   let totalTonnage = 0;
-  const safeWeight = athleteWeightKg > 30 ? athleteWeightKg : 75;
+  const bodyLoad = athleteWeightKg !== null && athleteWeightKg > 30 ? athleteWeightKg * 0.65 : 0;
 
   for (const ex of exercises) {
     const isBW = isBodyweightMovement(ex);
@@ -111,7 +102,7 @@ export const calculateSessionTonnage = (
       if (!completedOnly || set.completed) {
         const reps = Number(set.reps) || 0;
         const addedWeight = Number(set.weightKg) || 0;
-        const effectiveWeightPerRep = isBW ? safeWeight * 0.65 + addedWeight : addedWeight;
+        const effectiveWeightPerRep = isBW ? bodyLoad + addedWeight : addedWeight;
         totalTonnage += reps * effectiveWeightPerRep;
       }
     }
@@ -123,13 +114,15 @@ export const calculateSessionTonnage = (
 /**
  * Dynamic Session Calorie Estimation from Exercise Definitions
  * Computes caloric burn by dividing session duration among exercises based on their baseMET and energy check-in.
+ * `null` when the athlete's bodyweight is unknown.
  */
 export const estimateSessionCalorieBurn = (
   exercises: { name: string; baseMET?: number }[],
   durationMinutes: number,
   energyLevel: EnergyCheckIn = 'STEADY',
-  athleteWeightKg: number = getAthleteWeightKg(),
-): number => {
+  athleteWeightKg: number | null = getAthleteWeightKg(),
+): number | null => {
+  if (athleteWeightKg === null) return null;
   if (exercises.length === 0 || durationMinutes <= 0) return 0;
   const perExerciseMinutes = durationMinutes / exercises.length;
 
@@ -146,7 +139,8 @@ export const estimateSessionCalorieBurn = (
       else met = 5.5;
     }
 
-    totalCalories += calculateCalorieBurn(met, athleteWeightKg, perExerciseMinutes, energyLevel);
+    totalCalories +=
+      calculateCalorieBurn(met, athleteWeightKg, perExerciseMinutes, energyLevel) ?? 0;
   }
 
   return Math.round(totalCalories);

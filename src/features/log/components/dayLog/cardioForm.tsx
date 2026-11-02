@@ -61,14 +61,24 @@ export function useCardioLogForm({ isOpen, dayMeta, category, mode, onSaved }: D
       if (dayMeta.isToday && burnNum != null && burnNum > 0) {
         useFuelStore.getState().logBurned(burnNum);
       }
-      void persistCardioLog({
+      persistCardioLog({
         activityType: activity,
         distanceKm: distNum ?? 0,
         durationMinutes: durNum ?? 0,
         burnedKcal: burnNum ?? 0,
         avgHeartRateBpm: hrNum ?? undefined,
         dateKey: dayMeta.dateKey,
-      });
+      }).then(
+        (outcome) => {
+          if (outcome === 'signed-out') {
+            onSaved?.('Cardio saved on this phone only. Sign in to back it up.');
+          }
+        },
+        (err: unknown) => {
+          const reason = err instanceof Error ? err.message : String(err);
+          onSaved?.(`Cardio is in today's log, but its session backup failed. ${reason}`);
+        },
+      );
     }
     onSaved?.(mode === 'edit' ? 'Cardio updated' : 'Cardio logged');
     return 'done';

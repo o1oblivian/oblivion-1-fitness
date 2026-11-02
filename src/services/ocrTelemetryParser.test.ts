@@ -3,9 +3,15 @@ import { parseTelemetryFromOcrText } from './ocrTelemetryParser';
 
 describe('watch step read', () => {
   it('joins a segmented 6 151 into 6151 steps and ignores the clock', () => {
-    const read = parseTelemetryFromOcrText('P 4:14  6 151');
+    const read = parseTelemetryFromOcrText('P 4:14  6 151 steps');
     expect(read.deviceType).toBe('watch');
     expect(read.steps).toBe(6151);
+    expect(read.elapsedMinutes).toBeNull();
+  });
+
+  it('leaves steps unread when no label says the number is steps', () => {
+    const read = parseTelemetryFromOcrText('P 4:14  6 151');
+    expect(read.steps).toBeNull();
     expect(read.elapsedMinutes).toBeNull();
   });
 
@@ -26,6 +32,7 @@ describe('watch step read', () => {
     const read = parseTelemetryFromOcrText('10:41');
     expect(read.deviceType).toBe('watch');
     expect(read.steps).toBeNull();
+    expect(read.elapsedMinutes).toBeNull();
   });
 
   it('does not invent steps from a console distance', () => {

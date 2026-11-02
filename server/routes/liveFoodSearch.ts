@@ -74,15 +74,24 @@ export interface OffProduct extends OffDietTags {
   image_url?: string;
 }
 
+/** A per-100 g figure the registry reported, or `null` when it left the field out. */
+function reported(value: number | string | undefined): number | null {
+  if (value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+}
+
+/** A product row, or `null` when the registry did not report energy and all three macros. */
 export function rowFromOff(product: OffProduct, country: string): FoodRow | null {
   const name = String(product.product_name || product.product_name_en || '').trim();
   const n = product.nutriments ?? {};
   if (!name) return null;
-  const kj = Number(n['energy-kj_100g']);
-  const kcal = Number(n['energy-kcal_100g'] ?? (Number.isFinite(kj) ? kj / 4.184 : 0)) || 0;
-  const protein = round1(Number(n.proteins_100g) || 0);
-  const carbs = round1(Number(n.carbohydrates_100g) || 0);
-  const fats = round1(Number(n.fat_100g) || 0);
+  const kj = reported(n['energy-kj_100g']);
+  const kcal = reported(n['energy-kcal_100g']) ?? (kj === null ? null : kj / 4.184);
+  const protein = reported(n.proteins_100g);
+  const carbs = reported(n.carbohydrates_100g);
+  const fats = reported(n.fat_100g);
+  if (kcal === null || protein === null || carbs === null || fats === null) return null;
   if (kcal <= 0 && protein <= 0 && carbs <= 0 && fats <= 0) return null;
   const image = String(product.image_front_url || product.image_url || '').trim();
   return {
@@ -92,9 +101,9 @@ export function rowFromOff(product: OffProduct, country: string): FoodRow | null
       .split(',')[0]
       .trim(),
     calories: Math.round(kcal),
-    protein,
-    carbs,
-    fats,
+    protein: round1(protein),
+    carbs: round1(carbs),
+    fats: round1(fats),
     servingSize: '100 g',
     servingGrams: 100,
     country,

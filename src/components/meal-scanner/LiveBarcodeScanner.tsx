@@ -45,8 +45,20 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
         scanInterval = setInterval(async () => {
           if (reading || !videoRef.current || videoRef.current.readyState < 2) return;
           reading = true;
-          const code = await tryDetectNativeBarcode(videoRef.current);
-          reading = false;
+          let code: string | null;
+          try {
+            code = await tryDetectNativeBarcode(videoRef.current);
+          } catch (err) {
+            active = false;
+            if (scanInterval) clearInterval(scanInterval);
+            setIsStreaming(false);
+            setError(
+              `${err instanceof Error ? err.message : String(err)}. Use manual lookup or photo upload.`,
+            );
+            return;
+          } finally {
+            reading = false;
+          }
           if (code && active) {
             active = false;
             if (scanInterval) clearInterval(scanInterval);

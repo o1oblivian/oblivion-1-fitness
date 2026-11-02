@@ -4,6 +4,7 @@ const apiFetch = vi.fn();
 vi.mock('./apiBase', () => ({ apiFetch: (...args: unknown[]) => apiFetch(...args) }));
 
 import { lookupBarcodeNumber } from './barcodeLookupService';
+import { ScanError } from './scanErrors';
 
 const product = {
   status: 1,
@@ -83,6 +84,52 @@ describe('lookupBarcodeNumber', () => {
     const meal = await lookupBarcodeNumber('5012345678900');
     expect(meal.dishName).toBe('Acme Oat Bar');
     expect(apiFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports a server failure as a server error, not as an unknown product', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('network down')));
+    apiFetch.mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: async () => ({ error: 'The food registry could not be reached. Try again.' }),
+    });
+    const err = await lookupBarcodeNumber('5012345678900').catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ScanError);
+    expect(err).toMatchObject({ code: 'server', status: 502 });
+    expect((err as Error).message).not.toMatch(/No product found/);
+  });
+
+  it('reports a dropped connection on both routes as a network error', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('network down')));
+    apiFetch.mockRejectedValue(new TypeError('network down'));
+    await expect(lookupBarcodeNumber('5012345678900')).rejects.toMatchObject({ code: 'network' });
+  });
+
+  it('leaves the serving empty for the athlete and invents no confidence or ingredients', async () => {
+    registryAnswers(200, {
+      status: 1,
+      product: {
+        product_name: 'Oat Bar',
+        nutriments: { 'energy-kcal_100g': 400, proteins_100g: 10, carbohydrates_100g: 60 },
+      },
+    });
+    const meal = await lookupBarcodeNumber('5012345678900');
+    expect(meal).toMatchObject({
+      dishName: 'Oat Bar',
+      servingDescription: null,
+      servingGrams: null,
+      per100g: true,
+      calories: 400,
+      proteinGrams: 10,
+      fatsGrams: null,
+      confidenceScore: null,
+      ingredientsDetected: [],
+    });
+  });
+
+  it('leaves the name empty when the registry has none', async () => {
+    registryAnswers(200, { status: 1, product: { nutriments: { 'energy-kcal_100g': 120 } } });
+    expect((await lookupBarcodeNumber('5012345678900')).dishName).toBeNull();
   });
 
   it('rejects text that is not a barcode number before any request', async () => {

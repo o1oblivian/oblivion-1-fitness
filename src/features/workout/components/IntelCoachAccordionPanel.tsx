@@ -436,7 +436,8 @@ export const IntelCoachAccordionPanel: React.FC<IntelCoachAccordionPanelProps> =
                 {selectedDuration}m
               </span>
               <span className="flex items-center gap-1 text-o1-crimson">
-                <Flame className="w-3.5 h-3.5 text-o1-crimson" />~{estCalories} kcal
+                <Flame className="w-3.5 h-3.5 text-o1-crimson" />
+                {estCalories === null ? '--' : `~${estCalories}`} kcal
               </span>
             </div>
             <button

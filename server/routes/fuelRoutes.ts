@@ -22,66 +22,79 @@ export function registerFuelRoutes(app: Express): void {
 
       const cleanCode = barcode.trim().replace(/[^0-9]/g, '');
 
-      // Query OpenFoodFacts API for genuine global food products
+      let offRes: Response;
       try {
-        const offRes = await fetch(
-          `https://world.openfoodfacts.org/api/v0/product/${cleanCode}.json`,
-          {
-            headers: { 'User-Agent': 'Oblivion1Fitness-FuelOS/1.0' },
-          },
-        );
-
-        if (offRes.ok) {
-          const offData = await offRes.json();
-          if (offData.status === 1 && offData.product) {
-            const prod = offData.product;
-            const nutriments = prod.nutriments || {};
-
-            // Use one basis for every number: per serving when the registry has it, otherwise per 100 g.
-            // Mixing the two would label 100 g figures as a serving.
-            const perServing =
-              Number(nutriments['energy-kcal_serving']) > 0 && Boolean(prod.serving_size);
-            const suffix = perServing ? '_serving' : '_100g';
-            const kcal = Number(nutriments[`energy-kcal${suffix}`]);
-            if (!Number.isFinite(kcal) || kcal <= 0) {
-              // The registry knows the product but not its nutrition. Do not invent calories.
-              return res.json({
-                success: true,
-                found: false,
-                message: 'This product has no nutrition data. Enter it by hand.',
-              });
-            }
-            const per = (key: string) =>
-              Math.round(Number(nutriments[`${key}${suffix}`] || 0) * 10) / 10;
-            const item = {
-              name: prod.product_name || prod.product_name_en || `Scanned Item (${cleanCode})`,
-              brand: prod.brands || '',
-              portion: perServing ? String(prod.serving_size) : '100g',
-              calories: Math.round(kcal),
-              protein: per('proteins'),
-              carbs: per('carbohydrates'),
-              fats: per('fat'),
-              category: 'snack',
-            };
-
-            return res.json({
-              success: true,
-              found: true,
-              source: 'OpenFoodFacts Global Registry',
-              item,
-            });
-          }
-        }
+        offRes = await fetch(`https://world.openfoodfacts.org/api/v0/product/${cleanCode}.json`, {
+          headers: { 'User-Agent': 'Oblivion1Fitness-FuelOS/1.0' },
+          signal: AbortSignal.timeout(8_000),
+        });
       } catch (fetchErr) {
-        console.warn('OpenFoodFacts lookup network error:', fetchErr);
+        console.error('OpenFoodFacts lookup network error:', fetchErr);
+        return res
+          .status(502)
+          .json({ error: 'The food registry could not be reached. Try again.' });
+      }
+      if (!offRes.ok && offRes.status !== 404) {
+        console.error('OpenFoodFacts lookup failed with status', offRes.status);
+        return res
+          .status(502)
+          .json({ error: `The food registry answered ${offRes.status}. Try again.` });
       }
 
-      // If not in OFF, provide structured estimation
+      const offData = offRes.ok ? await offRes.json() : null;
+      if (offData?.status !== 1 || !offData.product) {
+        return res.json({
+          success: true,
+          found: false,
+          barcode: cleanCode,
+          message: `No product found for ${cleanCode}. Photograph the Nutrition Facts panel instead.`,
+        });
+      }
+
+      const prod = offData.product;
+      const nutriments = prod.nutriments || {};
+
+      // Use one basis for every number: per serving when the registry has it, otherwise per 100 g.
+      // Mixing the two would label 100 g figures as a serving.
+      const perServing =
+        Number(nutriments['energy-kcal_serving']) > 0 && Boolean(prod.serving_size);
+      const suffix = perServing ? '_serving' : '_100g';
+      const kcal = Number(nutriments[`energy-kcal${suffix}`]);
+      if (!Number.isFinite(kcal) || kcal <= 0) {
+        // The registry knows the product but not its nutrition. Do not invent calories.
+        return res.json({
+          success: true,
+          found: false,
+          message: 'This product has no nutrition data. Enter it by hand.',
+        });
+      }
+      /** A nutriment the registry did not report stays `null`, never 0. */
+      const per = (key: string): number | null => {
+        const raw = nutriments[`${key}${suffix}`];
+        if (raw === undefined || raw === null || raw === '') return null;
+        const value = Number(raw);
+        return Number.isFinite(value) && value >= 0 ? Math.round(value * 10) / 10 : null;
+      };
+      const servingGrams = Number(prod.serving_quantity);
+      const item = {
+        name: prod.product_name || prod.product_name_en || null,
+        brand: prod.brands || null,
+        portion: perServing ? String(prod.serving_size) : null,
+        portionGrams:
+          perServing && Number.isFinite(servingGrams) && servingGrams > 0 ? servingGrams : null,
+        // `_100g` figures: the athlete enters the grams eaten.
+        per100g: !perServing,
+        calories: Math.round(kcal),
+        protein: per('proteins'),
+        carbs: per('carbohydrates'),
+        fats: per('fat'),
+      };
+
       return res.json({
         success: true,
-        found: false,
-        barcode: cleanCode,
-        message: 'Barcode recognized but not yet mapped in global registry. Quick-log enabled.',
+        found: true,
+        source: 'OpenFoodFacts Global Registry',
+        item,
       });
     } catch (err) {
       console.error('Error in /api/fuel/scan-barcode:', err);

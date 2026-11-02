@@ -5,7 +5,8 @@ import { formatLoad, loadUnitLabel } from '../../../utils/weightUnits';
 
 interface IntelPrescriptionCardProps {
   prescription: ExerciseItem[];
-  estCalories: number;
+  /** `null` when no bodyweight is logged to estimate from. */
+  estCalories: number | null;
   /** The options changed after this workout was built, so it no longer matches them. */
   outdated?: boolean;
 }
@@ -29,6 +30,7 @@ export const IntelPrescriptionCard: React.FC<IntelPrescriptionCardProps> = ({
             Options changed. Create again.
           </span>
         ) : (
+          estCalories !== null &&
           estCalories > 0 && (
             <span className="text-o1-caption font-num font-light text-o1-text">
               ~{estCalories} kcal

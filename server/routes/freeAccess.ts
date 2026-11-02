@@ -14,9 +14,9 @@ export function freeAccessRemaining(taken: number): number {
  * A member's decision is made once, the first time the server sees them, and is kept on their account.
  * Someone who got the 90 days keeps them; someone who arrives after the cap does not get them later.
  */
-export function decideFreeAccess(stored: unknown, memberCount: number): boolean {
+export function decideFreeAccess(stored: unknown, members: number): boolean {
   if (typeof stored === 'boolean') return stored;
-  return memberCount <= FREE_ACCESS_CAP;
+  return members <= FREE_ACCESS_CAP;
 }
 
 async function memberCount(): Promise<number | null> {

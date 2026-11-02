@@ -35,6 +35,9 @@ describe('normalizeFdcFood', () => {
       foodNutrients: [
         { nutrientName: 'Energy', unitName: 'KJ', value: 1600 },
         { nutrientName: 'Energy', unitName: 'KCAL', value: 380 },
+        { nutrientNumber: '203', value: 13 },
+        { nutrientNumber: '204', value: 7 },
+        { nutrientNumber: '205', value: 68 },
       ],
     });
     expect(row?.calories).toBe(380);
@@ -46,9 +49,25 @@ describe('normalizeFdcFood', () => {
       description: 'Water, bottled, generic',
       foodNutrients: [
         { nutrientNumber: '208', nutrientName: 'Energy', unitName: 'KCAL', value: 0 },
+        { nutrientNumber: '203', value: 0 },
+        { nutrientNumber: '204', value: 0 },
+        { nutrientNumber: '205', value: 0 },
       ],
     });
     expect(row).toMatchObject({ name: 'Water, bottled, generic', calories: 0 });
+  });
+
+  it('drops a record that leaves a macro out instead of reading it as zero', () => {
+    const row = normalizeFdcFood({
+      fdcId: 5,
+      description: 'Rice, white, cooked',
+      foodNutrients: [
+        { nutrientNumber: '208', value: 130 },
+        { nutrientNumber: '203', value: 2.7 },
+        { nutrientNumber: '205', value: 28 },
+      ],
+    });
+    expect(row).toBeNull();
   });
 
   it('drops foods with no nutrition and foods with no id', () => {
@@ -164,7 +183,12 @@ describe('searchFdc', () => {
           {
             fdcId: 9,
             description: 'Rice, white, cooked',
-            foodNutrients: [{ nutrientNumber: '208', value: 130 }],
+            foodNutrients: [
+              { nutrientNumber: '208', value: 130 },
+              { nutrientNumber: '203', value: 2.7 },
+              { nutrientNumber: '204', value: 0.3 },
+              { nutrientNumber: '205', value: 28 },
+            ],
           },
           { fdcId: 10, description: 'Empty', foodNutrients: [] },
         ],

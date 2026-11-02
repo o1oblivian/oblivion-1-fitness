@@ -55,7 +55,9 @@ export async function browseFoods(params: {
     if (!res.ok) throw new Error(`Category list answered ${res.status}`);
     const json = (await res.json()) as { items?: LiveFoodRow[]; failed?: string[] };
     const answer: BrowseAnswer = {
-      items: (json.items ?? []).map((row) => liveRowToRecord(row, country)),
+      items: (json.items ?? [])
+        .map((row) => liveRowToRecord(row, country))
+        .filter((item): item is FoodItemRecord => item !== null),
       failed: json.failed ?? [],
     };
     // A failed part is not remembered, so reopening the sheet tries it again.

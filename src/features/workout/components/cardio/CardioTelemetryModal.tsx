@@ -6,6 +6,7 @@ import {
   CardioTelemetryResult,
 } from '../../../../services/geminiVisionService';
 import { processCardioScanImage } from '../../../log/services/cardioScanService';
+import { ScanError } from '../../../../services/scanErrors';
 import { Capacitor } from '@capacitor/core';
 import {
   capturePhotoDataUrl,
@@ -29,11 +30,23 @@ const NO_NUMBERS = {
   ok: false,
   text: 'No numbers found. Tap any number to enter it, or retake the photo.',
 };
-const READER_BUSY = {
-  ok: false,
-  retry: true,
-  text: 'The photo reader is busy right now. Try again in a moment, or tap any number to enter it.',
-};
+
+/** The reader's own failure, with a retry offered when another attempt could succeed. */
+function failureMessage(err: unknown) {
+  const scanErr = err instanceof ScanError ? err : null;
+  const reason = err instanceof Error && err.message ? err.message : String(err);
+  return {
+    ok: false,
+    retry: scanErr?.code === 'network' || scanErr?.code === 'server',
+    text: `${reason} Tap any number to enter it.`,
+  };
+}
+
+function readsAnyNumber(r: CardioTelemetryResult): boolean {
+  return (
+    r.steps != null || r.distanceKm != null || r.caloriesBurned != null || r.elapsedMinutes != null
+  );
+}
 
 const foundMessage = (
   r: Pick<CardioTelemetryResult, 'steps' | 'distanceKm' | 'elapsedMinutes' | 'deviceType'>,
@@ -105,29 +118,25 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     setIsAnalyzing(true);
     setStatusMessage(null);
     tactileEngine.triggerSelectionBuzz();
-    let readerBusy = false;
+    // When the server reader fails, its error is what the athlete sees if the phone reader finds nothing either.
+    let serverError: unknown = null;
     try {
       const res = await analyzeConsoleTelemetry(base64);
-      readerBusy = res.readerBusy === true;
-      const hasAny =
-        res.steps != null ||
-        res.distanceKm != null ||
-        res.caloriesBurned != null ||
-        res.elapsedMinutes != null;
-      if (hasAny) {
+      if (readsAnyNumber(res)) {
         setTelemetry(res);
         setStatusMessage(foundMessage(res));
         tactileEngine.playPRCelebration();
         setIsAnalyzing(false);
         return;
       }
-    } catch {
-      /* fall through to on-device OCR */
+    } catch (err) {
+      console.error('[Cardio scan] Server photo reader failed', err);
+      serverError = err;
     }
     try {
-      const ocr = await processCardioScanImage(base64, 'watch', { skipServer: true });
+      const ocr = await processCardioScanImage(base64);
       const mapped: CardioTelemetryResult = {
-        deviceType: ocr.activityType?.toLowerCase().includes('console') ? 'console' : 'watch',
+        deviceType: ocr.deviceType,
         elapsedDisplay: ocr.durationMinutes,
         elapsedMinutes: ocr.durationMinutes,
         distanceKm: ocr.distanceKm,
@@ -137,17 +146,16 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
         avgHeartRateBpm: ocr.avgHeartRateBpm,
         steps: ocr.steps,
       };
-      const hasOcr =
-        mapped.steps != null ||
-        mapped.distanceKm != null ||
-        mapped.caloriesBurned != null ||
-        mapped.elapsedMinutes != null;
+      const hasOcr = readsAnyNumber(mapped);
       setTelemetry(hasOcr ? mapped : null);
-      setStatusMessage(hasOcr ? foundMessage(mapped) : readerBusy ? READER_BUSY : NO_NUMBERS);
+      setStatusMessage(
+        hasOcr ? foundMessage(mapped) : serverError ? failureMessage(serverError) : NO_NUMBERS,
+      );
       if (hasOcr) tactileEngine.playPRCelebration();
-    } catch {
+    } catch (err) {
+      console.error('[Cardio scan] On-device reader failed', err);
       setTelemetry(null);
-      setStatusMessage(readerBusy ? READER_BUSY : NO_NUMBERS);
+      setStatusMessage(failureMessage(serverError ?? err));
     } finally {
       setIsAnalyzing(false);
     }
@@ -165,8 +173,8 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
 
   const handleUpdateMetric = (id: string, val: number | string) => {
     setTelemetry((prev) => {
-      const b = prev || {
-        deviceType: 'watch',
+      const b: CardioTelemetryResult = prev || {
+        deviceType: null,
         elapsedDisplay: null,
         elapsedMinutes: null,
         distanceKm: null,
@@ -208,11 +216,12 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     const readSteps = telemetry.steps || 0;
     return {
       device: telemetry.deviceType,
-      activityType: !selectedImage
-        ? 'Cardio'
-        : telemetry.deviceType === 'watch'
+      activityType:
+        selectedImage && telemetry.deviceType === 'watch'
           ? 'Watch'
-          : 'Console',
+          : selectedImage && telemetry.deviceType === 'console'
+            ? 'Console'
+            : 'Cardio',
       steps: readSteps || estimatedSteps || 0,
       readSteps,
       distanceKm: telemetry.distanceKm || 0,
@@ -232,7 +241,18 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
   const handlePost = () => {
     // Nothing was read or entered. Never save an empty session as zeros.
     if (!telemetry || !pending || !canSave) return;
-    saveCardioScan(pending, effectiveMerge);
+    try {
+      saveCardioScan(pending, effectiveMerge);
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      // The session itself is saved, so clearing the readings stops a second tap logging it twice.
+      setTelemetry(null);
+      setStatusMessage({
+        ok: false,
+        text: `Cardio was logged, but today's totals did not update. ${reason}`,
+      });
+      return;
+    }
     onPostCardio?.(telemetry);
     tactileEngine.playPRCelebration();
     onClose();

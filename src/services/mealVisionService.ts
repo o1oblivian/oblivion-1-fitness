@@ -1,6 +1,9 @@
 import {
+  gramsInLabel,
   readConfidence,
+  readGrams,
   readNutrient,
+  readText,
   resolveCalories,
   ScannedMealBreakdown,
   ScanMode,
@@ -8,21 +11,23 @@ import {
 import { tryDetectNativeBarcode, lookupBarcodeNumber } from './barcodeLookupService';
 import { compressAndAnalyzeImage } from './imageCompressionService';
 import { apiFetch } from './apiBase';
+import { ScanError, serverFailure } from './scanErrors';
 
 export * from './mealVisionTypes';
 export { lookupBarcodeNumber } from './barcodeLookupService';
-export { analyzeMealNutrients } from './geminiVisionService';
+
+const MEAL_READ_TIMEOUT_MS = 75_000;
+const MAX_ATTEMPTS = 2;
 
 export async function analyzePackageNutritionPhoto(imageBlob: Blob): Promise<ScannedMealBreakdown> {
   return analyzeMealImageWithGemini(imageBlob, 'package');
 }
 
 /**
- * Ultra-fast & resilient multimodal nutrition scanner.
- * 1. Rapid client-side compression (<50ms, 1024px max, 0.8 JPEG).
- * 2. Instant server-side Gemini Vision inference.
- * 3. Protected Content-Type parsing with auto-retry on network blips.
- * 4. Nutrients the model did not report come back as `null`; no estimated fallbacks.
+ * Multimodal nutrition scanner.
+ * 1. Client-side compression (1024px max, 0.8 JPEG).
+ * 2. Server-side Gemini Vision reading, retried once after a dropped connection or a 5xx.
+ * 3. Fields the model did not report come back as `null`; failures throw a `ScanError`.
  */
 export async function analyzeMealImageWithGemini(
   imageBlob: Blob,
@@ -35,79 +40,80 @@ export async function analyzeMealImageWithGemini(
     }
   }
 
-  // 1. Client-side downscaling (max dimension 1024px, JPEG 0.8)
   const { compressedBase64, mimeType } = await compressAndAnalyzeImage(imageBlob, 1024, 0.8);
   if (!compressedBase64) {
-    throw new Error('This photo could not be opened. Take another one.');
+    throw new ScanError('unreadable', 'This photo could not be opened. Take another one.');
   }
 
-  const maxAttempts = 2;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  let lastError: ScanError | null = null;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    if (lastError) await new Promise((r) => setTimeout(r, 600));
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 75_000);
+    const timeoutId = setTimeout(() => controller.abort(), MEAL_READ_TIMEOUT_MS);
 
+    let proxyRes: Response;
     try {
-      const proxyRes = await apiFetch('/api/vision/meal-nutrients', {
+      proxyRes = await apiFetch('/api/vision/meal-nutrients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           imageBase64: `data:${mimeType};base64,${compressedBase64}`,
           mimeType,
           scanMode,
-          generationConfig: { temperature: 0.0 },
         }),
         signal: controller.signal,
       });
-
+    } catch (err) {
+      const timedOut = err instanceof DOMException && err.name === 'AbortError';
+      lastError = new ScanError(
+        'network',
+        timedOut
+          ? 'The meal reader did not answer in time.'
+          : 'The meal reader could not be reached. Check your connection.',
+        { cause: err },
+      );
+      // A timeout already used the whole wait; only a dropped connection is worth another try.
+      if (timedOut) throw lastError;
+      continue;
+    } finally {
       clearTimeout(timeoutId);
-
-      const contentType = proxyRes.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
-        // Gateway returned HTML (e.g. 502/504 or server reboot)
-        if (attempt < maxAttempts) {
-          await new Promise((r) => setTimeout(r, 600));
-          continue;
-        }
-        break;
-      }
-
-      const data = await proxyRes.json().catch(() => null);
-      if (proxyRes.ok && data?.success && data?.nutrients) {
-        const n = data.nutrients;
-        const prot = readNutrient(n.proteinGrams);
-        const carbs = readNutrient(n.carbsGrams);
-        const fats = readNutrient(n.fatGrams);
-        const cals = resolveCalories(readNutrient(n.calories), prot, carbs, fats);
-
-        return {
-          dishName:
-            n.mealName ||
-            (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
-          servingDescription:
-            n.servingDescription ||
-            (n.estimatedGrams ? `${n.estimatedGrams}g portion` : '1 standard portion'),
-          calories: cals,
-          proteinGrams: prot,
-          carbsGrams: carbs,
-          fatsGrams: fats,
-          confidenceScore: readConfidence(n.confidenceScore),
-          ingredientsDetected: Array.isArray(n.detectedItems) ? n.detectedItems : [],
-        };
-      } else if (!proxyRes.ok && data?.error && attempt === maxAttempts) {
-        throw new Error(data.error);
-      }
-    } catch (err: unknown) {
-      clearTimeout(timeoutId);
-      if (attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 600));
-        continue;
-      }
-      const message = err instanceof Error ? err.message : '';
-      if (message && !message.includes('Sensor Standby')) {
-        throw err;
-      }
     }
+
+    if (!proxyRes.ok) {
+      lastError = await serverFailure(proxyRes, 'Meal reading');
+      if (proxyRes.status >= 500) continue;
+      throw lastError;
+    }
+
+    const data = await proxyRes.json().catch((err: unknown) => {
+      throw new ScanError('server', 'The meal reader sent an unreadable reply.', {
+        status: proxyRes.status,
+        cause: err,
+      });
+    });
+    if (!data?.success || !data?.nutrients) {
+      throw new ScanError('server', 'The meal reader sent a reply without nutrients.', {
+        status: proxyRes.status,
+      });
+    }
+
+    const n = data.nutrients;
+    const prot = readNutrient(n.proteinGrams);
+    const carbs = readNutrient(n.carbsGrams);
+    const fats = readNutrient(n.fatGrams);
+    const servingDescription = readText(n.servingDescription);
+    return {
+      dishName: readText(n.mealName),
+      servingDescription,
+      servingGrams: readGrams(n.estimatedGrams) ?? gramsInLabel(servingDescription),
+      calories: resolveCalories(readNutrient(n.calories), prot, carbs, fats),
+      proteinGrams: prot,
+      carbsGrams: carbs,
+      fatsGrams: fats,
+      confidenceScore: readConfidence(n.confidenceScore),
+      ingredientsDetected: Array.isArray(n.detectedItems) ? n.detectedItems : [],
+    };
   }
 
-  throw new Error('Could not read this meal photo. Retake it with the food clearly in view.');
+  throw lastError ?? new ScanError('server', 'The meal reader did not answer.');
 }

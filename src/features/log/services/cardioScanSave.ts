@@ -122,7 +122,9 @@ export function saveCardioScan(scan: ScanToSave, merge: ScanMerge): void {
         burnedKcal: scan.burnedKcal,
       });
     }
-  } catch {
-    /* The log above is saved; the other totals catch up on the next sync. */
+  } catch (err) {
+    // The day log above is saved; only the derived totals (fuel burn, step count) missed this scan.
+    console.error('[Cardio scan] Saved the log but could not update the day totals', err);
+    throw err;
   }
 }

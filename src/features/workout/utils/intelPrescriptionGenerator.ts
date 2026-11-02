@@ -27,10 +27,10 @@ export type TrainingGoal = 'burn' | 'muscle' | 'reset' | 'athletic';
 const calculateDynamicLoad = (
   pattern: string,
   equipment: string,
-  athleteWeightKg: number,
+  athleteWeightKg: number | null,
   energyLevel: EnergyLevel,
-  calibrationScore: number = 75,
-): number => {
+  calibrationScore: number,
+): number | null => {
   const isElite = calibrationScore >= 80;
   const energyMultiplier = energyLevel === 'PRIME' ? 1.1 : energyLevel === 'LOW' ? 0.85 : 1.0;
 
@@ -42,6 +42,8 @@ const calculateDynamicLoad = (
   ) {
     return 0;
   }
+  // Loads scale from bodyweight, so without a logged weight there is no load to prescribe.
+  if (athleteWeightKg === null) return null;
 
   let baseRatio = 0.75;
   switch (pattern) {
@@ -248,9 +250,10 @@ export const computePrescriptionCalories = (
   goal: TrainingGoal,
   durationMinutes: number,
   energyLevel: EnergyLevel,
-  athleteWeightKg: number = getAthleteWeightKg(),
+  athleteWeightKg: number | null = getAthleteWeightKg(),
   movementFocus?: string,
-): number => {
+): number | null => {
+  if (athleteWeightKg === null) return null;
   const pool = queryExercisesForGoal(goal, movementFocus);
   if (pool.length === 0 || durationMinutes <= 0) return 0;
 
@@ -262,7 +265,8 @@ export const computePrescriptionCalories = (
   const totalKcal = sample.reduce((acc, ex) => {
     return (
       acc +
-      calculateCalorieBurn(ex.baseMET || 6.0, athleteWeightKg, perExerciseMinutes, energyLevel)
+      (calculateCalorieBurn(ex.baseMET || 6.0, athleteWeightKg, perExerciseMinutes, energyLevel) ??
+        0)
     );
   }, 0);
 
@@ -281,7 +285,8 @@ export const generateIntelPrescription = (
 ): ExerciseItem[] => {
   const athleteWeightKg = getAthleteWeightKg();
   const user = useUserStore.getState?.();
-  const calibration = user?.calibrationProgress || 78;
+  // Without a calibration score the athlete is not treated as elite.
+  const calibration = user?.calibrationProgress ?? 0;
 
   const { trainingAge, ageBand } = useConsultationStore.getState();
   const dose = athleteDose(trainingAge, ageBand);
@@ -341,22 +346,20 @@ export const generateIntelPrescription = (
   // Map to fully hydrated ExerciseItems with sets, calculated weights, and RPE
   return selectedDefs.map((def, idx) => {
     const unloaded = isUnloaded(def.name, def.equipment);
-    const computedLoad = unloaded
-      ? 0
-      : Math.max(
-          2.5,
-          Math.round(
-            (calculateDynamicLoad(
-              def.movementPattern || 'squat',
-              def.equipment,
-              athleteWeightKg,
-              energyLevel,
-              calibration,
-            ) *
-              dose.loadFactor) /
-              2.5,
-          ) * 2.5,
+    const load = unloaded
+      ? null
+      : calculateDynamicLoad(
+          def.movementPattern || 'squat',
+          def.equipment,
+          athleteWeightKg,
+          energyLevel,
+          calibration,
         );
+    // 0 leaves the load for the athlete to enter when no bodyweight was logged to scale from.
+    const computedLoad =
+      load === null || load === 0
+        ? 0
+        : Math.max(2.5, Math.round((load * dose.loadFactor) / 2.5) * 2.5);
 
     let reps = def.defaultReps || 10;
     if (goal === 'burn') reps = Math.max(reps, 12);

@@ -1,10 +1,25 @@
-﻿import { readNutrient, resolveCalories, ScannedMealBreakdown } from './mealVisionTypes';
+﻿import {
+  gramsInLabel,
+  readGrams,
+  readNutrient,
+  readText,
+  resolveCalories,
+  ScannedMealBreakdown,
+} from './mealVisionTypes';
 import { apiFetch } from './apiBase';
+import { ScanError, serverFailure } from './scanErrors';
 
 /** Only the fields the scanner reads, so the reply is a few hundred bytes instead of the whole product record. */
 const OFF_FIELDS =
   'product_name,product_name_en,brands,serving_size,serving_quantity,nutriments,ingredients_tags';
 const OFF_TIMEOUT_MS = 5_000;
+/** Open Food Facts reports every `*_100g` nutriment per 100 g of product. */
+const REGISTRY_BASIS_GRAMS = 100;
+
+/** "Acme Oat Bar" from brand and name, or `null` when the source gave neither. */
+function productTitle(brand: string | null, name: string | null): string | null {
+  return [brand, name].filter(Boolean).join(' ') || null;
+}
 
 /**
  * Reads one product from the Open Food Facts registry.
@@ -22,17 +37,15 @@ async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBr
   if (data.status !== 1 || !data.product) return null;
 
   const p = data.product;
-  const name =
-    p.product_name || p.product_name_en || (p.brands ? `${p.brands} Product` : 'Packaged Food');
-  const servingStr = p.serving_size || (p.serving_quantity ? `${p.serving_quantity}g` : '100g');
-  const grams = parseInt(servingStr.match(/(\d+)\s*g/i)?.[1] || '100', 10);
-  const scale = grams > 0 ? grams / 100 : 1;
+  const brand = readText(p.brands);
+  const servingLabel = readText(p.serving_size);
+  const servingGrams = readGrams(p.serving_quantity) ?? gramsInLabel(servingLabel);
+  // Without a serving weight the figures stay per 100 g and the athlete enters the grams eaten.
+  const scale = servingGrams === null ? 1 : servingGrams / REGISTRY_BASIS_GRAMS;
 
   const n = p.nutriments || {};
-  const perServing = (per100g: unknown): number | null => {
-    const value = readNutrient(per100g);
-    return value === null ? null : readNutrient(Number(per100g) * scale);
-  };
+  const perServing = (per100g: unknown): number | null =>
+    readNutrient(per100g) === null ? null : readNutrient(Number(per100g) * scale);
   const prot = perServing(n.proteins_100g ?? n.proteins);
   const carb = perServing(n.carbohydrates_100g ?? n.carbohydrates);
   const fat = perServing(n.fat_100g ?? n.fat);
@@ -44,19 +57,20 @@ async function fetchOpenFoodFactsProduct(barcode: string): Promise<ScannedMealBr
   );
 
   return {
-    dishName: p.brands ? `${p.brands} ${name}` : name,
-    servingDescription: `${grams}g (${servingStr})`,
+    dishName: productTitle(brand, readText(p.product_name) ?? readText(p.product_name_en)),
+    servingDescription: servingGrams === null ? null : servingLabel,
+    servingGrams,
+    per100g: servingGrams === null,
     calories: cal,
     proteinGrams: prot,
     carbsGrams: carb,
     fatsGrams: fat,
-    confidenceScore: 100,
-    ingredientsDetected:
-      Array.isArray(p.ingredients_tags) && p.ingredients_tags.length
-        ? p.ingredients_tags.slice(0, 4).map((i: string) => i.replace(/^en:/, ''))
-        : ['OpenFoodFacts Verified Match'],
+    confidenceScore: null,
+    ingredientsDetected: Array.isArray(p.ingredients_tags)
+      ? p.ingredients_tags.slice(0, 4).map((i: string) => i.replace(/^en:/, ''))
+      : [],
     barcode: clean,
-    brand: p.brands,
+    brand: brand ?? undefined,
   };
 }
 
@@ -79,7 +93,9 @@ function getDetector(): BarcodeDetectorLike | null {
       formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'],
     });
     return detector;
-  } catch {
+  } catch (err) {
+    // The API exists but refused these formats, so this device has no usable reader.
+    console.error('[Barcode] BarcodeDetector could not start', err);
     return null;
   }
 }
@@ -88,6 +104,10 @@ export function canDetectBarcodes(): boolean {
   return getDetector() !== null;
 }
 
+/**
+ * The barcode digits in an image or video frame, or `null` when none are in view.
+ * Returns `null` without a reader on this device; throws when the reader itself fails.
+ */
 export async function tryDetectNativeBarcode(
   source: Blob | HTMLVideoElement,
 ): Promise<string | null> {
@@ -98,15 +118,16 @@ export async function tryDetectNativeBarcode(
       const bitmap = await createImageBitmap(source);
       try {
         const found = await reader.detect(bitmap as unknown as HTMLImageElement);
-        return found?.[0]?.rawValue?.trim() || null;
+        return readText(found[0]?.rawValue);
       } finally {
         bitmap.close();
       }
     }
     const found = await reader.detect(source);
-    return found?.[0]?.rawValue?.trim() || null;
-  } catch {
-    return null;
+    return readText(found[0]?.rawValue);
+  } catch (err) {
+    const reason = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    throw new ScanError('unsupported', `The barcode reader failed. ${reason}`, { cause: err });
   }
 }
 
@@ -116,45 +137,66 @@ export async function lookupBarcodeNumber(barcode: string): Promise<ScannedMealB
   if (!/^\d{6,14}$/.test(clean)) {
     throw new Error('Enter the digits printed under the barcode, 6 to 14 numbers.');
   }
-  const notFound = new Error(
-    `No product found for ${clean}. Photograph the Nutrition Facts panel instead.`,
-  );
+  const notFound = (message?: string) =>
+    new ScanError(
+      'not_found',
+      message || `No product found for ${clean}. Photograph the Nutrition Facts panel instead.`,
+    );
 
+  let registryError: unknown;
   try {
     const found = await fetchOpenFoodFactsProduct(clean);
     if (found) return found;
     // The registry answered and does not know this code; asking the server would query the same registry again.
-    throw notFound;
+    throw notFound();
   } catch (err) {
-    if (err === notFound) throw err;
+    if (err instanceof ScanError) throw err;
     // The registry could not be reached from this device; the server can try from its side.
+    console.warn('[Barcode] Open Food Facts unreachable from the device', err);
+    registryError = err;
   }
 
-  const res = await apiFetch('/api/fuel/scan-barcode', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ barcode: clean }),
-  });
-  if (res.ok) {
-    const data = await res.json();
-    if (data.found && data.item) {
-      const it = data.item;
-      const prot = readNutrient(it.protein);
-      const carb = readNutrient(it.carbs);
-      const fat = readNutrient(it.fats);
-      return {
-        dishName: it.brand ? `${it.brand} ${it.name}` : it.name,
-        servingDescription: it.portion || '1 serving',
-        calories: resolveCalories(readNutrient(it.calories), prot, carb, fat),
-        proteinGrams: prot,
-        carbsGrams: carb,
-        fatsGrams: fat,
-        confidenceScore: 100,
-        ingredientsDetected: [it.category || 'Packaged Nutrition'],
-        barcode: clean,
-        brand: it.brand,
-      };
-    }
+  let res: Response;
+  try {
+    res = await apiFetch('/api/fuel/scan-barcode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ barcode: clean }),
+    });
+  } catch (err) {
+    throw new ScanError(
+      'network',
+      'Barcode lookup failed: no connection to the food registry or the server.',
+      { cause: { registry: registryError, server: err } },
+    );
   }
-  throw notFound;
+  if (!res.ok) throw await serverFailure(res, 'Barcode lookup');
+
+  const data = await res.json().catch((err: unknown) => {
+    throw new ScanError('server', 'Barcode lookup failed: the server reply was unreadable.', {
+      status: res.status,
+      cause: err,
+    });
+  });
+  if (!data.found || !data.item) throw notFound(readText(data.message) ?? undefined);
+
+  const it = data.item;
+  const prot = readNutrient(it.protein);
+  const carb = readNutrient(it.carbs);
+  const fat = readNutrient(it.fats);
+  const portion = readText(it.portion);
+  return {
+    dishName: productTitle(readText(it.brand), readText(it.name)),
+    servingDescription: portion,
+    servingGrams: readGrams(it.portionGrams) ?? gramsInLabel(portion),
+    per100g: it.per100g === true,
+    calories: resolveCalories(readNutrient(it.calories), prot, carb, fat),
+    proteinGrams: prot,
+    carbsGrams: carb,
+    fatsGrams: fat,
+    confidenceScore: null,
+    ingredientsDetected: [],
+    barcode: clean,
+    brand: readText(it.brand) ?? undefined,
+  };
 }

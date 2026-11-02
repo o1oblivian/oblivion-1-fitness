@@ -35,22 +35,16 @@ export function isValidImageBuffer(buf: Buffer | Uint8Array): boolean {
   return false;
 }
 
+/** Reads a photo with Tesseract. `null` when the bytes are not an image or no text was found; throws when OCR fails. */
 export async function recognizeTelemetryFromBuffer(
   buf: Buffer,
 ): Promise<ParsedOcrTelemetry | null> {
   if (!isValidImageBuffer(buf)) {
     return null;
   }
-  try {
-    const { default: Tesseract } = await import('tesseract.js');
-    const ocrResult = await Tesseract.recognize(buf, 'eng');
-    if (ocrResult?.data?.text) {
-      return parseTelemetryFromOcrText(ocrResult.data.text);
-    }
-  } catch (err) {
-    console.warn('[Optical OCR] Recognition pass error:', err);
-  }
-  return null;
+  const { default: Tesseract } = await import('tesseract.js');
+  const ocrResult = await Tesseract.recognize(buf, 'eng');
+  return ocrResult?.data?.text ? parseTelemetryFromOcrText(ocrResult.data.text) : null;
 }
 
 export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
@@ -207,34 +201,10 @@ export function parseTelemetryFromOcrText(rawText: string): ParsedOcrTelemetry {
     }
   }
 
-  // 8b. If no explicit keyword and on a watch display, look for standalone 4-5 digit numbers
-  if (!detectedSteps && deviceType === 'watch') {
-    const allNumberMatches = [...normalized.matchAll(/\b([0-9]{3,6})\b/g)];
-    const candidateNumbers: number[] = [];
-
-    for (const m of allNumberMatches) {
-      const num = parseInt(m[1], 10);
-      // Skip if this number is already identified as calories or heart rate
-      if (caloriesBurned !== null && num === caloriesBurned) continue;
-      if (avgHeartRateBpm !== null && num === avgHeartRateBpm) continue;
-      // Exclude years (2024-2030)
-      if (num >= 2024 && num <= 2030) continue;
-      // Step counts are typically in 500 - 99999 range
-      if (num >= 500 && num <= 99999) {
-        candidateNumbers.push(num);
-      }
-    }
-
-    if (candidateNumbers.length > 0) {
-      const fourOrFiveDigits = candidateNumbers.filter((n) => n >= 1000 && n <= 99999);
-      detectedSteps = fourOrFiveDigits.length > 0 ? fourOrFiveDigits[0] : candidateNumbers[0];
-    }
-  }
-
-  // A watch clock (4:14, P 4:11) is not a workout duration. Keep it off Time when steps were read.
+  // A watch clock (4:14, P 4:11) is not a workout duration unless the screen labels it as one.
   const clockLike =
     elapsedDisplay !== '--' && !/(elapsed|duration|workout|timer)/i.test(normalized);
-  if (deviceType === 'watch' && detectedSteps != null && clockLike) {
+  if (deviceType === 'watch' && clockLike) {
     elapsedDisplay = '--';
     elapsedMinutes = null;
   }

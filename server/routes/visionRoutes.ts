@@ -20,6 +20,24 @@ const OCR_FALLBACK_MS = 22_000;
 /** A meal photo has no backup reader, and the app waits 75 seconds for it. */
 const MEAL_AI_LIMITS = { attemptTimeoutMs: 45_000, budgetMs: 60_000, hedgeAfterMs: 8_000 };
 
+/** A non-negative rounded figure the model reported, or `null` when it left it out. */
+function reportedAmount(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
+}
+
+/** A finite number the model reported (0 allowed, e.g. a flat incline), or `null`. */
+function readingOf(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function reportedText(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
 /** Photo reading: cardio consoles and watches, and meal photos. */
 export function registerVisionRoutes(app: Express): void {
   // DEDICATED ZERO-MOCK MULTIMODAL VISION OCR FOR CONSOLES AND SMARTWATCHES
@@ -37,7 +55,10 @@ export function registerVisionRoutes(app: Express): void {
       let ocrExtracted = null as Awaited<ReturnType<typeof recognizeTelemetryFromBuffer>> | null;
       const ocrRead = recognizeTelemetryFromBuffer(imgBuffer).then(
         (reading) => (ocrExtracted = reading),
-        () => null,
+        (ocrErr: unknown) => {
+          console.error('Server OCR pass failed:', errorMessage(ocrErr, String(ocrErr)));
+          return null;
+        },
       );
 
       const genAI = getGenAI();
@@ -93,34 +114,18 @@ export function registerVisionRoutes(app: Express): void {
             normalizedElapsed = ocrExtracted.elapsedDisplay;
           }
 
-          const distanceVal =
-            parsed.distanceKm !== null && parsed.distanceKm !== undefined
-              ? Number(parsed.distanceKm)
-              : (ocrExtracted?.distanceKm ?? null);
+          const distanceVal = readingOf(parsed.distanceKm) ?? ocrExtracted?.distanceKm ?? null;
           const caloriesVal =
-            parsed.caloriesBurned !== null && parsed.caloriesBurned !== undefined
-              ? Number(parsed.caloriesBurned)
-              : (ocrExtracted?.caloriesBurned ?? null);
-          const speedVal =
-            parsed.speedKmh !== null && parsed.speedKmh !== undefined
-              ? Number(parsed.speedKmh)
-              : (ocrExtracted?.speedKmh ?? null);
-          const inclineVal =
-            parsed.inclinePct !== null && parsed.inclinePct !== undefined
-              ? Number(parsed.inclinePct)
-              : (ocrExtracted?.inclinePct ?? null);
+            readingOf(parsed.caloriesBurned) ?? ocrExtracted?.caloriesBurned ?? null;
+          const speedVal = readingOf(parsed.speedKmh) ?? ocrExtracted?.speedKmh ?? null;
+          const inclineVal = readingOf(parsed.inclinePct) ?? ocrExtracted?.inclinePct ?? null;
           const heartRateVal =
-            parsed.avgHeartRateBpm !== null && parsed.avgHeartRateBpm !== undefined
-              ? Number(parsed.avgHeartRateBpm)
-              : (ocrExtracted?.avgHeartRateBpm ?? null);
-          // Steps come from Gemini alone. When Gemini answered and found none, the backup reader's
-          // step guess is not used: it once read the port number in an address bar as 3,000 steps.
-          const stepsRead =
-            parsed.steps !== null && parsed.steps !== undefined ? Number(parsed.steps) : null;
-          const stepsVal = stepsRead !== null && Number.isFinite(stepsRead) ? stepsRead : null;
-          const wattsVal =
-            parsed.watts !== null && parsed.watts !== undefined ? Number(parsed.watts) : null;
-          const paceVal = parsed.pace || null;
+            readingOf(parsed.avgHeartRateBpm) ?? ocrExtracted?.avgHeartRateBpm ?? null;
+          // Steps come from Gemini alone when it answered: a step count needs the word "steps"
+          // beside it, and the backup reader once took a port number in an address bar for 3,000 steps.
+          const stepsVal = readingOf(parsed.steps);
+          const wattsVal = readingOf(parsed.watts);
+          const paceVal = reportedText(parsed.pace);
           // The watch's own clock as "HH:MM" and how sure the reader was. Both come from Gemini.
           const timestampVal =
             typeof parsed.timestamp === 'string' &&
@@ -128,9 +133,11 @@ export function registerVisionRoutes(app: Express): void {
               ? parsed.timestamp
               : null;
           const confidenceVal =
-            parsed.confidence === 'high' || parsed.confidence === 'medium'
+            parsed.confidence === 'high' ||
+            parsed.confidence === 'medium' ||
+            parsed.confidence === 'low'
               ? parsed.confidence
-              : 'low';
+              : null;
 
           const hasAnyMetric =
             distanceVal !== null ||
@@ -145,7 +152,11 @@ export function registerVisionRoutes(app: Express): void {
               success: true,
               telemetry: {
                 deviceType:
-                  parsed.deviceType === 'WATCH' ? 'watch' : ocrExtracted?.deviceType || 'console',
+                  parsed.deviceType === 'WATCH'
+                    ? 'watch'
+                    : parsed.deviceType === 'CONSOLE'
+                      ? 'console'
+                      : (ocrExtracted?.deviceType ?? null),
                 elapsedDisplay: normalizedElapsed,
                 elapsedMinutes: elapsedMinsNumber,
                 distanceKm: distanceVal,
@@ -165,7 +176,7 @@ export function registerVisionRoutes(app: Express): void {
           }
         } catch (genErr) {
           aiFailed = true;
-          console.warn(
+          console.error(
             'Gemini vision API unavailable or interrupted, falling back to pure Tesseract OCR pass:',
             errorMessage(genErr, String(genErr)),
           );
@@ -176,8 +187,7 @@ export function registerVisionRoutes(app: Express): void {
         ocrRead,
         new Promise<null>((resolve) => setTimeout(() => resolve(null), OCR_FALLBACK_MS)),
       ]);
-      // The backup reader's step count is used only when Gemini could not answer at all. When Gemini
-      // answered and found no steps, the backup's number is a guess from stray digits, so it is dropped.
+      // The backup reader's step count is used only when Gemini could not answer at all.
       const ocrSteps = aiFailed ? (ocrExtracted?.steps ?? null) : null;
       if (
         ocrExtracted &&
@@ -219,7 +229,7 @@ export function registerVisionRoutes(app: Express): void {
       return res.json({
         success: true,
         telemetry: {
-          deviceType: 'watch',
+          deviceType: null,
           elapsedDisplay: null,
           elapsedMinutes: null,
           distanceKm: null,
@@ -277,8 +287,9 @@ Schema:
   "proteinGrams": number,
   "carbsGrams": number,
   "fatGrams": number,
-  "confidenceScore": 95
-}`;
+  "confidenceScore": number
+}
+Use null for any value the panel does not show.`;
       } else if (scanMode === 'barcode') {
         prompt = `You are an optical barcode and packaged food identifier. Analyze this photo containing a product barcode or package.
 Read any visible barcode numbers (UPC/EAN digits) and product branding.
@@ -328,43 +339,39 @@ Return valid JSON only matching:
 
           const text = response.text || '';
           const parsed = parseGeminiObject(text);
-          const proteinG = Math.max(0, Math.round(Number(parsed.proteinGrams) || 0));
-          const carbsG = Math.max(0, Math.round(Number(parsed.carbsGrams) || 0));
-          const fatG = Math.max(0, Math.round(Number(parsed.fatGrams) || 0));
+          const proteinG = reportedAmount(parsed.proteinGrams);
+          const carbsG = reportedAmount(parsed.carbsGrams);
+          const fatG = reportedAmount(parsed.fatGrams);
 
-          // Check calories or calculate using standard Atwater physiological macro factors (4 kcal/g protein, 4 kcal/g carbs, 9 kcal/g fat)
-          let calculatedCalories = Math.max(0, Math.round(Number(parsed.calories) || 0));
-          if (calculatedCalories === 0 && (proteinG > 0 || carbsG > 0 || fatG > 0)) {
-            calculatedCalories = Math.round(proteinG * 4 + carbsG * 4 + fatG * 9);
-          }
+          // Reported calories, else Atwater factors (4 kcal/g protein and carbs, 9 kcal/g fat) when all three macros were read.
+          const reportedKcal = reportedAmount(parsed.calories);
+          const calories =
+            reportedKcal !== null && reportedKcal > 0
+              ? reportedKcal
+              : proteinG !== null && carbsG !== null && fatG !== null
+                ? Math.round(proteinG * 4 + carbsG * 4 + fatG * 9)
+                : null;
 
-          if (calculatedCalories <= 0) {
+          if (calories === null || calories <= 0) {
             return res.status(422).json({
               error:
                 'Could not resolve meal macronutrients. Retake photo with clear lighting and full plate visibility.',
             });
           }
 
+          const confidence = reportedAmount(parsed.confidenceScore);
           return res.json({
             success: true,
             nutrients: {
-              mealName:
-                parsed.mealName ||
-                (scanMode === 'package' ? 'Packaged Nutrition Item' : 'Analyzed Athletic Plate'),
+              mealName: reportedText(parsed.mealName),
               detectedItems: Array.isArray(parsed.detectedItems) ? parsed.detectedItems : [],
-              estimatedGrams: Number(parsed.estimatedGrams) || 0,
-              servingDescription:
-                parsed.servingDescription ||
-                (scanMode === 'package' ? '1 package serving' : '1 standard plate'),
-              calories: calculatedCalories,
+              estimatedGrams: reportedAmount(parsed.estimatedGrams),
+              servingDescription: reportedText(parsed.servingDescription),
+              calories,
               proteinGrams: proteinG,
               carbsGrams: carbsG,
               fatGrams: fatG,
-              // The model's own figure, never a made-up default.
-              confidenceScore: Math.min(
-                99,
-                Math.max(0, Math.round(Number(parsed.confidenceScore) || 0)),
-              ),
+              confidenceScore: confidence === null ? null : Math.min(100, confidence),
             },
           });
         } catch (aiErr) {

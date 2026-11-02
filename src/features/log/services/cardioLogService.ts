@@ -65,13 +65,14 @@ registerSyncHandler('cardio_session', async (payload, userId) => {
   const { error } = await supabase
     .from('completed_sessions')
     .upsert([{ ...payload, user_id: userId, client_id: userId }], { onConflict: 'id' });
-  if (error) console.warn('[CardioService] Backup notice:', error.message);
+  if (error) console.error('[CardioService] completed_sessions upsert failed:', error.message);
   return !error;
 });
 
 /**
  * Records a cardio log on this phone first, then queues its backup to completed_sessions;
  * the day record itself syncs through athlete_day_logs.
+ * Resolves `'signed-out'` when there is no account to back the session up to.
  */
 export async function persistCardioLog(entry: {
   activityType: string;
@@ -81,7 +82,7 @@ export async function persistCardioLog(entry: {
   avgHeartRateBpm?: number;
   steps?: number;
   dateKey?: string;
-}): Promise<void> {
+}): Promise<'queued' | 'signed-out'> {
   const userId = (await getCachedUserId()) || '';
 
   const nowIso = new Date().toISOString();
@@ -129,11 +130,12 @@ export async function persistCardioLog(entry: {
       });
     }
   } catch (storeErr) {
-    console.warn('[CardioService] Store update notice:', storeErr);
+    console.error('[CardioService] Could not record cardio on this phone', storeErr);
+    throw storeErr;
   }
 
   // 2. Queue the completed_sessions backup; it is sent when the account is reachable.
-  if (!userId) return;
+  if (!userId) return 'signed-out';
   const sessionPayload: Record<string, unknown> = {
     id: cardioRecord.id,
     title: `Cardio: ${entry.activityType}`,
@@ -149,4 +151,5 @@ export async function persistCardioLog(entry: {
     sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
   enqueueSync('cardio_session', `cardio:${cardioRecord.id}`, dateKey, sessionPayload);
   void flushSync();
+  return 'queued';
 }

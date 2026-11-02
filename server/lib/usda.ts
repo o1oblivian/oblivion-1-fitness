@@ -42,45 +42,45 @@ function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-function valueOf(nutrients: FdcNutrient[], numbers: string[]): number {
+/** The first listed value among these nutrient numbers, or `null` when the record omits them all. */
+function valueOf(nutrients: FdcNutrient[], numbers: string[]): number | null {
   for (const number of numbers) {
     const row = nutrients.find((n) => String(n.nutrientNumber) === number);
-    if (row && Number(row.value) >= 0) return Number(row.value);
+    if (row && row.value !== undefined && Number(row.value) >= 0) return Number(row.value);
   }
-  return 0;
+  return null;
 }
 
 /** Energy is listed twice by FDC, once in kJ and once in kcal. Only the kcal row counts. */
-function kcalOf(nutrients: FdcNutrient[]): number {
+function kcalOf(nutrients: FdcNutrient[]): number | null {
   const byNumber = valueOf(nutrients, ENERGY_NUMBERS);
-  if (byNumber > 0) return byNumber;
+  if (byNumber !== null && byNumber > 0) return byNumber;
   const row = nutrients.find(
     (n) => /^energy/i.test(String(n.nutrientName)) && /^kcal$/i.test(String(n.unitName)),
   );
-  return Number(row?.value) || 0;
+  const named = row?.value === undefined ? null : Number(row.value);
+  if (named !== null && Number.isFinite(named) && named >= 0) return named;
+  return byNumber;
 }
 
+/** A food row, or `null` when the record does not report energy and all three macros. */
 export function normalizeFdcFood(food: FdcFood): UsdaFood | null {
   const name = String(food.description || '').trim();
   const nutrients = Array.isArray(food.foodNutrients) ? food.foodNutrients : [];
   if (!name || !food.fdcId) return null;
-  const calories = Math.round(kcalOf(nutrients));
-  const protein = round1(valueOf(nutrients, ['203']));
-  const carbs = round1(valueOf(nutrients, ['205']));
-  const fats = round1(valueOf(nutrients, ['204']));
-  const reportsZeroEnergy = nutrients.some(
-    (n) => ENERGY_NUMBERS.includes(String(n.nutrientNumber)) && Number(n.value) === 0,
-  );
-  // A record with no numbers at all is unusable, but a food that reports 0 kcal (water) is real.
-  if (calories <= 0 && protein <= 0 && carbs <= 0 && fats <= 0 && !reportsZeroEnergy) return null;
+  const kcal = kcalOf(nutrients);
+  const protein = valueOf(nutrients, ['203']);
+  const carbs = valueOf(nutrients, ['205']);
+  const fats = valueOf(nutrients, ['204']);
+  if (kcal === null || protein === null || carbs === null || fats === null) return null;
   return {
     id: `usda-${food.fdcId}`,
     name,
     brand: String(food.brandOwner || food.brandName || 'USDA').trim(),
-    calories,
-    protein,
-    carbs,
-    fats,
+    calories: Math.round(kcal),
+    protein: round1(protein),
+    carbs: round1(carbs),
+    fats: round1(fats),
     dataType: String(food.dataType || ''),
   };
 }
