@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { claimDeviceAtBoot, claimDeviceForUser, releaseDevice } from './accountScope';
+import {
+  claimDeviceAtBoot,
+  claimDeviceForUser,
+  releaseDevice,
+  storedSessionIssuedAtMs,
+} from './accountScope';
 
 class MemoryStorage {
   private data = new Map<string, string>();
@@ -79,6 +84,22 @@ describe('accountScope', () => {
     claimDeviceForUser({ id: 'user-a' });
     expect(localStorage.getItem('o1fc_telemetry_5day_history_v1')).toBe('[workouts]');
     expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('reads when the stored token was issued only when a user is stored with it', () => {
+    expect(storedSessionIssuedAtMs()).toBeNull();
+    session('user-a');
+    expect(storedSessionIssuedAtMs()).toBeNull();
+    localStorage.setItem(
+      'sb-proj-auth-token',
+      JSON.stringify({ user: { id: 'user-a' }, expires_at: 1_800_003_600, expires_in: 3600 }),
+    );
+    expect(storedSessionIssuedAtMs()).toBe(1_800_000_000_000);
+    localStorage.setItem(
+      'sb-proj-auth-token',
+      JSON.stringify({ expires_at: 1_800_003_600, expires_in: 3600 }),
+    );
+    expect(storedSessionIssuedAtMs()).toBeNull();
   });
 
   it('sign-out clears personal data and the owner', async () => {

@@ -1,13 +1,15 @@
 import { create } from 'zustand';
 import type { ExploreReelItem } from '../features/reels/reelTypes';
-import { CLUB_REELS } from '../features/reels/clubReels';
 import { fetchReelFeed } from '../features/reels/services/reelFeed';
 
 type FeedStatus = 'idle' | 'loading' | 'ready' | 'error';
 
 interface ReelsState {
+  /** Rows from the `reels` table only. Empty until the feed loads. */
   reels: ExploreReelItem[];
   status: FeedStatus;
+  /** Why the last load failed, shown to the member. `null` unless `status` is `'error'`. */
+  error: string | null;
   /** Loads the shared feed from the `reels` table. Pass true to refetch after a publish elsewhere. */
   loadFeed: (force?: boolean) => Promise<void>;
   /** Shows a reel that was just written to the `reels` table without waiting for a refetch. */
@@ -17,25 +19,25 @@ interface ReelsState {
 let inflight: Promise<void> | null = null;
 
 export const useReelsStore = create<ReelsState>((set, get) => ({
-  reels: CLUB_REELS,
+  reels: [],
   status: 'idle',
+  error: null,
 
   loadFeed: (force = false) => {
     if (inflight) return inflight;
     if (!force && get().status === 'ready') return Promise.resolve();
-    set({ status: 'loading' });
+    set({ status: 'loading', error: null });
     inflight = fetchReelFeed()
-      .then((rows) => {
-        if (rows === null) {
-          set({ status: 'error' });
-          return;
-        }
-        const seen = new Set(rows.map((reel) => reel.id));
-        set({
-          reels: [...rows, ...CLUB_REELS.filter((reel) => !seen.has(reel.id))],
-          status: 'ready',
-        });
-      })
+      .then(
+        (rows) => set({ reels: rows, status: 'ready' }),
+        (err: unknown) => {
+          console.error('[Reels] Feed failed to load', err);
+          set({
+            status: 'error',
+            error: err instanceof Error ? err.message : 'Reels could not load.',
+          });
+        },
+      )
       .finally(() => {
         inflight = null;
       });

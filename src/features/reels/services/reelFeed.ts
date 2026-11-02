@@ -66,14 +66,18 @@ async function mapRows(rows: Row[], known?: CoachCard[]): Promise<ExploreReelIte
     });
 }
 
-/** Newest reels from every coach. Null when the feed could not be loaded. */
-export async function fetchReelFeed(): Promise<ExploreReelItem[] | null> {
+/** Newest reels from every coach. Throws when the feed could not be loaded. */
+export async function fetchReelFeed(): Promise<ExploreReelItem[]> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    throw new Error('You are offline. Reels load when you reconnect.');
+  }
   const { data, error } = await supabase
     .from('reels')
     .select(REEL_COLUMNS)
     .order('created_at', { ascending: false })
     .limit(FEED_LIMIT);
-  if (error || !Array.isArray(data)) return null;
+  if (error) throw new Error(`Reels could not load. ${error.message}`);
+  if (!Array.isArray(data)) throw new Error('Reels could not load. The server sent no rows.');
   return mapRows(data as Row[]);
 }
 

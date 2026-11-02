@@ -1,7 +1,7 @@
 /**
  * Compresses every reel video in place with the bundled ffmpeg (no system install needed).
  *
- *   node scripts/compress-reels.mjs [folder]      default folder: public/reels/club
+ *   node scripts/compress-reels.mjs <folder>
  *
  * The encode is: H.264, CRF 28, slow preset, AAC 128k, fast-start, never wider than 1080p.
  * A file is replaced only when the new one is smaller and has the same length; otherwise the
@@ -14,7 +14,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const MARKER = 'o1fc-compressed';
-const folder = path.resolve(process.argv[2] ?? 'public/reels/club');
+if (!process.argv[2]) {
+  console.error('Usage: node scripts/compress-reels.mjs <folder>');
+  process.exit(1);
+}
+const folder = path.resolve(process.argv[2]);
 
 if (!ffmpegPath) {
   console.error('ffmpeg-static has no binary for this platform.');

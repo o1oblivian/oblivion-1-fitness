@@ -1,7 +1,6 @@
 import React from 'react';
 import { Heart, MessageCircle, Bookmark, Share2, Plus, Check } from 'lucide-react';
 import { ExploreReelItem, FilmstripClip, ExploreCoach } from '../reelTypes';
-import { isClubCoach } from '../clubReels';
 
 interface ReelActionRailProps {
   activeReel: ExploreReelItem;
@@ -65,7 +64,7 @@ export const ReelActionRail: React.FC<ReelActionRailProps> = ({
         <span className={LABEL}>{likeCount != null ? compact(likeCount) : 'Like'}</span>
       </button>
 
-      {activeReel.coach && !isClubCoach(activeReel.coach.id) ? (
+      {activeReel.coach ? (
         <button
           type="button"
           onClick={() => onMessageCoach(activeReel.coach)}

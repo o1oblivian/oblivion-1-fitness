@@ -59,8 +59,8 @@ const PROGRAM_STORIES: StoryProgram[] = [
   })),
 ];
 
-/** The club's own circles stay put even before any reels are posted to them, and keep the club artwork. */
-const ALWAYS_SHOWN = new Set<ReelCategory>(['ALL', 'TUTORIAL']);
+/** These circles keep the club artwork instead of taking a cover from their newest reel. */
+const CLUB_ARTWORK = new Set<ReelCategory>(['ALL', 'TUTORIAL']);
 
 const StoryCover: React.FC<{ src: string; fallback: string; dim: boolean }> = ({
   src,
@@ -131,7 +131,7 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
       .sort((a, b) => rank(a.story) - rank(b.story) || a.order - b.order)
       .map(({ story }) => {
         const matching = filterReelsCatalog(reels, 'ALL', story.category, '');
-        const cover = ALWAYS_SHOWN.has(story.category)
+        const cover = CLUB_ARTWORK.has(story.category)
           ? undefined
           : matching.find((r) => r.thumbnail)?.thumbnail;
         return {
@@ -140,8 +140,7 @@ export const ProgramReelsScroller: React.FC<ProgramReelsScrollerProps> = ({
           total: matching.length,
           unwatched: matching.filter((r) => !viewed[r.id]).length,
         };
-      })
-      .filter((story) => ALWAYS_SHOWN.has(story.category) || story.total > 0);
+      });
   }, [reels, viewed, routineRevision]);
 
   return (

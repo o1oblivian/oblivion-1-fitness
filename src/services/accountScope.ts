@@ -56,15 +56,38 @@ interface SessionUser {
   email?: string | null;
 }
 
-export function storedSessionUser(): SessionUser | null {
+/** The Supabase session saved on this device, or `null` when there is none or it cannot be read. */
+function storedSession(): {
+  user?: { id?: unknown; email?: string | null };
+  expires_at?: unknown;
+  expires_in?: unknown;
+} | null {
   try {
     const key = Object.keys(localStorage).find((k) => /^sb-.+-auth-token$/.test(k));
     if (!key) return null;
-    const user = JSON.parse(localStorage.getItem(key) || 'null')?.user;
-    return typeof user?.id === 'string' && user.id ? { id: user.id, email: user.email } : null;
-  } catch {
+    return JSON.parse(localStorage.getItem(key) || 'null');
+  } catch (err) {
+    console.error('[AccountScope] Stored session could not be read', err);
     return null;
   }
+}
+
+export function storedSessionUser(): SessionUser | null {
+  const user = storedSession()?.user;
+  return typeof user?.id === 'string' && user.id ? { id: user.id, email: user.email } : null;
+}
+
+/**
+ * When Supabase issued the stored access token, in ms since epoch: the last time the server
+ * confirmed this login. `null` without a stored user or readable token times.
+ */
+export function storedSessionIssuedAtMs(): number | null {
+  const session = storedSession();
+  if (typeof session?.user?.id !== 'string' || !session.user.id) return null;
+  const { expires_at: expiresAt, expires_in: expiresIn } = session;
+  if (typeof expiresAt !== 'number' || !Number.isFinite(expiresAt)) return null;
+  if (typeof expiresIn !== 'number' || !Number.isFinite(expiresIn) || expiresIn < 0) return null;
+  return (expiresAt - expiresIn) * 1000;
 }
 
 /** Wipes the previous account and hands the device to `user`. App reads the identity keys on first render. */

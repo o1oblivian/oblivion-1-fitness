@@ -3,7 +3,7 @@
  *
  *   node scripts/convert-photos-to-webp.mjs [folder ...]
  *
- * Default folders: public/photos, public/reels/club, src/assets/images
+ * Default folders: public/photos, src/assets/images
  * Only .jpg / .jpeg files are converted. PNG files stay as they are because the app icon, the
  * web manifest and the native splash require PNG.
  * An original is deleted only after its WebP exists, decodes, and keeps the same dimensions.
@@ -16,7 +16,7 @@ const QUALITY = 80;
 const folders = (
   process.argv.length > 2
     ? process.argv.slice(2)
-    : ['public/photos', 'public/reels/club', 'src/assets/images']
+    : ['public/photos', 'src/assets/images']
 ).map((f) => path.resolve(f));
 
 function* walk(dir) {

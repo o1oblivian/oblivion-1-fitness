@@ -15,6 +15,8 @@ interface ReelPostItem {
 
 interface ReelMosaicSectionProps {
   reels: ExploreReelItem[];
+  /** Shown when `reels` is empty. */
+  emptyMessage: string;
   onSelectReel: (reel: ExploreReelItem, clip?: FilmstripClip) => void;
 }
 
@@ -56,7 +58,11 @@ function ReelTile({
   );
 }
 
-export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onSelectReel }) => {
+export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({
+  reels,
+  emptyMessage,
+  onSelectReel,
+}) => {
   const postItems = React.useMemo(() => {
     const items: ReelPostItem[] = [];
     reels.forEach((reel) => {
@@ -100,7 +106,7 @@ export const ReelMosaicSection: React.FC<ReelMosaicSectionProps> = ({ reels, onS
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/[0.07] bg-o1-card text-o1-faint shadow-sm">
           <Play className="h-5 w-5 opacity-40" />
         </div>
-        <h4 className="text-o1-body text-o1-muted">No reels here yet</h4>
+        <h4 className="text-o1-body text-o1-muted">{emptyMessage}</h4>
       </div>
     );
   }

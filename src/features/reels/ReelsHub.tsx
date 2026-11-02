@@ -37,6 +37,7 @@ export const ReelsHub: React.FC<ReelsHubProps> = ({
   const hiddenReels = useReelSafetyStore((s) => s.hiddenReels);
   const blockedCoaches = useReelSafetyStore((s) => s.blockedCoaches);
   const feedStatus = useReelsStore((s) => s.status);
+  const feedError = useReelsStore((s) => s.error);
   const loadFeed = useReelsStore((s) => s.loadFeed);
   const feedSettled = feedStatus === 'ready' || feedStatus === 'error';
 
@@ -229,6 +230,9 @@ export const ReelsHub: React.FC<ReelsHubProps> = ({
           setSelectedCategory={setSelectedCategory}
           categoryCounts={categoryCounts}
           filteredReels={filteredReels}
+          feedLoading={feedStatus === 'idle' || feedStatus === 'loading'}
+          feedError={feedError}
+          onRetryFeed={() => void loadFeed(true)}
           onClose={onClose}
           onSelectReel={(reel, clip) => {
             setReturnCoach(null);

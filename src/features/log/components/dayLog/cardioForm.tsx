@@ -70,8 +70,8 @@ export function useCardioLogForm({ isOpen, dayMeta, category, mode, onSaved }: D
         dateKey: dayMeta.dateKey,
       }).then(
         (outcome) => {
-          if (outcome === 'signed-out') {
-            onSaved?.('Cardio saved on this phone only. Sign in to back it up.');
+          if (outcome === 'awaiting-sign-in') {
+            onSaved?.('Cardio saved on this phone. Its backup is queued until you sign in.');
           }
         },
         (err: unknown) => {

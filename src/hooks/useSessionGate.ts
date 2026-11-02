@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { forgetIdentityKeys, resolveGateStatus, type GateStatus } from '../services/sessionGate';
+import {
+  forgetIdentityKeys,
+  isLiveSession,
+  resolveGateStatus,
+  type GateStatus,
+} from '../services/sessionGate';
 import { supabase } from '../services/supabaseClient';
 import { useUserStore } from '../stores/useUserStore';
 
@@ -15,7 +20,7 @@ export function useSessionGate(): GateStatus {
 
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (!alive) return;
-      if (session?.user) {
+      if (isLiveSession(session)) {
         setStatus('in');
       } else if (event === 'SIGNED_OUT') {
         forgetIdentityKeys();

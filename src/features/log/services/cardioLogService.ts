@@ -72,7 +72,8 @@ registerSyncHandler('cardio_session', async (payload, userId) => {
 /**
  * Records a cardio log on this phone first, then queues its backup to completed_sessions;
  * the day record itself syncs through athlete_day_logs.
- * Resolves `'signed-out'` when there is no account to back the session up to.
+ * The backup is always queued. Resolves `'awaiting-sign-in'` when no account is signed in yet:
+ * the queue holds it until one is, and sends it on the next sync.
  */
 export async function persistCardioLog(entry: {
   activityType: string;
@@ -82,7 +83,7 @@ export async function persistCardioLog(entry: {
   avgHeartRateBpm?: number;
   steps?: number;
   dateKey?: string;
-}): Promise<'queued' | 'signed-out'> {
+}): Promise<'queued' | 'awaiting-sign-in'> {
   const userId = (await getCachedUserId()) || '';
 
   const nowIso = new Date().toISOString();
@@ -135,7 +136,6 @@ export async function persistCardioLog(entry: {
   }
 
   // 2. Queue the completed_sessions backup; it is sent when the account is reachable.
-  if (!userId) return 'signed-out';
   const sessionPayload: Record<string, unknown> = {
     id: cardioRecord.id,
     title: `Cardio: ${entry.activityType}`,
@@ -150,6 +150,7 @@ export async function persistCardioLog(entry: {
   if (entry.durationMinutes > 0)
     sessionPayload.duration_seconds = Math.round(entry.durationMinutes * 60);
   enqueueSync('cardio_session', `cardio:${cardioRecord.id}`, dateKey, sessionPayload);
+  if (!userId) return 'awaiting-sign-in';
   void flushSync();
   return 'queued';
 }

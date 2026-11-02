@@ -9,7 +9,6 @@ import {
   type ReportOutcome,
 } from '../services/reelSafety';
 import type { ExploreReelItem } from '../reelTypes';
-import { isClubCoach } from '../clubReels';
 
 type Step = 'menu' | 'report' | 'block' | 'done';
 
@@ -91,7 +90,7 @@ export const ReelSafetyMenu: React.FC<ReelSafetyMenuProps> = ({ reel, open, onCl
               <Flag className="w-4 h-4 text-o1-muted" strokeWidth={1.75} />
               Report reel
             </button>
-            {reel.coach?.id && !isClubCoach(reel.coach.id) ? (
+            {reel.coach?.id ? (
               <button
                 type="button"
                 className={ROW}

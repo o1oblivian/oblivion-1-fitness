@@ -1,5 +1,5 @@
 import type { AuthError, Session } from '@supabase/supabase-js';
-import { storedSessionUser } from './accountScope';
+import { storedSessionIssuedAtMs } from './accountScope';
 import { supabase } from './supabaseClient';
 
 /** `checking` until the first answer; after that the app is either signed in or must show Sign In. */
@@ -7,6 +7,9 @@ export type GateStatus = 'checking' | 'in' | 'out';
 
 /** A stuck auth call must end in an answer, never leave the splash screen up forever. */
 const CHECK_TIMEOUT_MS = 10_000;
+
+/** How long a login last confirmed online keeps working without signal. */
+export const OFFLINE_SESSION_MS = 30 * 24 * 60 * 60 * 1000;
 
 interface SessionRead {
   data: { session: Session | null };
@@ -19,8 +22,8 @@ const IDENTITY_KEYS = ['o1fc_user_id', 'o1fc_user_email', 'o1fc_auth_token'];
 export function forgetIdentityKeys(): void {
   try {
     for (const key of IDENTITY_KEYS) localStorage.removeItem(key);
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.error('[SessionGate] Could not clear identity keys', err);
   }
 }
 
@@ -29,27 +32,49 @@ function isNetworkFailure(error: AuthError | null): boolean {
   return error?.name === 'AuthRetryableFetchError' || error?.status === 0;
 }
 
+/** A Supabase session with a user whose access token has not expired. A session without an expiry is not trusted. */
+export function isLiveSession(
+  session: Session | null | undefined,
+  now = Date.now(),
+): session is Session {
+  if (!session?.user) return false;
+  const expiresAt = session.expires_at;
+  return typeof expiresAt === 'number' && Number.isFinite(expiresAt) && expiresAt * 1000 > now;
+}
+
 /**
  * Asks Supabase whether a person is signed in. The local `o1fc_user_id` flag is never trusted:
  * a restored backup or an expired login leaves it behind with no session.
  *
- * A stored login that cannot be refreshed only because there is no signal still counts as
- * signed in, so opening the app in a basement gym does not throw an athlete out.
+ * When the auth server cannot be reached, the stored login keeps working for 30 days from when the
+ * server last issued its token, so a gym with no signal does not sign anyone out. After that, or
+ * when the server rejects the login, the athlete signs in again.
  */
 export async function resolveGateStatus(
   readSession: () => Promise<SessionRead> = () => supabase.auth.getSession(),
-  hasStoredLogin: () => boolean = () => storedSessionUser() !== null,
+  lastIssuedAt: () => number | null = storedSessionIssuedAtMs,
+  now: () => number = Date.now,
 ): Promise<'in' | 'out'> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<null>((resolve) => {
     timer = setTimeout(() => resolve(null), CHECK_TIMEOUT_MS);
   });
-  const answer = await Promise.race([readSession().catch(() => null), timeout]);
+  const answer = await Promise.race([
+    readSession().catch((err: unknown) => {
+      console.error('[SessionGate] Session check failed', err);
+      return null;
+    }),
+    timeout,
+  ]);
   clearTimeout(timer);
 
-  if (answer?.data.session?.user) return 'in';
+  if (isLiveSession(answer?.data.session, now())) return 'in';
   const unreachable = answer === null || isNetworkFailure(answer.error);
-  if (unreachable && hasStoredLogin()) return 'in';
+  const issuedAt = lastIssuedAt();
+  if (unreachable && issuedAt !== null) {
+    const offlineFor = now() - issuedAt;
+    if (offlineFor >= 0 && offlineFor <= OFFLINE_SESSION_MS) return 'in';
+  }
   forgetIdentityKeys();
   return 'out';
 }
