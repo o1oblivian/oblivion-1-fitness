@@ -328,25 +328,27 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
   ];
 
   /** Camera opens the camera only. Gallery opens the phone's photo library. */
-  const handleCapture = (source: PhotoSource) => {
+  const handleCapture = async (source: PhotoSource) => {
     if (!Capacitor.isNativePlatform()) {
       (source === 'camera' ? cameraInputRef : fileInputRef).current?.click();
       return;
     }
     setIsCapturing(true);
     setStatusMessage(null);
-    void capturePhotoDataUrl(source)
-      .then((dataUrl) => {
-        setIsCapturing(false);
-        void handleProcessImage(dataUrl);
-      })
-      .catch((err: unknown) => {
-        setIsCapturing(false);
-        // Backing out of the camera is a choice, not a failure.
-        if (isPhotoCancelled(err)) return;
+    let dataUrl: string | null = null;
+    try {
+      dataUrl = await capturePhotoDataUrl(source);
+    } catch (err) {
+      // Backing out of the camera is a choice, not a failure.
+      if (!isPhotoCancelled(err)) {
         const message = err instanceof Error ? err.message : 'Could not open the camera.';
         setStatusMessage({ ok: false, text: message });
-      });
+      }
+    } finally {
+      // Granted, denied, cancelled or failed natively: the buttons are free again.
+      setIsCapturing(false);
+    }
+    if (dataUrl) void handleProcessImage(dataUrl);
   };
 
   /** The tiles appear once there is a photo to read, or the person chooses to type. */

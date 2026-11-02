@@ -8,7 +8,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Google Play rejects a repeated versionCode. Codemagic's build number only goes up.
-        versionCode System.getenv('BUILD_NUMBER') ? 1000 + System.getenv('BUILD_NUMBER').toInteger() : 83
+        versionCode System.getenv('BUILD_NUMBER') ? 1000 + System.getenv('BUILD_NUMBER').toInteger() : 1095
         versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
