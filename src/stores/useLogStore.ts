@@ -1,15 +1,5 @@
 import { createStore } from '../utils/createStore';
 
-interface CardioTelemetry {
-  distanceKm: number;
-  durationMinutes: number;
-  zone2Minutes: number;
-  avgHeartRateBpm: number;
-  elevationMeters: number;
-  burnedKcal: number;
-  activityType?: string;
-}
-
 interface NutritionTelemetry {
   caloriesConsumed: number;
   caloriesTarget: number;
@@ -43,7 +33,6 @@ interface MeditationTelemetry {
 }
 
 interface SubModulesTelemetry {
-  cardio: CardioTelemetry;
   nutrition: NutritionTelemetry;
   sleep: SleepTelemetry;
   meditation: MeditationTelemetry;
@@ -59,18 +48,12 @@ interface LogStoreActions {
     key: K,
     data: Partial<SubModulesTelemetry[K]>,
   ) => void;
+  /** A new calendar day: today's figures start from zero. */
+  resetDay: () => void;
 }
 
 const initialLogState: LogStoreState = {
   subModules: {
-    cardio: {
-      distanceKm: 0,
-      durationMinutes: 0,
-      zone2Minutes: 0,
-      avgHeartRateBpm: 0,
-      elevationMeters: 0,
-      burnedKcal: 0,
-    },
     nutrition: {
       caloriesConsumed: 0,
       caloriesTarget: 0,
@@ -111,6 +94,7 @@ const logStore = createStore<LogStoreState, LogStoreActions>(initialLogState, (s
         [key]: { ...prev.subModules[key], ...data },
       },
     })),
+  resetDay: () => set({ subModules: initialLogState.subModules }),
 }));
 
 export const useLogStore = logStore.useStore;

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Weight, HeartPulse, Apple, Moon, Brain } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
@@ -57,12 +57,33 @@ export const LogHistoryView: React.FC<LogHistoryViewProps> = ({ showToast }) => 
   const stepCount = useTelemetryStore((s) => s.stepCount);
   const historyByDate = useTelemetryHistoryStore((s) => s.historyByDate);
 
-  const today = useMemo(() => new Date(), []);
+  const [today, setToday] = useState(() => new Date());
   const todayKey = dateKeyOf(today);
   const [weekOffset, setWeekOffset] = useState(0);
   const [monthView, setMonthView] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
   const [selectedDateStr, setSelectedDateStr] = useState(today.toDateString());
+
+  // At midnight the new day becomes today, and a view that was on today moves with it.
+  const todayRef = useRef(today);
+  useEffect(() => {
+    const onDayChanged = () => {
+      const now = new Date();
+      const prev = todayRef.current.toDateString();
+      if (prev === now.toDateString()) return;
+      todayRef.current = now;
+      setToday(now);
+      setSelectedDateStr((sel) => (sel === prev ? now.toDateString() : sel));
+      setWeekOffset(0);
+      setMonthOffset(0);
+    };
+    window.addEventListener('o1fc_day_changed', onDayChanged);
+    document.addEventListener('visibilitychange', onDayChanged);
+    return () => {
+      window.removeEventListener('o1fc_day_changed', onDayChanged);
+      document.removeEventListener('visibilitychange', onDayChanged);
+    };
+  }, []);
   const [openChannel, setOpenChannel] = useState<TelemetryCategory | null>(null);
   const [towersOpen, setTowersOpen] = useState(false);
   const [towerChannel, setTowerChannel] = useState<TelemetryCategory>('workout');

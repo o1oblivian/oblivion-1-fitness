@@ -6,16 +6,30 @@ import { TelemetryStoreState, TelemetryStoreActions } from './telemetryTypes';
 
 const TARGETS_STORAGE_KEY = 'o1fc_telemetry_targets_v2';
 const SETTINGS_STORAGE_KEY = 'o1fc_production_settings_v3';
+/** Written by the midnight rollover. */
+const LAST_LOG_DATE_KEY = 'O1FC_LAST_LOG_DATE';
+
+function localToday(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
 
 const loadSavedTargets = () => {
   if (typeof window === 'undefined') {
-    return { stepTarget: 10000, moveTarget: 700, distTarget: 8, stepCount: 0 };
+    return {
+      stepTarget: 10000,
+      moveTarget: 700,
+      distTarget: 8,
+      stepCount: 0,
+      stepDate: localToday(),
+    };
   }
   const saved = safeStorage.getItem<{
     stepTarget?: number;
     moveTarget?: number;
     distTarget?: number;
     stepCount?: number;
+    stepDate?: string;
   }>(TARGETS_STORAGE_KEY, {});
   const settingsSaved = safeStorage.getItem<{ stepTarget?: number }>(SETTINGS_STORAGE_KEY, {});
 
@@ -42,6 +56,11 @@ const loadSavedTargets = () => {
     distTarget:
       typeof saved?.distTarget === 'number' && saved.distTarget > 0 ? saved.distTarget : 8,
     stepCount: savedSteps,
+    // Counts saved before steps carried a date belong to the last day the app logged.
+    stepDate:
+      (typeof saved?.stepDate === 'string' && saved.stepDate) ||
+      safeStorage.getItem<string>(LAST_LOG_DATE_KEY, '') ||
+      localToday(),
   };
 };
 
@@ -57,6 +76,7 @@ const initialState: TelemetryStoreState = {
     macroPrecision: 0,
   },
   stepCount: initialTargets.stepCount,
+  stepDate: initialTargets.stepDate,
   stepTarget: initialTargets.stepTarget,
   moveTarget: initialTargets.moveTarget,
   distTarget: initialTargets.distTarget,
@@ -76,13 +96,17 @@ const initialState: TelemetryStoreState = {
 };
 
 const persistTargets = (
-  state: Pick<TelemetryStoreState, 'stepTarget' | 'moveTarget' | 'distTarget' | 'stepCount'>,
+  state: Pick<
+    TelemetryStoreState,
+    'stepTarget' | 'moveTarget' | 'distTarget' | 'stepCount' | 'stepDate'
+  >,
 ) => {
   safeStorage.setItem(TARGETS_STORAGE_KEY, {
     stepTarget: state.stepTarget,
     moveTarget: state.moveTarget,
     distTarget: state.distTarget,
     stepCount: state.stepCount,
+    stepDate: state.stepDate,
   });
   // Keep settings storage in continuous lockstep to eliminate any reversion bugs
   try {
@@ -133,7 +157,7 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
     setDrinksCount: (drinks) => set({ drinksCount: Math.max(0, drinks) }),
     setStepCount: (steps) => {
       const next = Math.max(0, steps);
-      set({ stepCount: next });
+      set({ stepCount: next, stepDate: localToday() });
       const current = get();
       persistTargets(current);
 
@@ -163,8 +187,11 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
     },
     addSteps: (steps) => {
       set((prev) => {
-        const next = Math.max(0, (prev.stepCount || 0) + steps);
-        persistTargets({ ...prev, stepCount: next });
+        const today = localToday();
+        // Steps taken after midnight start the new day's count, not yesterday's.
+        const base = prev.stepDate === today ? prev.stepCount || 0 : 0;
+        const next = Math.max(0, base + steps);
+        persistTargets({ ...prev, stepCount: next, stepDate: today });
 
         try {
           noteDailySteps(next);
@@ -172,8 +199,15 @@ const telemetryStore = createStore<TelemetryStoreState, TelemetryStoreActions>(
           console.warn('[TelemetryStore] History sync warning:', err);
         }
 
-        return { stepCount: next };
+        return { stepCount: next, stepDate: today };
       });
+    },
+    rollStepsToToday: () => {
+      const today = localToday();
+      if (get().stepDate === today) return false;
+      set({ stepCount: 0, stepDate: today });
+      persistTargets(get());
+      return true;
     },
     logFastClean: () => {
       tactileEngine.playPRCelebration();

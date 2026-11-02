@@ -28,6 +28,8 @@ interface HistoryWorkoutSession {
 export interface TelemetryStoreState {
   metrics: OperatorProfileMetrics;
   stepCount: number;
+  /** Local day (YYYY-MM-DD) that `stepCount` belongs to. */
+  stepDate: string;
   stepTarget: number;
   moveTarget: number;
   distTarget: number;
@@ -60,6 +62,8 @@ export interface TelemetryStoreActions {
   setMoveTarget: (target: number) => void;
   setDistTarget: (target: number) => void;
   addSteps: (steps: number) => void;
+  /** Zeroes the count when it belongs to an earlier day. True when it did. */
+  rollStepsToToday: () => boolean;
   logFastClean: () => void;
   addHistorySession: (session: HistoryWorkoutSession) => void;
   seedTelemetryDemo: () => void;

@@ -1,6 +1,5 @@
 import type { CardioTelemetryResult } from '../../../services/geminiVisionService';
 import { useFuelStore } from '../../fuel/store/useFuelStore';
-import { useLogStore } from '../../../stores/useLogStore';
 import { telemetryArbitrationService } from '../../telemetry/services/telemetryArbitrationService';
 import { useTelemetryStore } from '../../telemetry/store/useTelemetryStore';
 import { useTelemetryHistoryStore, type CardioDayRecord } from '../store/useTelemetryHistoryStore';
@@ -103,12 +102,6 @@ export function saveCardioScan(scan: ScanToSave, merge: ScanMerge): void {
 
   useTelemetryHistoryStore.getState().updateDayRecord(today, 'cardio', record);
   try {
-    useLogStore.getState().updateSubModule('cardio', {
-      burnedKcal: record.burnedKcal,
-      durationMinutes: record.durationMinutes,
-      avgHeartRateBpm: record.avgHeartRateBpm,
-      distanceKm: record.distanceKm,
-    });
     if (kcalDelta !== 0) useFuelStore.getState().logBurned(kcalDelta);
 
     if (stepChange.kind === 'set') telemetryArbitrationService.setDailyCumulative(stepChange.total);

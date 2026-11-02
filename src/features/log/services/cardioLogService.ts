@@ -2,7 +2,6 @@ import { supabase } from '../../../services/supabaseClient';
 import { getCachedUserId } from '../../../services/authUser';
 import { enqueueSync, flushSync, registerSyncHandler } from '../../../services/syncOutbox';
 import { useTelemetryHistoryStore, type CardioDayRecord } from '../store/useTelemetryHistoryStore';
-import { useLogStore } from '../../../stores/useLogStore';
 import { localDayKey, localNoonIso } from './dayLogService';
 
 interface CardioLogEntry {
@@ -119,17 +118,6 @@ export async function persistCardioLog(entry: {
       steps: entry.steps,
     });
     history.updateDayRecord(dateKey, 'cardio', day);
-
-    if (isToday) {
-      useLogStore.getState().updateSubModule('cardio', {
-        activityType: day.activityType,
-        distanceKm: day.distanceKm,
-        durationMinutes: day.durationMinutes,
-        burnedKcal: day.burnedKcal,
-        avgHeartRateBpm: day.avgHeartRateBpm,
-        zone2Minutes: day.zone2Minutes,
-      });
-    }
   } catch (storeErr) {
     console.error('[CardioService] Could not record cardio on this phone', storeErr);
     throw storeErr;

@@ -37,7 +37,8 @@ function resetDailyStores(): void {
   const resets: Array<() => void> = [
     () => useFuelStore.getState().rollToToday(),
     () => useWorkoutStore.getState().clearDailyWorkout(),
-    () => useTelemetryStore.getState().setStepCount(0),
+    () => useTelemetryStore.getState().rollStepsToToday(),
+    () => useLogStore.getState().resetDay(),
   ];
   for (const reset of resets) {
     try {
@@ -58,45 +59,17 @@ async function performMidnightRollover(
   try {
     // 1. Gather current day totals from all unified stores
     const workoutState = useWorkoutStore.getState();
-    const fuelState = useFuelStore.getState();
-    const telemetryState = useTelemetryStore.getState();
-    const logState = useLogStore.getState();
-
     const exercises = workoutState.exercises || [];
-
-    // Fuel metrics calculation
-    const allMealItems = Object.values(fuelState.meals || {}).flat();
-    const totalConsumedKcal = allMealItems.reduce((acc, m) => acc + (Number(m.calories) || 0), 0);
-    const totalProteinG =
-      Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.protein) || 0), 0) * 10) / 10;
-    const totalCarbsG =
-      Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.carbs) || 0), 0) * 10) / 10;
-    const totalFatsG =
-      Math.round(allMealItems.reduce((acc, m) => acc + (Number(m.fats) || 0), 0) * 10) / 10;
-    const hydrationLiters = fuelState.hydrationCurrentL || 0;
-
-    // Telemetry steps & cardio
-    const dailySteps = telemetryState.stepCount || 0;
-    const cardioSubModule = logState.subModules?.cardio;
-    const cardioKcal = cardioSubModule?.burnedKcal || 0;
-    const cardioKm = cardioSubModule?.distanceKm || 0;
-    const cardioMins = cardioSubModule?.durationMinutes || 0;
-
-    // 2. Archive into persistent telemetry history store (useTelemetryHistoryStore)
     const histStore = getTelemetryHistoryState();
 
-    if (cardioMins > 0 || cardioKm > 0 || cardioKcal > 0) {
-      histStore.updateDayRecord(previousDate, 'cardio', {
-        hasData: true,
-        distanceKm: cardioKm,
-        durationMinutes: cardioMins,
-        burnedKcal: cardioKcal,
-        avgHeartRateBpm: cardioSubModule?.avgHeartRateBpm || 0,
-        zone2Minutes: 0,
-        activityType: cardioSubModule?.activityType || 'Cardio',
-      });
-    } else if (dailySteps > 0) {
-      histStore.updateDayRecord(previousDate, 'cardio', {
+    // Every cardio save and meal already wrote its day record, so those stand as logged.
+    // Only the step total is filled in, on the day it was counted, when that record holds fewer.
+    const { stepCount, stepDate } = useTelemetryStore.getState();
+    const stepDay = stepDate || previousDate;
+    const dailySteps = stepDay === currentDate ? 0 : stepCount || 0;
+    const loggedCardio = histStore.historyByDate[stepDay]?.cardio;
+    if (dailySteps > 0 && !loggedCardio?.hasData) {
+      histStore.updateDayRecord(stepDay, 'cardio', {
         hasData: true,
         steps: dailySteps,
         distanceKm: 0,
@@ -106,6 +79,8 @@ async function performMidnightRollover(
         zone2Minutes: 0,
         activityType: 'Steps',
       });
+    } else if (loggedCardio?.hasData && dailySteps > (loggedCardio.steps || 0)) {
+      histStore.updateDayRecord(stepDay, 'cardio', { steps: dailySteps });
     }
 
     // An unfinished session is closed out like Finish: ticked sets only, plus its time and burn.
@@ -153,16 +128,7 @@ async function performMidnightRollover(
       });
     }
 
-    // 3. Update useLogStore submodules with completed day totals
-    logState.updateSubModule('nutrition', {
-      caloriesConsumed: totalConsumedKcal,
-      proteinG: totalProteinG,
-      carbsG: totalCarbsG,
-      fatsG: totalFatsG,
-      hydrationLiters: hydrationLiters,
-    });
-
-    // 4. Reset daily tracking counters across all stores for the new day
+    // Reset daily tracking counters across all stores for the new day
     resetDailyStores();
 
     // 5. Update and persist the O1FC_LAST_LOG_DATE marker
@@ -230,6 +196,18 @@ export function initMidnightRolloverListener(): () => void {
     checkAndExecuteMidnightRollover();
   }, 60000);
 
+  // And at midnight itself, so nothing logged in the first minute lands on the old day.
+  let midnightTimer: ReturnType<typeof setTimeout>;
+  const armMidnight = () => {
+    const next = new Date();
+    next.setHours(24, 0, 1, 0);
+    midnightTimer = setTimeout(() => {
+      checkAndExecuteMidnightRollover();
+      armMidnight();
+    }, next.getTime() - Date.now());
+  };
+  armMidnight();
+
   // Focus and visibility change listeners (athlete resumes phone from sleep)
   const onFocusOrVisible = () => {
     if (document.visibilityState === 'visible') {
@@ -242,6 +220,7 @@ export function initMidnightRolloverListener(): () => void {
 
   return () => {
     clearInterval(intervalId);
+    clearTimeout(midnightTimer);
     window.removeEventListener('focus', onFocusOrVisible);
     document.removeEventListener('visibilitychange', onFocusOrVisible);
   };

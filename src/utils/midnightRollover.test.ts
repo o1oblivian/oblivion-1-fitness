@@ -110,6 +110,74 @@ describe('a new calendar day', () => {
     stop();
   });
 
+  it('rolls over at midnight itself, not up to a minute later', async () => {
+    vi.setSystemTime(new Date(2026, 9, 31, 23, 59, 50));
+    const { useFuelStore, initMidnightRolloverListener } = await loadStores();
+    const stop = initMidnightRolloverListener();
+    useFuelStore.getState().addMealItem('lunch', LUNCH);
+
+    await vi.advanceTimersByTimeAsync(12_000);
+
+    expect(useFuelStore.getState().dateKey).toBe('2026-11-01');
+    expect(useFuelStore.getState().meals.lunch).toHaveLength(0);
+    stop();
+  });
+
+  it('keeps each day’s cardio as logged and starts workout and steps fresh', async () => {
+    const { initMidnightRolloverListener } = await loadStores();
+    const { useTelemetryHistoryStore } =
+      await import('../features/log/store/useTelemetryHistoryStore');
+    const { useTelemetryStore } = await import('../features/telemetry/store/useTelemetryStore');
+    const { useWorkoutStore } = await import('../features/workout/store/useWorkoutStore');
+    const stop = initMidnightRolloverListener();
+
+    const cardio = {
+      hasData: true,
+      distanceKm: 3,
+      durationMinutes: 30,
+      burnedKcal: 150,
+      avgHeartRateBpm: 0,
+      zone2Minutes: 0,
+      activityType: 'Console',
+      steps: 4200,
+    };
+    useTelemetryHistoryStore.getState().updateDayRecord('2026-10-31', 'cardio', cardio);
+    useTelemetryStore.getState().setStepCount(9000);
+    useWorkoutStore.getState().addExerciseToActiveLog({
+      id: 'bench',
+      name: 'Bench Press',
+      sets: [{ setNumber: 1, reps: 8, weightKg: 60, completed: false }],
+    } as never);
+
+    vi.setSystemTime(new Date(2026, 10, 1, 9, 0, 0));
+    await vi.advanceTimersByTimeAsync(61_000);
+
+    const history = useTelemetryHistoryStore.getState().historyByDate;
+    expect(history['2026-10-31']?.cardio).toMatchObject({ ...cardio, steps: 9000 });
+    expect(history['2026-11-01']?.cardio?.hasData).toBeFalsy();
+    expect(useTelemetryStore.getState().stepCount).toBe(0);
+    expect(useWorkoutStore.getState().exercises).toHaveLength(0);
+
+    // A second midnight with the app still open copies nothing forward.
+    vi.setSystemTime(MONDAY);
+    await vi.advanceTimersByTimeAsync(61_000);
+    expect(
+      useTelemetryHistoryStore.getState().historyByDate['2026-11-02']?.cardio?.hasData,
+    ).toBeFalsy();
+    stop();
+  });
+
+  it('starts a new step count for a step taken after midnight', async () => {
+    const { useTelemetryStore } = await import('../features/telemetry/store/useTelemetryStore');
+    useTelemetryStore.getState().setStepCount(9000);
+
+    vi.setSystemTime(new Date(2026, 10, 1, 0, 0, 5));
+    useTelemetryStore.getState().addSteps(1);
+
+    expect(useTelemetryStore.getState().stepCount).toBe(1);
+    expect(useTelemetryStore.getState().stepDate).toBe('2026-11-01');
+  });
+
   it('shows no meals on a cold start the next day', async () => {
     const first = await loadStores();
     first.useFuelStore.getState().addMealItem('lunch', LUNCH);
