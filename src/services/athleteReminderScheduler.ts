@@ -261,8 +261,8 @@ function applyWeb(plan: PlannedReminder[]): number[] {
       window.setTimeout(() => {
         try {
           new Notification(TITLE, { body: item.body });
-        } catch {
-          /* blocked after arming */
+        } catch (err) {
+          console.warn('[athleteReminderScheduler] blocked after arming', err);
         }
       }, wait),
     ];

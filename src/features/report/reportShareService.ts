@@ -16,8 +16,8 @@ export function readSharePreference(): boolean {
 function writeSharePreference(on: boolean): void {
   try {
     localStorage.setItem(SHARE_PREF_KEY, on ? '1' : '0');
-  } catch {
-    // best-effort
+  } catch (err) {
+    console.warn('[reportShareService] Could not save the share preference', err);
   }
 }
 

@@ -1,20 +1,14 @@
-import {
-  ConsultationProfile,
-  GOAL_DISCIPLINE,
-  Injury,
-  MembershipTier,
-  TrainingDay,
-} from './consultationTypes';
+import { ConsultationProfile, GOAL_DISCIPLINE, Injury, TrainingDay } from './consultationTypes';
 import type { IntakeGroup } from './useClubTaxonomyStore';
+import type { PaidTier } from '../membership/planCatalog';
 
 export type Phase = 'checking' | 'questions' | 'preview' | 'plans';
 
-export const PLAN_ORDER: MembershipTier[] = ['pro', 'founders_pass', 'core', 'coach_pro', 'coach'];
+export const PLAN_ORDER: PaidTier[] = ['pro', 'founders_pass', 'coach_pro'];
 
 export const PERIOD_LABEL: Record<string, string> = {
   '/mo': 'per month',
-  '/once': 'one time',
-  '/forever': 'free forever',
+  ' one-time': 'one time',
 };
 
 export const DAY_NAMES: Record<TrainingDay, string> = {

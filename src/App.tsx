@@ -3,6 +3,7 @@ import { CheckCircle2, Loader2, X } from 'lucide-react';
 import { MainAppLayout } from './MainAppLayout';
 import { BootSplash } from './components/common/BootSplash';
 import { useSessionGate } from './hooks/useSessionGate';
+import { startSessionRefreshOnReconnect } from './services/sessionGate';
 import { lockDarkTheme } from './utils/lockDarkTheme';
 import { useAuthStore } from './stores/useAuthStore';
 import { initMidnightRolloverListener } from './utils/midnightRollover';
@@ -20,7 +21,7 @@ import { safeStorage } from './utils/safeStorage';
 import { Capacitor } from '@capacitor/core';
 import { applyAuthCallbackUrl } from './services/oauthDeepLink';
 import { captureInviteFromUrl } from './features/log/publicShare';
-import { captureReelLink } from './features/reels/services/reelLinks';
+import { captureCoachLink } from './features/coach/services/coachLinks';
 import { AppErrorBoundary } from './components/common/AppErrorBoundary';
 import { useModalStore } from './components/modals/useModalStore';
 
@@ -74,6 +75,7 @@ export default function App() {
     lockDarkTheme();
     useAuthStore.getState().initialize();
     const cleanupRollover = initMidnightRolloverListener();
+    const stopReconnectRefresh = startSessionRefreshOnReconnect();
 
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -163,28 +165,27 @@ export default function App() {
             document.title,
             cleaned.pathname + cleaned.search + cleaned.hash,
           );
-        } catch {
-          /* ignore */
+        } catch (err) {
+          console.warn('[App] Could not tidy the invite out of the address bar:', err);
         }
       }
-      if (captureReelLink(webHref)) {
+      if (captureCoachLink(webHref)) {
         try {
           const cleaned = new URL(window.location.href);
-          cleaned.searchParams.delete('reel');
           cleaned.searchParams.delete('coach');
           window.history.replaceState(
             {},
             document.title,
             cleaned.pathname + cleaned.search + cleaned.hash,
           );
-        } catch {
-          /* ignore */
+        } catch (err) {
+          console.warn('[App] Could not tidy the coach link out of the address bar:', err);
         }
       }
       /** A paid checkout finished: show the Coach tab and re-read programs while the webhook lands. */
       const showCheckoutResult = () => {
         window.dispatchEvent(new CustomEvent('app_navigate_tab', { detail: 'coach' }));
-        void import('./features/reels/services/coachStorefront').then(({ PROGRAMS_EVENT }) => {
+        void import('./features/coach/services/coachStorefront').then(({ PROGRAMS_EVENT }) => {
           [2000, 6000, 12000].forEach((ms) =>
             setTimeout(() => window.dispatchEvent(new CustomEvent(PROGRAMS_EVENT)), ms),
           );
@@ -217,8 +218,8 @@ export default function App() {
           redeemInvite();
           try {
             window.history.replaceState({}, document.title, window.location.pathname);
-          } catch {
-            /* ignore */
+          } catch (err) {
+            console.warn('[App] Could not strip the auth callback from the URL', err);
           }
         });
       }
@@ -231,7 +232,7 @@ export default function App() {
             CapApp.addListener('appUrlOpen', async ({ url }) => {
               if (!url) return;
               captureInviteFromUrl(url);
-              captureReelLink(url);
+              captureCoachLink(url);
               await handleAuthUrl(url);
               redeemInvite();
             })
@@ -259,7 +260,7 @@ export default function App() {
               .then((launch) => {
                 if (!launch?.url) return;
                 captureInviteFromUrl(launch.url);
-                captureReelLink(launch.url);
+                captureCoachLink(launch.url);
                 void handleAuthUrl(launch.url).then(redeemInvite);
               })
               .catch((err) => {
@@ -273,6 +274,7 @@ export default function App() {
 
       return () => {
         cleanupRollover();
+        stopReconnectRefresh();
         document.removeEventListener('visibilitychange', onCheckoutReturn);
         if (Capacitor.isNativePlatform()) {
           try {
@@ -290,7 +292,10 @@ export default function App() {
         window.removeEventListener('o1fc_signed_out', handleSignedOut);
       };
     }
-    return () => cleanupRollover();
+    return () => {
+      cleanupRollover();
+      stopReconnectRefresh();
+    };
   }, []);
 
   return (

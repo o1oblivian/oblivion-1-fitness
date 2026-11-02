@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Check, Copy, Share2, X } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { copyText, inviteUrl } from '../../log/publicShare';
-import { shareLink } from '../../reels/services/reelLinks';
-import { ShareLinkSheet, ShareLinkTarget } from '../../reels/components/ShareLinkSheet';
+import { shareLink } from '../services/coachLinks';
+import { ShareLinkSheet, ShareLinkTarget } from './ShareLinkSheet';
 
 interface AddClientModalProps {
   isOpen: boolean;

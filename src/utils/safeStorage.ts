@@ -23,8 +23,8 @@ export const safeStorage = {
           }
         }
       }
-    } catch {
-      // Storage access blocked or denied
+    } catch (err) {
+      console.warn('[safeStorage] Storage access blocked or denied', err);
     }
 
     const memItem = memoryStore.get(key);
@@ -55,8 +55,8 @@ export const safeStorage = {
       if (durable) {
         try {
           window.localStorage.removeItem(key);
-        } catch {
-          // nothing more to do
+        } catch (err) {
+          console.warn('[safeStorage] nothing more to do', err);
         }
       }
     }
@@ -71,8 +71,8 @@ export const safeStorage = {
         window.localStorage.removeItem(key);
         return true;
       }
-    } catch {
-      // Storage access blocked
+    } catch (err) {
+      console.warn('[safeStorage] Storage access blocked', err);
     }
     return true;
   },
@@ -85,8 +85,8 @@ export const safeStorage = {
         window.localStorage.clear();
         return true;
       }
-    } catch {
-      // Storage access blocked
+    } catch (err) {
+      console.warn('[safeStorage] Storage access blocked', err);
     }
     return true;
   },
@@ -98,8 +98,8 @@ export function restoreDurableStorage(): Promise<void> {
     memoryStore.set(key, value);
     try {
       window.localStorage.setItem(key, value);
-    } catch {
-      // too large for localStorage; served from memory
+    } catch (err) {
+      console.warn('[safeStorage] too large for localStorage; served from memory', err);
     }
   });
 }

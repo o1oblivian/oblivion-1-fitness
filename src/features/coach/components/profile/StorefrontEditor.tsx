@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StorefrontStats, saveStorefront } from '../../../reels/services/coachStorefront';
+import { StorefrontStats, saveStorefront } from '../../services/coachStorefront';
 
 type Draft = { years: string; capacity: string; monthly: string };
 

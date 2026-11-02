@@ -1,8 +1,8 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { isValidUuid, linkCoachClient } from '../../coach/services/coachService';
-import { saveLinkedCoach } from '../../coach/services/coachLink';
-import { ProgramPlanData, parseProgramPlan } from '../../coach/services/programPlan';
+import { isValidUuid, linkCoachClient } from './coachService';
+import { saveLinkedCoach } from './coachLink';
+import { ProgramPlanData, parseProgramPlan } from './programPlan';
 export interface StorefrontStats {
   followers: number | null;
   following: boolean;

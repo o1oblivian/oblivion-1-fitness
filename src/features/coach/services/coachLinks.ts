@@ -2,20 +2,11 @@ import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { PUBLIC_SITE } from '../../log/publicShare';
 
-const PENDING_KEY = 'o1_pending_reel_link';
-export const REEL_LINK_EVENT = 'o1-reel-link';
-
-export interface ReelLink {
-  reelId?: string;
-  coachId?: string;
-}
+const PENDING_KEY = 'o1_pending_coach_link';
+export const COACH_LINK_EVENT = 'o1-coach-link';
 
 /** `options` means no system share sheet exists here; the caller shows the in-app share options sheet. */
 export type ShareResult = 'shared' | 'cancelled' | 'options';
-
-export function reelUrl(reelId: string): string {
-  return `${PUBLIC_SITE}/join?reel=${encodeURIComponent(reelId)}`;
-}
 
 export function coachUrl(coachId: string): string {
   return `${PUBLIC_SITE}/join?coach=${encodeURIComponent(coachId)}`;
@@ -42,6 +33,7 @@ export async function shareLink(data: {
       return 'shared';
     } catch (error) {
       if (isCancel(error)) return 'cancelled';
+      console.warn('[CoachLinks] System share sheet failed', error);
     }
   }
   if (typeof navigator.share === 'function') {
@@ -50,44 +42,44 @@ export async function shareLink(data: {
       return 'shared';
     } catch (error) {
       if (isCancel(error)) return 'cancelled';
+      console.warn('[CoachLinks] Web share failed', error);
     }
   }
   return 'options';
 }
 
-function parse(raw: string): ReelLink | null {
+function coachIdFrom(raw: string): string | null {
+  let url: URL;
   try {
-    const url = new URL(raw);
-    const reelId = url.searchParams.get('reel')?.trim().slice(0, 120) || '';
-    const coachId = url.searchParams.get('coach')?.trim().slice(0, 120) || '';
-    if (!reelId && !coachId) return null;
-    return { ...(reelId ? { reelId } : {}), ...(coachId ? { coachId } : {}) };
+    url = new URL(raw);
   } catch {
     return null;
   }
+  return url.searchParams.get('coach')?.trim().slice(0, 120) || null;
 }
 
-/** Keep ?reel= / ?coach= from a web URL or app link until the main layout can open it. */
-export function captureReelLink(raw: string): boolean {
-  const link = parse(raw);
-  if (!link) return false;
+/** Keep ?coach= from a web URL or app link until the main layout can open the profile. */
+export function captureCoachLink(raw: string): boolean {
+  const coachId = coachIdFrom(raw);
+  if (!coachId) return false;
   try {
-    sessionStorage.setItem(PENDING_KEY, JSON.stringify(link));
-  } catch {
-    /* private mode */
+    sessionStorage.setItem(PENDING_KEY, coachId);
+  } catch (error) {
+    // Storage is blocked (private mode); the event below still opens the profile while the app is running.
+    console.warn('[CoachLinks] Could not keep the coach link for later', error);
   }
-  window.dispatchEvent(new CustomEvent(REEL_LINK_EVENT));
+  window.dispatchEvent(new CustomEvent(COACH_LINK_EVENT, { detail: coachId }));
   return true;
 }
 
-export function consumeReelLink(): ReelLink | null {
+/** The coach id from a link that arrived before the layout mounted, read once. */
+export function consumeCoachLink(): string | null {
   try {
-    const raw = sessionStorage.getItem(PENDING_KEY);
-    if (!raw) return null;
+    const coachId = sessionStorage.getItem(PENDING_KEY);
     sessionStorage.removeItem(PENDING_KEY);
-    const link = JSON.parse(raw) as ReelLink;
-    return link.reelId || link.coachId ? link : null;
-  } catch {
+    return coachId || null;
+  } catch (error) {
+    console.warn('[CoachLinks] Could not read the pending coach link', error);
     return null;
   }
 }

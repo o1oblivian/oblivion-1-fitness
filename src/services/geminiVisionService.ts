@@ -4,7 +4,7 @@
  */
 import { downscaleBase64IfNeeded } from './imageDownscaleUtils';
 import { apiFetch } from './apiBase';
-import { ScanError, serverFailure } from './scanErrors';
+import { ScanError, serverFailure, TELEMETRY_UNREADABLE } from './scanErrors';
 
 export interface CardioTelemetryResult {
   elapsedDisplay?: string | number | null;
@@ -111,13 +111,7 @@ export async function analyzeConsoleTelemetry(base64Image: string): Promise<Card
       result.watts,
     ].some((v) => v !== null);
     if (!readSomething) {
-      throw new ScanError(
-        'unreadable',
-        typeof json.calibrationNote === 'string' && json.calibrationNote
-          ? json.calibrationNote
-          : 'No numbers could be read from this photo.',
-        { status: response.status },
-      );
+      throw new ScanError('unreadable', TELEMETRY_UNREADABLE, { status: response.status });
     }
     return result;
   }

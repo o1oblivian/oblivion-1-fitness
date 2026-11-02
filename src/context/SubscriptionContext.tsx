@@ -15,7 +15,8 @@ export interface SubscriptionContextType {
   isPro: boolean;
   /** Everything Club Pass unlocks. Identical to `isPro`: only a store-verified plan opens Pro features. */
   hasFullAccess: boolean;
-  currentPlan: string;
+  /** The store product behind the active plan, or `null` without one. */
+  currentPlan: string | null;
   purchasePro: (planId?: string) => Promise<boolean>;
   /** Asks the store whether a plan it charged for is active; never opens checkout. True only when the store confirms it. */
   activatePlan: (planId: string) => Promise<boolean>;
@@ -33,7 +34,7 @@ const SubscriptionContext = createContext<SubscriptionContextType | undefined>(u
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isPro, setIsPro] = useState(false);
   const authUserId = useAuthStore((s) => s.user?.id || '');
-  const [currentPlan, setCurrentPlan] = useState<string>('o1fc_core_free');
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isPaywallOpen, setIsPaywallOpen] = useState<boolean>(false);
   const [gatedFeature, setGatedFeature] = useState<string | null>(null);
@@ -42,7 +43,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const applyVerified = useCallback((verified: SubscriptionStatus): boolean => {
     if (verified.isActive) setIsPaywallOpen(false);
     setIsPro(verified.isActive);
-    setCurrentPlan(verified.isActive ? verified.tierId : 'o1fc_core_free');
+    setCurrentPlan(verified.isActive ? verified.tierId : null);
     return verified.isActive;
   }, []);
 
@@ -50,7 +51,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     let mounted = true;
     // Whoever was signed in before never carries Pro over. It stays false until the store answers.
     setIsPro(false);
-    setCurrentPlan('o1fc_core_free');
+    setCurrentPlan(null);
     const init = async () => {
       const uid = await getAuthenticatedUserId();
       if (uid) await initializeIAP(uid);
@@ -165,7 +166,7 @@ export const useSubscription = (): SubscriptionContextType => {
     return {
       isPro: false,
       hasFullAccess: false,
-      currentPlan: 'o1fc_core_free',
+      currentPlan: null,
       purchasePro: async () => false,
       activatePlan: async () => false,
       restorePurchases: async () => false,

@@ -111,7 +111,7 @@ describe('adoptableSupplements', () => {
   it('skips supplements the stack already has and reports which were taken that day', () => {
     const out = adoptableSupplements(legacy, stack, '2026-01-02');
     expect(out.adopted).toEqual([
-      { id: 'o2', name: 'Fish oil', dosage: '1 serving', timing: 'Evening', category: 'Custom' },
+      { id: 'o2', name: 'Fish oil', dosage: 'Dose not set', timing: 'Evening', category: 'Custom' },
     ]);
     expect(out.takenIds).toEqual(['o2']);
   });

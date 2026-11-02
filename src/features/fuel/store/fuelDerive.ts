@@ -103,7 +103,7 @@ export function adoptableSupplements(
     .map((it) => ({
       id: it.id,
       name: it.name.trim(),
-      dosage: it.dose || '1 serving',
+      dosage: it.dose || 'Dose not set',
       timing: it.timing,
       category: 'Custom',
     }));

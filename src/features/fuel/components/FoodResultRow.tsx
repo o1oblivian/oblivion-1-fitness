@@ -44,7 +44,8 @@ export const FoodResultRow: React.FC<{
           <span className="font-semibold text-o1-text">{food.calories} kcal</span>
           <span className="text-white/20">·</span>
           <span>
-            {food.serving_size || (food.serving_grams ? `${food.serving_grams}g` : '1 serving')}
+            {food.serving_size ||
+              (food.serving_grams ? `${food.serving_grams}g` : 'Serving size not listed')}
           </span>
         </div>
         <div className="flex items-center gap-2 text-o1-label tabular-nums">

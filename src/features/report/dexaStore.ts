@@ -73,8 +73,11 @@ function write(scans: DexaScan[]): DexaScan[] {
   const sorted = [...scans].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   try {
     localStorage.setItem(KEY, JSON.stringify(sorted));
-  } catch {
-    // storage unavailable: caller still gets the in-memory list for this session
+  } catch (err) {
+    console.warn(
+      '[dexaStore] storage unavailable: caller still gets the in-memory list for this session',
+      err,
+    );
   }
   return sorted;
 }

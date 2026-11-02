@@ -227,8 +227,8 @@ export function rememberSession(origin: SessionOrigin, assignedId?: string) {
     sessionStorage.setItem(ORIGIN_KEY, origin);
     if (assignedId) sessionStorage.setItem(ASSIGNED_KEY, assignedId);
     else sessionStorage.removeItem(ASSIGNED_KEY);
-  } catch {
-    /* private mode */
+  } catch (err) {
+    console.warn('[todaySession] private mode', err);
   }
 }
 
@@ -248,8 +248,8 @@ function clearSessionOrigin() {
   try {
     sessionStorage.removeItem(ORIGIN_KEY);
     sessionStorage.removeItem(ASSIGNED_KEY);
-  } catch {
-    /* private mode */
+  } catch (err) {
+    console.warn('[todaySession] private mode', err);
   }
 }
 

@@ -28,8 +28,42 @@ export function forgetIdentityKeys(): void {
 }
 
 /** Phone is offline or the auth server is unreachable: the stored sign-in may still be good. */
-function isNetworkFailure(error: AuthError | null): boolean {
+export function isNetworkFailure(error: AuthError | null): boolean {
   return error?.name === 'AuthRetryableFetchError' || error?.status === 0;
+}
+
+/** True while the stored login is inside the 30-day offline window. */
+export function withinOfflineWindow(
+  lastIssuedAt: () => number | null = storedSessionIssuedAtMs,
+  now: () => number = Date.now,
+): boolean {
+  const issuedAt = lastIssuedAt();
+  if (issuedAt === null) return false;
+  const offlineFor = now() - issuedAt;
+  return offlineFor >= 0 && offlineFor <= OFFLINE_SESSION_MS;
+}
+
+/**
+ * Refreshes the stored login as soon as the phone gets signal back. An expired access token is
+ * exchanged by `getSession`, which emits TOKEN_REFRESHED to every auth listener.
+ * Returns the cleanup function.
+ */
+export function startSessionRefreshOnReconnect(): () => void {
+  if (typeof window === 'undefined') return () => undefined;
+  const refresh = () => {
+    if (storedSessionIssuedAtMs() === null) return;
+    void supabase.auth.startAutoRefresh();
+    supabase.auth
+      .getSession()
+      .then(({ error }) => {
+        if (error) console.warn('[SessionGate] Token refresh after reconnect failed', error);
+      })
+      .catch((err: unknown) => {
+        console.warn('[SessionGate] Token refresh after reconnect failed', err);
+      });
+  };
+  window.addEventListener('online', refresh);
+  return () => window.removeEventListener('online', refresh);
 }
 
 /** A Supabase session with a user whose access token has not expired. A session without an expiry is not trusted. */
@@ -70,11 +104,7 @@ export async function resolveGateStatus(
 
   if (isLiveSession(answer?.data.session, now())) return 'in';
   const unreachable = answer === null || isNetworkFailure(answer.error);
-  const issuedAt = lastIssuedAt();
-  if (unreachable && issuedAt !== null) {
-    const offlineFor = now() - issuedAt;
-    if (offlineFor >= 0 && offlineFor <= OFFLINE_SESSION_MS) return 'in';
-  }
+  if (unreachable && withinOfflineWindow(lastIssuedAt, now)) return 'in';
   forgetIdentityKeys();
   return 'out';
 }

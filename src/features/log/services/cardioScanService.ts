@@ -1,5 +1,5 @@
 ﻿import { parseTelemetryFromOcrText } from '../../../services/ocrTelemetryParser';
-import { ScanError } from '../../../services/scanErrors';
+import { ScanError, TELEMETRY_UNREADABLE } from '../../../services/scanErrors';
 
 /** Unread metrics stay null and render as '--'. */
 export interface ExtractedCardioData {
@@ -63,10 +63,7 @@ export async function processCardioScanImage(base64Image: string): Promise<Extra
     (v) => v != null,
   ).length;
   if (fieldsRead === 0) {
-    throw new ScanError(
-      'unreadable',
-      'No numbers could be read from this photo. Retake it with the screen filling the frame.',
-    );
+    throw new ScanError('unreadable', TELEMETRY_UNREADABLE);
   }
   return {
     deviceType: parsed.deviceType,

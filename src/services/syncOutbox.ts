@@ -107,8 +107,8 @@ function pendingCount(): number {
   externals.forEach((q) => {
     try {
       n += q.pending();
-    } catch {
-      // ignore a broken counter
+    } catch (err) {
+      console.warn('[syncOutbox] ignore a broken counter', err);
     }
   });
   return n;
@@ -161,8 +161,8 @@ async function pass(respectBackoff: boolean): Promise<void> {
   for (const queue of externals.values()) {
     try {
       await queue.flush();
-    } catch {
-      // retried on the next pass
+    } catch (err) {
+      console.warn('[syncOutbox] retried on the next pass', err);
     }
   }
 }

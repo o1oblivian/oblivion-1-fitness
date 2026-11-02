@@ -285,8 +285,11 @@ async function discard(uri: string | null): Promise<void> {
   if (!uri) return;
   try {
     await Filesystem.deleteFile({ path: uri });
-  } catch {
-    /* A cache file the system already removed needs no further action. */
+  } catch (err) {
+    console.warn(
+      '[mediaCompressor] A cache file the system already removed needs no further action.',
+      err,
+    );
   }
 }
 

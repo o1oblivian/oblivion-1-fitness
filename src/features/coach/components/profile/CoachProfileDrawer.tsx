@@ -1,10 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Grid3x3, Layers, MessageCircle, Play, Share2, X } from 'lucide-react';
-import { ExploreCoach, ExploreReelItem } from '../reelTypes';
-import { useReelsStore } from '../../../stores/useReelsStore';
-import { useAuthStore } from '../../../stores/useAuthStore';
-import { tactileEngine } from '../../../services/tactileEngine';
-import { nextReelCover, reelCover } from '../coverPresets';
+import React, { useEffect, useRef, useState } from 'react';
+import { Layers, MessageCircle, Share2, X } from 'lucide-react';
+import { ExploreCoach } from '../../coachTypes';
+import { useAuthStore } from '../../../../stores/useAuthStore';
+import { tactileEngine } from '../../../../services/tactileEngine';
 import {
   CoachingApplication,
   EMPTY_STATS,
@@ -16,49 +14,49 @@ import {
   fetchStorefrontStats,
   setFollowing,
   submitApplication,
-} from '../services/coachStorefront';
-import { coachUrl, shareLink } from '../services/reelLinks';
-import { ShareLinkSheet, ShareLinkTarget } from './ShareLinkSheet';
-import { fetchMyPrograms } from '../../coach/services/myPrograms';
-import { CoachProgramsTab } from './profile/CoachProgramsTab';
-import { CoachConsultTab } from './profile/CoachConsultTab';
+} from '../../services/coachStorefront';
+import { coachUrl, shareLink } from '../../services/coachLinks';
+import { ShareLinkSheet, ShareLinkTarget } from '../ShareLinkSheet';
+import { fetchMyPrograms } from '../../services/myPrograms';
+import { CoachProgramsTab } from './CoachProgramsTab';
+import { CoachConsultTab } from './CoachConsultTab';
 import {
   CoachProfileHeader,
   ProfileActionButton,
   compactCount,
   ratingLabel,
-} from '../../coach/components/profile/CoachProfileHeader';
-import { StorefrontEditor } from '../../coach/components/profile/StorefrontEditor';
-import type { CoachConsoleAction } from '../../coach/services/coachConsoleBus';
-import { markCheckoutPending, stripeConnectService } from '../../../services/stripeConnectService';
+} from './CoachProfileHeader';
+import { StorefrontEditor } from './StorefrontEditor';
+import type { CoachConsoleAction } from '../../services/coachConsoleBus';
+import {
+  markCheckoutPending,
+  stripeConnectService,
+} from '../../../../services/stripeConnectService';
 import { Capacitor } from '@capacitor/core';
 
 const NATIVE_APP = Capacitor.isNativePlatform();
 
-export interface CoachBookingDrawerProps {
+export interface CoachProfileDrawerProps {
   coach: ExploreCoach | null;
   initialTab?: ProfileTab;
   onClose: () => void;
-  onSelectReel?: (reel: ExploreReelItem, coachReels: ExploreReelItem[]) => void;
   onMessageCoach?: (coach: ExploreCoach) => void;
   /** Own profile only: jump to the Coach console's program builder or workout dispatch. */
   onOpenConsole?: (action: CoachConsoleAction) => void;
 }
 
-export type ProfileTab = 'reels' | 'programs' | 'coaching';
+export type ProfileTab = 'programs' | 'coaching';
 
-export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
+export const CoachProfileDrawer: React.FC<CoachProfileDrawerProps> = ({
   coach,
   initialTab,
   onClose,
-  onSelectReel,
   onMessageCoach,
   onOpenConsole,
 }) => {
-  const reels = useReelsStore((s) => s.reels);
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
-  const [tab, setTab] = useState<ProfileTab>('reels');
+  const [tab, setTab] = useState<ProfileTab>('programs');
   const [stats, setStats] = useState<StorefrontStats>(EMPTY_STATS);
   const [programs, setPrograms] = useState<StorefrontProgram[] | null>(null);
   const [application, setApplication] = useState<CoachingApplication | null>(null);
@@ -72,30 +70,33 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
 
   const coachId = coach?.id || '';
   const isOwn = Boolean(user?.id && user.id === coachId);
-  const coachReels = useMemo(
-    () => reels.filter((reel) => reel.coach?.id === coachId),
-    [reels, coachId],
-  );
 
   useEffect(() => {
     if (!coachId) return;
     let live = true;
-    setTab(initialTab ?? 'reels');
+    setTab(initialTab ?? 'programs');
     setStats(EMPTY_STATS);
     setPrograms(null);
     setApplication(null);
     setApplyProgram(null);
     setEditing(false);
     setLinkSheet(null);
+    const failed = (what: string) => (error: unknown) => {
+      console.warn(`[CoachProfile] Could not load ${what}`, error);
+      if (live) setToast(`Could not load ${what}. Check your connection.`);
+    };
     void fetchStorefrontStats(coachId)
       .then((next) => live && setStats(next))
-      .catch(() => undefined);
+      .catch(failed('profile stats'));
     void fetchStorefrontPrograms(coachId)
       .then((next) => live && setPrograms(next))
-      .catch(() => live && setPrograms([]));
+      .catch((error: unknown) => {
+        failed('programs')(error);
+        if (live) setPrograms([]);
+      });
     void fetchMyApplication(coachId)
       .then((next) => live && setApplication(next))
-      .catch(() => undefined);
+      .catch(failed('your application'));
     setEnrolledIds(new Set());
     void fetchMyPrograms()
       .then(
@@ -105,7 +106,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
             new Set((mine ?? []).filter((p) => p.status === 'active').map((p) => p.id)),
           ),
       )
-      .catch(() => undefined);
+      .catch(failed('your programs'));
     return () => {
       live = false;
     };
@@ -188,8 +189,7 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
     if ((await shareLink(target)) === 'options') setLinkSheet(target);
   };
 
-  const tabs: { id: ProfileTab; label: string; icon: typeof Grid3x3 }[] = [
-    { id: 'reels', label: 'Reels', icon: Grid3x3 },
+  const tabs: { id: ProfileTab; label: string; icon: typeof Layers }[] = [
     { id: 'programs', label: 'Programs', icon: Layers },
     { id: 'coaching', label: 'Coaching', icon: MessageCircle },
   ];
@@ -234,10 +234,6 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
             specialty={coach.specialtyTitle}
             bio={coach.bio}
             verified={coach.verified}
-            hasStory={coachReels.length > 0}
-            onAvatarPress={
-              coachReels.length > 0 ? () => onSelectReel?.(coachReels[0], coachReels) : undefined
-            }
             onEdit={isOwn && !editing ? () => setEditing(true) : undefined}
             stats={[
               { label: 'Followers', value: compactCount(stats.followers) },
@@ -316,43 +312,6 @@ export const CoachBookingDrawer: React.FC<CoachBookingDrawerProps> = ({
         </div>
 
         <div className="mx-auto w-full max-w-xl">
-          {tab === 'reels' &&
-            (coachReels.length === 0 ? (
-              <p className="py-10 text-center text-o1-body text-o1-muted">No reels yet.</p>
-            ) : (
-              <div className="grid grid-cols-3 gap-0.5 pt-0.5">
-                {coachReels.map((reel) => (
-                  <button
-                    key={reel.id}
-                    type="button"
-                    onClick={() => {
-                      tactileEngine.triggerSelectionBuzz();
-                      onSelectReel?.(reel, coachReels);
-                    }}
-                    className="relative aspect-[3/4] overflow-hidden bg-o1-surface active:scale-[0.98]"
-                    aria-label={reel.title}
-                  >
-                    <img
-                      src={reelCover(reel.id, reel.thumbnail)}
-                      alt=""
-                      className="h-full w-full object-cover"
-                      onError={(event) => {
-                        const img = event.currentTarget;
-                        if (img.dataset.cover === '1') return;
-                        img.dataset.cover = '1';
-                        img.src = nextReelCover(img.src);
-                      }}
-                    />
-                    <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    <Play
-                      size={14}
-                      className="pointer-events-none absolute bottom-1.5 left-1.5 fill-white text-white drop-shadow"
-                    />
-                  </button>
-                ))}
-              </div>
-            ))}
-
           {tab === 'programs' && (
             <div className="px-4">
               <CoachProgramsTab

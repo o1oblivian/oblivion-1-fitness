@@ -23,7 +23,9 @@ export const playDialClickAudio = (ctx: AudioContext): void => {
 
     osc.start(now);
     osc.stop(now + 0.008);
-  } catch {}
+  } catch (err) {
+    console.warn('[audioSynthesis] Could not play the cue', err);
+  }
 };
 
 export const playTimerChimeAudio = (ctx: AudioContext): void => {
@@ -57,7 +59,9 @@ export const playTimerChimeAudio = (ctx: AudioContext): void => {
     gain2.connect(ctx.destination);
     osc2.start(now + 0.08);
     osc2.stop(now + 0.55);
-  } catch {}
+  } catch (err) {
+    console.warn('[audioSynthesis] Could not play the cue', err);
+  }
 };
 
 export const playPRCelebrationAudio = (ctx: AudioContext): void => {
@@ -82,7 +86,9 @@ export const playPRCelebrationAudio = (ctx: AudioContext): void => {
       osc.start(noteStart);
       osc.stop(noteStart + 0.35);
     });
-  } catch {}
+  } catch (err) {
+    console.warn('[audioSynthesis] Could not play the cue', err);
+  }
 };
 
 export const playSelectionBuzzAudio = (ctx: AudioContext): void => {
@@ -102,5 +108,7 @@ export const playSelectionBuzzAudio = (ctx: AudioContext): void => {
 
     osc.start(now);
     osc.stop(now + 0.03);
-  } catch {}
+  } catch (err) {
+    console.warn('[audioSynthesis] Could not play the cue', err);
+  }
 };

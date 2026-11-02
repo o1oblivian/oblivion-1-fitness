@@ -5,7 +5,7 @@ import { tactileEngine } from '../../../../services/tactileEngine';
 import { useUserStore } from '../../../../stores/useUserStore';
 import { compressPhoto } from '../../../../utils/mediaCompressor';
 import { fetchVaultRows, uploadMedia } from '../../../../services/mediaStorage';
-import { StorefrontStats, saveStorefront } from '../../../reels/services/coachStorefront';
+import { StorefrontStats, saveStorefront } from '../../services/coachStorefront';
 import {
   HANDLE_PATTERN,
   cleanHandle,

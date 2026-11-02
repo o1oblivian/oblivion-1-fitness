@@ -210,7 +210,7 @@ describe('entitlementFromCustomerInfo', () => {
       entitlementFromCustomerInfo(customer({ purchased: ['o1fc_pro_monthly'] }), 'ios'),
     ).toMatchObject({
       isActive: false,
-      tierId: 'o1fc_core_free',
+      tierId: null,
     });
   });
 });

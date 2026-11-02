@@ -10,6 +10,9 @@ export type ScanErrorCode =
   /** The device has no reader for this kind of scan. */
   | 'unsupported';
 
+/** What the athlete sees when a watch or console photo yields no readable metric. */
+export const TELEMETRY_UNREADABLE = 'Telemetry display unreadable. Adjust angle and retry.';
+
 /** A scanner or lookup failure that the UI shows as-is and can branch on by `code`. */
 export class ScanError extends Error {
   readonly code: ScanErrorCode;

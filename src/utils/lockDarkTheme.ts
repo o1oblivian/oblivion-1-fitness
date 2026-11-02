@@ -7,7 +7,7 @@ export const lockDarkTheme = (): void => {
   root.style.colorScheme = 'dark';
   try {
     localStorage.removeItem('o1fc_theme_preference');
-  } catch {
-    // ignore storage errors in restricted contexts
+  } catch (err) {
+    console.warn('[lockDarkTheme] ignore storage errors in restricted contexts', err);
   }
 };

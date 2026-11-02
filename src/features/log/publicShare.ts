@@ -18,8 +18,8 @@ export function getOrCreateInviteCode(handle: string): string {
   try {
     const existing = localStorage.getItem(INVITE_KEY);
     if (existing && existing.length >= 4) return existing;
-  } catch {
-    /* private mode */
+  } catch (err) {
+    console.warn('[publicShare] private mode', err);
   }
   const stem =
     (handle || 'athlete')
@@ -30,8 +30,8 @@ export function getOrCreateInviteCode(handle: string): string {
   const code = `${stem}-${suffix}`;
   try {
     localStorage.setItem(INVITE_KEY, code);
-  } catch {
-    /* private mode */
+  } catch (err) {
+    console.warn('[publicShare] private mode', err);
   }
   return code;
 }
@@ -53,8 +53,8 @@ export function savePendingInvite(code: string): void {
   if (!clean) return;
   try {
     localStorage.setItem(PENDING_KEY, clean);
-  } catch {
-    /* private mode */
+  } catch (err) {
+    console.warn('[publicShare] private mode', err);
   }
 }
 
@@ -77,8 +77,8 @@ export async function copyText(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text);
       return true;
     }
-  } catch {
-    /* fall through */
+  } catch (err) {
+    console.warn('[publicShare] fall through', err);
   }
   try {
     const field = document.createElement('textarea');

@@ -15,16 +15,13 @@ interface CoachProfileHeaderProps {
   specialty?: string;
   bio?: string;
   verified?: boolean;
-  /** Crimson ring around the photo when the coach has reels to watch. */
-  hasStory?: boolean;
-  onAvatarPress?: () => void;
   onAddClip?: () => void;
   onEdit?: () => void;
   stats: [ProfileStat, ProfileStat, ProfileStat];
   actions: React.ReactNode;
 }
 
-/** Shared coach header for the public Reels profile and the coach's own console. */
+/** Shared coach header for the public coach profile and the coach's own console. */
 export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
   name,
   handle,
@@ -32,8 +29,6 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
   specialty,
   bio,
   verified = false,
-  hasStory = false,
-  onAvatarPress,
   onAddClip,
   onEdit,
   stats,
@@ -42,17 +37,10 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
   <header className="space-y-3">
     <div className="flex items-center gap-5">
       <div className="relative shrink-0">
-        <button
-          type="button"
-          onClick={() => {
-            tactileEngine.triggerSelectionBuzz();
-            onAvatarPress?.();
-          }}
-          disabled={!onAvatarPress}
-          aria-label={hasStory ? `Watch ${name}'s reels` : `${name}'s photo`}
-          className={`flex h-[92px] w-[92px] items-center justify-center rounded-full p-[3px] active:scale-[0.98] disabled:active:scale-100 ${
-            hasStory ? 'bg-o1-crimson' : 'bg-white/[0.07]'
-          }`}
+        <div
+          aria-label={`${name}'s photo`}
+          role="img"
+          className="flex h-[92px] w-[92px] items-center justify-center rounded-full bg-white/[0.07] p-[3px]"
         >
           <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-o1-canvas bg-o1-surface">
             {avatar ? (
@@ -63,7 +51,7 @@ export const CoachProfileHeader: React.FC<CoachProfileHeaderProps> = ({
               </span>
             )}
           </span>
-        </button>
+        </div>
         {onAddClip ? (
           <button
             type="button"

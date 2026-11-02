@@ -53,7 +53,7 @@ export const INTAKE_PROMPTS: Record<IntakeGroup, { title: string; subtitle: stri
   goal: { title: 'What do you want most?', subtitle: 'Pick the one that matters most right now.' },
   discipline: {
     title: 'Which sport or event?',
-    subtitle: 'Puts matching workouts, reels and coaches first.',
+    subtitle: 'Puts matching workouts and coaches first.',
   },
   training_age: {
     title: 'How much have you trained before?',
@@ -188,8 +188,8 @@ const taxonomyStore = createStore<TaxonomyState, TaxonomyActions>(
       const rows = withConfig(remote);
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-      } catch {
-        /* private mode */
+      } catch (err) {
+        console.warn('[useClubTaxonomyStore] private mode', err);
       }
       set({ options: rows, ready: true });
     },

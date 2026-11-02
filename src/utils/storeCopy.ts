@@ -68,8 +68,8 @@ export function storeCopy(): StoreCopy {
   let platform = 'web';
   try {
     platform = Capacitor.getPlatform();
-  } catch {
-    // Treated as the web, which names no store.
+  } catch (err) {
+    console.warn('[storeCopy] Treated as the web, which names no store.', err);
   }
   return storeCopyFor(platform);
 }

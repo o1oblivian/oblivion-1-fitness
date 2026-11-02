@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { tactileEngine } from '../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import { useSubscription } from '../../context/SubscriptionContext';
-import { TIER_PLANS } from '../membership/planCatalog';
+import { TIER_PLANS, isPaidTier, type PaidTier } from '../membership/planCatalog';
 import { useStorePlans } from '../membership/useStorePlans';
 import { useStorePurchase } from '../membership/useStorePurchase';
 import { bumpDayRoutines } from '../workout/services/dayRoutineService';
@@ -40,13 +40,11 @@ export function InductionProtocol() {
         group === 'competition' ||
         optionsIn(options, group).length > 0),
   );
-  const tiers = optionsIn(options, 'membership_tier').filter(
-    (tier) => tier.optionKey in TIER_PLANS,
-  );
+  const tiers = optionsIn(options, 'membership_tier').filter((tier) => isPaidTier(tier.optionKey));
   const [phase, setPhase] = useState<Phase>('checking');
   const [step, setStep] = useState(0);
   const [audience, setAudience] = useState<Audience>('athlete');
-  const [picked, setPicked] = useState<MembershipTier>('pro');
+  const [picked, setPicked] = useState<PaidTier>('pro');
   const [busy, setBusy] = useState<'restore' | 'finish' | null>(null);
   const [storeError, setStoreError] = useState<string | null>(null);
   const storePlans = useStorePlans(phase === 'plans');
@@ -167,15 +165,26 @@ export function InductionProtocol() {
     safeStorage.setItem('olfc_onboarding_completed', 'true');
   };
 
-  const plan = TIER_PLANS[picked];
-  const price = storePlans.priceOf(plan.product);
-  const availability = storePlans.availability(plan.product);
+  const audienceTiers = tiers
+    .filter((tier) => {
+      const copy = TIER_PLANS[tier.optionKey as PaidTier];
+      return copy.audience === audience && storePlans.priceOf(copy.product) !== null;
+    })
+    .sort(
+      (a, b) =>
+        PLAN_ORDER.indexOf(a.optionKey as PaidTier) - PLAN_ORDER.indexOf(b.optionKey as PaidTier),
+    );
+  const shownTier: PaidTier | null = audienceTiers.some((tier) => tier.optionKey === picked)
+    ? picked
+    : ((audienceTiers[0]?.optionKey as PaidTier | undefined) ?? null);
+  const plan = shownTier ? TIER_PLANS[shownTier] : null;
+  const price = plan ? storePlans.priceOf(plan.product) : null;
   const working = busy !== null || purchase.busy;
-  const shownError = storeError ?? purchase.error ?? storePlans.notice(plan.product);
-  /** The free plan for the chosen audience, the fallback when someone skips paying. */
-  const freeTier: MembershipTier = audience === 'athlete' ? 'core' : 'coach';
+  const shownError = storeError ?? purchase.error;
+  /** What is recorded for someone who continues without buying: no paid plan. */
+  const unpaidTier: MembershipTier = audience === 'athlete' ? 'core' : 'coach';
 
-  const pick = (key: MembershipTier) => {
+  const pick = (key: PaidTier) => {
     setPicked(key);
     setStoreError(null);
     purchase.clearError();
@@ -190,15 +199,8 @@ export function InductionProtocol() {
     tactileEngine.triggerSelectionBuzz();
     setStoreError(null);
     purchase.clearError();
-    if (plan.product.isFree) {
-      await finish(picked);
-      return;
-    }
-    if (availability === 'unavailable') {
-      storePlans.retry();
-      return;
-    }
-    if (await purchase.buy(plan.product.productId)) await finish(picked);
+    if (!plan || !shownTier) return;
+    if (await purchase.buy(plan.product.productId)) await finish(shownTier);
   };
 
   const restore = async () => {
@@ -218,7 +220,7 @@ export function InductionProtocol() {
       return;
     }
     if (ok) {
-      await finish(picked);
+      await finish(shownTier ?? unpaidTier);
       return;
     }
     setBusy(null);
@@ -241,15 +243,8 @@ export function InductionProtocol() {
     tactileEngine.triggerSelectionBuzz();
     if (phase === 'questions') advance();
     else if (phase === 'preview') setPhase('plans');
-    else if (!working) void finish(freeTier);
+    else if (!working) void finish(unpaidTier);
   };
-  const audienceTiers = tiers
-    .filter((tier) => TIER_PLANS[tier.optionKey as MembershipTier].audience === audience)
-    .sort(
-      (a, b) =>
-        PLAN_ORDER.indexOf(a.optionKey as MembershipTier) -
-        PLAN_ORDER.indexOf(b.optionKey as MembershipTier),
-    );
 
   return (
     <div className="fixed inset-0 z-[80] flex flex-col bg-black text-o1-text">
@@ -286,21 +281,19 @@ export function InductionProtocol() {
           <PlanChoices
             audience={audience}
             tiers={audienceTiers}
-            picked={picked}
-            priceOf={storePlans.priceOf}
+            picked={shownTier}
+            plans={storePlans}
             onAudience={chooseAudience}
             onPick={pick}
           />
           <PlanCheckout
             plan={plan}
-            picked={picked}
             price={price}
-            availability={availability}
             working={working}
             restoring={busy === 'restore'}
             error={shownError}
             onBuy={() => void buy()}
-            onStartFree={() => void finish(freeTier)}
+            onNotNow={() => void finish(unpaidTier)}
             onRestore={() => void restore()}
           />
         </>

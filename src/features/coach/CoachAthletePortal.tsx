@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Play } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 import { liveChannel } from '../../services/realtimeChannel';
 import { CheckinDraft, DailyCheckInProgress } from './components/DailyCheckInProgress';
@@ -8,11 +7,11 @@ import { CoachInboxView } from './components/CoachInboxView';
 import { AthleteCheckInSubmission } from './types/coachPlatformTypes';
 import { CoachFinishedWorkoutLog } from '../../stores/coachTypes';
 import { fetchCoachMessages } from './services/coachService';
-import { fetchCoachFilms, figureCount, ProfileFilm } from './services/coachFilms';
+import { compactCount } from './components/profile/CoachProfileHeader';
 import { LinkedCoach, readLinkedCoach } from './services/coachLink';
 import { CoachCard, fetchCoachCards, formatHandle } from './services/coachDirectory';
 import { fetchMyCoachCard } from './services/coachPublicProfile';
-import { adoptAcceptedCoach, fetchStorefrontPrograms } from '../reels/services/coachStorefront';
+import { adoptAcceptedCoach, fetchStorefrontPrograms } from './services/coachStorefront';
 import { ROSTER_FULL_ATHLETE_MESSAGE } from './services/rosterCap';
 import {
   acceptCoachInviteOutcome,
@@ -50,7 +49,7 @@ function cardToCoach(card: CoachCard): LinkedCoach {
 }
 
 export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = false }) => {
-  const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
+  const openCoachProfile = useModalStore((s) => s.openCoachProfile);
   const profileName = useAuthStore((s) => s.profile?.name);
   const authUser = useAuthStore((s) => s.user);
   const me = authUser?.id || '';
@@ -62,7 +61,6 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
   const [directory, setDirectory] = useState<CoachCard[]>([]);
   const [joinNotice, setJoinNotice] = useState('');
   const [programCount, setProgramCount] = useState<number | null>(null);
-  const [films, setFilms] = useState<ProfileFilm[] | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [checkins, setCheckins] = useState<AthleteCheckInSubmission[] | null>(null);
   const [workouts, setWorkouts] = useState<CoachFinishedWorkoutLog[] | null>(null);
@@ -95,22 +93,22 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
   useEffect(() => {
     if (coach) return;
     let cancelled = false;
-    void fetchCoachCards().then((cards) => {
-      if (!cancelled) setDirectory(cards.filter((card) => card.accepting).slice(0, 8));
-    });
+    void fetchCoachCards()
+      .then((cards) => {
+        if (!cancelled) setDirectory(cards.filter((card) => card.accepting).slice(0, 8));
+      })
+      .catch((error: unknown) => console.warn('[CoachPortal] Coach directory failed', error));
     return () => {
       cancelled = true;
     };
   }, [coach]);
 
   const loadCoachSide = useCallback(async (coachId: string) => {
-    const [programs, filmRows, noteRows] = await Promise.all([
+    const [programs, noteRows] = await Promise.all([
       fetchStorefrontPrograms(coachId),
-      fetchCoachFilms(coachId),
       fetchCoachNotes(coachId),
     ]);
     setProgramCount(programs.length);
-    setFilms(filmRows ?? []);
     if (noteRows) setNotes(noteRows);
   }, []);
 
@@ -146,7 +144,6 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
   useEffect(() => {
     if (!coach?.id) {
       setProgramCount(null);
-      setFilms(null);
       setNotes([]);
       setSentTitle('');
       return;
@@ -216,11 +213,9 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
     return true;
   };
 
-  const openFilm = (reelId?: string) => {
+  const openProfile = (coachId: string) => {
     tactileEngine.triggerSelectionBuzz();
-    if (reelId) openFullEliteReels({ initialMode: 'player', initialReelId: reelId });
-    else if (coach) openFullEliteReels({ initialMode: 'grid', initialCoachId: coach.id });
-    else openFullEliteReels('grid');
+    openCoachProfile({ coachId });
   };
 
   const firstName = coach?.name.split(' ')[0] || 'your coach';
@@ -298,10 +293,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
             </div>
             <button
               type="button"
-              onClick={() => {
-                tactileEngine.triggerSelectionBuzz();
-                openFullEliteReels({ initialMode: 'grid', initialCoachId: card.id });
-              }}
+              onClick={() => openProfile(card.id)}
               className="h-[44px] shrink-0 rounded-full border border-white/[0.07] bg-o1-sheet px-4 text-o1-body font-semibold text-o1-text active:scale-[0.98]"
             >
               View
@@ -321,7 +313,6 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
       ? latestMessage
       : null;
   const reply = recentMessage?.text || checkinReply;
-  const filmList = films ?? [];
 
   return (
     <div id="o1fcoach-athlete-portal" className="w-full space-y-3 select-none pt-1">
@@ -342,19 +333,11 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-o1-title font-semibold text-o1-text">{coach.name}</h2>
           {handle ? <p className="truncate text-o1-caption text-o1-muted">{handle}</p> : null}
-          <div className="mt-2 grid grid-cols-2">
-            <div className="text-center">
-              <span className="tabular-nums block text-o1-control text-o1-text">
-                {films === null ? '--' : figureCount(filmList.length)}
-              </span>
-              <span className="text-o1-label text-o1-muted">Films</span>
-            </div>
-            <div className="text-center">
-              <span className="tabular-nums block text-o1-control text-o1-text">
-                {programCount === null ? '--' : figureCount(programCount)}
-              </span>
-              <span className="text-o1-label text-o1-muted">Programs</span>
-            </div>
+          <div className="mt-2">
+            <span className="tabular-nums block text-o1-control text-o1-text">
+              {compactCount(programCount)}
+            </span>
+            <span className="text-o1-label text-o1-muted">Programs</span>
           </div>
         </div>
       </div>
@@ -362,7 +345,7 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
       <div className="flex gap-2">
         <button
           type="button"
-          onClick={() => openFilm()}
+          onClick={() => openProfile(coach.id)}
           className="h-[44px] flex-1 rounded-xl border border-white/[0.07] bg-o1-sheet text-o1-body font-semibold text-o1-text"
         >
           Profile
@@ -400,27 +383,6 @@ export const CoachAthletePortal: React.FC<{ isCoach?: boolean }> = ({ isCoach = 
           <span className="text-o1-body font-semibold text-white">Start</span>
         </button>
       ) : null}
-
-      {films === null ? (
-        <p className="py-8 text-center text-xs text-o1-muted">Loading films…</p>
-      ) : filmList.length === 0 ? (
-        <p className="py-8 text-center text-xs text-o1-muted">No films yet</p>
-      ) : (
-        <div className="grid grid-cols-3 gap-0.5">
-          {filmList.slice(0, 18).map((film) => (
-            <button
-              key={film.id}
-              type="button"
-              onClick={() => openFilm(film.id)}
-              className="relative aspect-square overflow-hidden bg-o1-sheet"
-              aria-label={film.title}
-            >
-              <img src={film.thumb} alt="" className="h-full w-full object-cover" />
-              <Play className="absolute right-1.5 top-1.5 h-3 w-3 fill-white text-o1-text" />
-            </button>
-          ))}
-        </div>
-      )}
 
       {!isCoach && checkins !== null && !checkedInToday && (
         <button

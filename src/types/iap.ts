@@ -1,13 +1,11 @@
+/** A plan sold through the App Store or Google Play. Prices always come from the store, never from the app. */
 export interface IAPProductInfo {
   readonly productId: string;
   readonly name: string;
-  /** Only free plans carry a price here. Paid prices come from the store, never from the app. */
-  readonly price?: string;
   readonly periodText?: string;
   readonly description: string;
   readonly badge?: string;
   readonly recommended?: boolean;
-  readonly isFree?: boolean;
   readonly userType: 'athlete' | 'coach';
 }
 
@@ -15,20 +13,10 @@ export const IAP_PRODUCTS = {
   founder_pass: {
     productId: 'o1fc_founder_pass',
     name: 'Founder Pass',
-    periodText: '/once',
+    periodText: ' one-time',
     description: 'Lifetime All-Access forever • one-time, non-recurring',
     badge: 'POPULAR',
     recommended: true,
-    isFree: false,
-    userType: 'athlete' as const,
-  },
-  core_free: {
-    productId: 'o1fc_core_free',
-    name: 'Core Free',
-    price: '$0',
-    periodText: '/forever',
-    description: 'Base training features & 90-day full access',
-    isFree: true,
     userType: 'athlete' as const,
   },
   premium: {
@@ -38,17 +26,7 @@ export const IAP_PRODUCTS = {
     description: 'Full training & Fuel OS',
     badge: 'POPULAR',
     recommended: true,
-    isFree: false,
     userType: 'athlete' as const,
-  },
-  coach_free: {
-    productId: 'o1fc_coach_free',
-    name: 'Coach Starter',
-    price: '$0',
-    periodText: '/mo',
-    description: 'Up to 5 athletes • 15% fee on program sales',
-    isFree: true,
-    userType: 'coach' as const,
   },
   coach_pro: {
     productId: 'o1fc_coach_pro_monthly',
@@ -57,7 +35,6 @@ export const IAP_PRODUCTS = {
     description: 'Unlimited athletes • 10% fee on program sales',
     badge: 'POPULAR',
     recommended: true,
-    isFree: false,
     userType: 'coach' as const,
   },
 } as const;

@@ -20,7 +20,7 @@ export function registerPublicPages(app: Express): void {
     },
   );
 
-  // Invite, coach and reel links all land here, then go on to the app or the store.
+  // Invite and coach links land here, then go on to the app or the store.
   app.get(['/join', '/join/'], (_req, res) => {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');

@@ -1,26 +1,14 @@
 export type ModalType =
   | 'SETTINGS'
-  | 'FULL_ELITE_REELS'
+  | 'COACH_PROFILE'
   | 'CARDIO_SCANNER'
   | 'EXERCISE_SWAPPER'
   | 'HYDRATION'
   | 'SUPPLEMENTS';
 
-export interface EliteReelsPayload {
-  initialMode?: 'grid' | 'player';
-  initialReelId?: string;
-  initialCoachId?: string;
-  initialProfileTab?: 'reels' | 'programs' | 'coaching';
-}
-
-export interface CardioScannerPayload {
-  onPostCardio?: (data: {
-    type: string;
-    calories: number;
-    durationMins: number;
-    avgHr: number;
-    steps: number;
-  }) => void;
+export interface CoachProfilePayload {
+  coachId: string;
+  initialTab?: 'programs' | 'coaching';
 }
 
 export interface ExerciseSwapperPayload {
@@ -39,8 +27,8 @@ export interface GenericToastPayload {
 
 export type ModalPayloadMap = {
   SETTINGS: GenericToastPayload;
-  FULL_ELITE_REELS: EliteReelsPayload;
-  CARDIO_SCANNER: CardioScannerPayload;
+  COACH_PROFILE: CoachProfilePayload;
+  CARDIO_SCANNER: Record<string, never>;
   EXERCISE_SWAPPER: ExerciseSwapperPayload;
   HYDRATION: HydrationPayload;
   SUPPLEMENTS: GenericToastPayload;

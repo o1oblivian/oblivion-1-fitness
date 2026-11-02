@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { X, Camera, Trash2, Play, Film, UserCheck, Check, Loader2 } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { useUserStore } from '../../../stores/useUserStore';
-import { useReelsStore } from '../../../stores/useReelsStore';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import {
   compressPhoto,
@@ -18,10 +17,6 @@ import {
   saveVaultRow,
   uploadMedia,
 } from '../../../services/mediaStorage';
-import { CoachReelUploadModal } from '../../reels/components/CoachReelUploadModal';
-import { insertReelRow } from '../../reels/services/publishCoachReelService';
-import { mapReelRow } from '../../reels/services/reelFeed';
-import { fetchCoachCard, toExploreCoach } from '../services/coachDirectory';
 import { saveMyCoachAvatar } from '../services/coachPublicProfile';
 
 interface VaultMediaItem {
@@ -49,7 +44,7 @@ function fromRow(row: VaultRow): VaultMediaItem {
 }
 
 export interface VaultViewProps {
-  /** Athletes get the same cloud library without coach-only reel publishing. */
+  /** Whose profile photo "Use as profile photo" updates: the coach card or the athlete profile. */
   audience?: 'coach' | 'athlete';
   onSaved?: () => void;
 }
@@ -57,14 +52,11 @@ export interface VaultViewProps {
 export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSaved }) => {
   const isCoach = audience === 'coach';
   const user = useUserStore();
-  const reels = useReelsStore((s) => s.reels);
-  const addCoachReel = useReelsStore((s) => s.addCoachReel);
   const [tab, setTab] = useState<VaultTab>('all');
   const [items, setItems] = useState<VaultMediaItem[]>([]);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [preview, setPreview] = useState<VaultMediaItem | null>(null);
-  const [reelUploadOpen, setReelUploadOpen] = useState(false);
-  const [busy, setBusy] = useState<'upload' | 'publish' | 'avatar' | null>(null);
+  const [busy, setBusy] = useState<'upload' | 'avatar' | null>(null);
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -93,7 +85,6 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
     };
   }, [reload]);
 
-  const isPublished = (item: VaultMediaItem) => reels.some((reel) => reel.videoUrl === item.url);
   const photoCount = items.filter((i) => i.type === 'photo').length;
   const videoCount = items.length - photoCount;
   const visible = items.filter((item) => tab === 'all' || item.type === tab);
@@ -170,58 +161,10 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
     flash('ok', 'Profile photo updated');
   };
 
-  const handlePublishToReels = async (item: VaultMediaItem) => {
-    const coachId = await getAuthenticatedUserId();
-    if (!coachId) {
-      flash('error', 'Sign in to publish reels.');
-      return;
-    }
-    setBusy('publish');
-    const card = await fetchCoachCard(coachId);
-    const coach = toExploreCoach(
-      card ?? {
-        id: coachId,
-        name: user.name || 'Coach',
-        handle: '',
-        avatar: '',
-        bio: '',
-        specialties: [],
-        hourlyRate: null,
-        monthlyRate: null,
-        verified: false,
-        accepting: true,
-      },
-    );
-    const reel = mapReelRow(
-      {
-        id: `reel-${Date.now()}`,
-        title: item.title,
-        category: 'BIOMECHANICS',
-        filter_tag: 'TUTORIAL',
-        video_url: item.url,
-        thumbnail_url: item.thumbnailUrl || '',
-        cues: '',
-      },
-      coach,
-    );
-    const ok = await insertReelRow(reel);
-    setBusy(null);
-    if (!ok) {
-      flash('error', 'Could not publish this clip. Try again.');
-      return;
-    }
-    addCoachReel(reel);
-    tactileEngine.playPRCelebration();
-    flash('ok', 'Published to Reels');
-  };
-
   const handleDelete = (item: VaultMediaItem) => {
     tactileEngine.triggerSelectionBuzz();
     const urls = [item.url, item.thumbnailUrl].filter(Boolean);
-    const inUse =
-      urls.includes(user.avatarUrl) ||
-      reels.some((reel) => urls.includes(reel.videoUrl) || urls.includes(reel.thumbnail));
-    if (!inUse) void removeMedia(item.storagePaths);
+    if (!urls.includes(user.avatarUrl)) void removeMedia(item.storagePaths);
     void deleteVaultRow(item.id);
     setItems((prev) => prev.filter((i) => i.id !== item.id));
     setPreview(null);
@@ -287,8 +230,7 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
           disabled={busy !== null || status !== 'ready'}
           onClick={() => {
             tactileEngine.triggerSelectionBuzz();
-            if (isCoach && tab === 'video') setReelUploadOpen(true);
-            else fileInputRef.current?.click();
+            fileInputRef.current?.click();
           }}
           className="flex min-h-[40px] items-center gap-1.5 rounded-2xl bg-o1-crimson px-3.5 text-o1-caption font-semibold text-white active:scale-95 hover:bg-o1-crimson-hover disabled:opacity-60"
         >
@@ -354,12 +296,6 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
                   </span>
                 </span>
               ) : null}
-              {isPublished(item) ? (
-                <span className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-o1-crimson px-1.5 py-0.5 text-o1-label font-semibold text-white">
-                  <Film size={10} />
-                  Reel
-                </span>
-              ) : null}
               <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2.5">
                 <span className="block truncate text-o1-caption font-semibold text-o1-text">
                   {item.title}
@@ -422,71 +358,32 @@ export const VaultView: React.FC<VaultViewProps> = ({ audience = 'coach', onSave
             </div>
 
             <div className="space-y-2 border-t border-white/[0.07] bg-o1-canvas p-4">
-              {(() => {
-                const published = isPublished(preview);
-                return (
-                  <>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        disabled={busy !== null}
-                        onClick={() => void handleSetAsAvatar(preview)}
-                        className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.08] text-o1-caption font-semibold text-o1-text disabled:opacity-50"
-                      >
-                        {busy === 'avatar' ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <UserCheck className="h-3.5 w-3.5" />
-                        )}
-                        <span>Use as profile photo</span>
-                      </button>
-                      {isCoach && preview.type === 'video' ? (
-                        <button
-                          type="button"
-                          disabled={published || busy !== null}
-                          onClick={() => void handlePublishToReels(preview)}
-                          className={`flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl text-o1-caption font-semibold ${
-                            published
-                              ? 'border border-white/[0.07] text-o1-muted'
-                              : 'bg-o1-crimson text-white hover:bg-o1-crimson-hover disabled:opacity-50'
-                          }`}
-                        >
-                          {busy === 'publish' ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Film className="h-3.5 w-3.5" />
-                          )}
-                          <span>{published ? 'On Reels' : 'Publish to Reels'}</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setPreview(null)}
-                          className="min-h-[44px] rounded-xl bg-white/[0.08] text-o1-caption font-semibold text-o1-text"
-                        >
-                          Done
-                        </button>
-                      )}
-                    </div>
-                  </>
-                );
-              })()}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  disabled={busy !== null}
+                  onClick={() => void handleSetAsAvatar(preview)}
+                  className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/[0.08] text-o1-caption font-semibold text-o1-text disabled:opacity-50"
+                >
+                  {busy === 'avatar' ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <UserCheck className="h-3.5 w-3.5" />
+                  )}
+                  <span>Use as profile photo</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreview(null)}
+                  className="min-h-[44px] rounded-xl bg-white/[0.08] text-o1-caption font-semibold text-o1-text"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
-
-      {isCoach ? (
-        <CoachReelUploadModal
-          isOpen={reelUploadOpen}
-          onClose={() => setReelUploadOpen(false)}
-          onReelPublished={(reelTitle) => {
-            tactileEngine.playPRCelebration();
-            flash('ok', `"${reelTitle}" published`);
-            void reload();
-          }}
-        />
-      ) : null}
     </div>
   );
 };

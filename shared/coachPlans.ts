@@ -7,9 +7,8 @@ export type CoachPlanId = 'starter' | 'pro';
 export interface CoachPlanDefinition {
   id: CoachPlanId;
   label: string;
-  productId: string;
-  /** Monthly price in USD. */
-  priceMonthlyUsd: number;
+  /** The store product for a paid plan. `null` for Starter, which is not sold. */
+  productId: string | null;
   /** Max roster athletes; null means unlimited. */
   rosterLimit: number | null;
   /** Fraction of every program sale kept by the platform (0.15 = 15%). */
@@ -20,8 +19,7 @@ export const COACH_PLANS: Record<CoachPlanId, CoachPlanDefinition> = {
   starter: {
     id: 'starter',
     label: 'Coach Starter',
-    productId: 'o1fc_coach_free',
-    priceMonthlyUsd: 0,
+    productId: null,
     rosterLimit: 5,
     platformFeeRate: 0.15,
   },
@@ -29,7 +27,6 @@ export const COACH_PLANS: Record<CoachPlanId, CoachPlanDefinition> = {
     id: 'pro',
     label: 'Coach Pro',
     productId: 'o1fc_coach_pro_monthly',
-    priceMonthlyUsd: 29.99,
     rosterLimit: null,
     platformFeeRate: 0.1,
   },

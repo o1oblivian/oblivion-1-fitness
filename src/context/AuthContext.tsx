@@ -31,8 +31,8 @@ function writeIdentity(uid: string, uEmail: string | null): void {
   try {
     localStorage.setItem('o1fc_user_id', uid);
     if (uEmail) localStorage.setItem('o1fc_user_email', uEmail);
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.warn('[AuthContext] storage unavailable', err);
   }
 }
 
@@ -40,8 +40,8 @@ function forgetIdentity(): void {
   try {
     localStorage.removeItem('o1fc_user_id');
     localStorage.removeItem('o1fc_user_email');
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.warn('[AuthContext] storage unavailable', err);
   }
 }
 
@@ -76,8 +76,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const key = 'o1fc_production_settings_v3';
           const cached = JSON.parse(localStorage.getItem(key) || '{}') as Record<string, unknown>;
           if (!cached.name) localStorage.setItem(key, JSON.stringify({ ...cached, name }));
-        } catch {
-          /* settings cache stays as it is */
+        } catch (err) {
+          console.warn('[AuthContext] settings cache stays as it is', err);
         }
       }
     }
@@ -162,7 +162,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
-    } catch {}
+    } catch (err) {
+      console.warn(
+        '[AuthContext] Supabase sign-out failed; clearing the local session anyway',
+        err,
+      );
+    }
     setUserId('');
     setEmail(null);
     useUserStore.getState().setUserId('');
@@ -172,8 +177,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (key.startsWith('sb-') && key.includes('auth-token'))
           window.localStorage.removeItem(key);
       }
-    } catch {
-      /* storage unavailable */
+    } catch (err) {
+      console.warn('[AuthContext] storage unavailable', err);
     }
     window.dispatchEvent(new CustomEvent('o1fc_signed_out'));
     releaseDevice();

@@ -4,20 +4,21 @@ import { useModalStore } from './useModalStore';
 // Modal component imports
 
 import {
-  CardioScannerPayload,
+  CoachProfilePayload,
   ExerciseSwapperPayload,
   HydrationPayload,
   GenericToastPayload,
-  EliteReelsPayload,
 } from './types';
-import { REEL_LINK_EVENT, consumeReelLink } from '../../features/reels/services/reelLinks';
+import { COACH_LINK_EVENT, consumeCoachLink } from '../../features/coach/services/coachLinks';
 
 // Each sheet is its own chunk and is fetched the first time it opens, so none of them weigh on the first screen.
 const SettingsModal = lazy(() =>
   import('../SettingsModal').then((m) => ({ default: m.SettingsModal })),
 );
-const ReelsHub = lazy(() =>
-  import('../../features/reels/ReelsHub').then((m) => ({ default: m.ReelsHub })),
+const CoachProfileModal = lazy(() =>
+  import('../../features/coach/components/profile/CoachProfileModal').then((m) => ({
+    default: m.CoachProfileModal,
+  })),
 );
 const CardioTelemetryModal = lazy(() =>
   import('../../features/workout/components/cardio/CardioTelemetryModal').then((m) => ({
@@ -45,27 +46,23 @@ const SupplementTimingModal = lazy(() =>
  * Eliminates prop drilling and bloated layout states while preserving 100% visual parity and animations.
  */
 export const ModalRegistry: React.FC = () => {
-  const { activeModal, payload, closeModal, openFullEliteReels } = useModalStore();
+  const { activeModal, payload, closeModal, openCoachProfile } = useModalStore();
 
   useEffect(() => {
-    const openPending = () => {
-      const link = consumeReelLink();
-      if (!link) return;
-      openFullEliteReels({
-        initialMode: link.reelId ? 'player' : 'grid',
-        initialReelId: link.reelId,
-        initialCoachId: link.reelId ? undefined : link.coachId,
-      });
+    const openPending = (event?: Event) => {
+      const fromEvent = event instanceof CustomEvent ? event.detail : null;
+      const coachId = consumeCoachLink() ?? (typeof fromEvent === 'string' ? fromEvent : null);
+      if (coachId) openCoachProfile({ coachId });
     };
     openPending();
-    window.addEventListener(REEL_LINK_EVENT, openPending);
+    window.addEventListener(COACH_LINK_EVENT, openPending);
     const closeOnSignOut = () => closeModal();
     window.addEventListener('o1fc_signed_out', closeOnSignOut);
     return () => {
-      window.removeEventListener(REEL_LINK_EVENT, openPending);
+      window.removeEventListener(COACH_LINK_EVENT, openPending);
       window.removeEventListener('o1fc_signed_out', closeOnSignOut);
     };
-  }, [openFullEliteReels, closeModal]);
+  }, [openCoachProfile, closeModal]);
 
   if (!activeModal) return null;
 
@@ -80,39 +77,18 @@ export const ModalRegistry: React.FC = () => {
         />
       )}
 
-      {/* 3. Full Elite Reels Modal (ReelsHub) */}
-      {activeModal === 'FULL_ELITE_REELS' && (
-        <ReelsHub
-          isOpen={activeModal === 'FULL_ELITE_REELS'}
+      {/* 2. Coach profile (Coach tab cards, program owners, shared coach links) */}
+      {activeModal === 'COACH_PROFILE' && (payload as CoachProfilePayload | null)?.coachId && (
+        <CoachProfileModal
+          coachId={(payload as CoachProfilePayload).coachId}
+          initialTab={(payload as CoachProfilePayload).initialTab}
           onClose={closeModal}
-          initialMode={(payload as EliteReelsPayload | null)?.initialMode}
-          initialReelId={(payload as EliteReelsPayload | null)?.initialReelId}
-          initialCoachId={(payload as EliteReelsPayload | null)?.initialCoachId}
-          initialProfileTab={(payload as EliteReelsPayload | null)?.initialProfileTab}
         />
       )}
 
-      {/* 4. Cardio Scanner Modal (CardioTelemetryModal) */}
+      {/* 3. Cardio Scanner Modal (CardioTelemetryModal) */}
       {activeModal === 'CARDIO_SCANNER' && (
-        <CardioTelemetryModal
-          isOpen={activeModal === 'CARDIO_SCANNER'}
-          onClose={closeModal}
-          onPostCardio={(data) => {
-            const cb = (payload as CardioScannerPayload)?.onPostCardio;
-            if (cb) {
-              cb({
-                type: data.deviceType === 'watch' ? 'Smartwatch Pedometer' : 'Console Telemetry',
-                calories: data.caloriesBurned || 0,
-                durationMins:
-                  data.elapsedMinutes != null ? Math.max(1, Math.round(data.elapsedMinutes)) : 0,
-                avgHr: data.avgHeartRateBpm || 0,
-                steps:
-                  data.steps || (data.distanceKm != null ? Math.round(data.distanceKm * 1312) : 0),
-              });
-            }
-            closeModal();
-          }}
-        />
+        <CardioTelemetryModal isOpen={activeModal === 'CARDIO_SCANNER'} onClose={closeModal} />
       )}
 
       {/* 6. Exercise Swapper Modal (RoutineSwapperModal) */}

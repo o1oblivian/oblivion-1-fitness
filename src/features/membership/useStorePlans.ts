@@ -2,24 +2,26 @@
 import { IAP_PRODUCTS, type IAPProductInfo } from '../../types/iap';
 import { revenueCatService, type StoreCatalog } from '../../services/revenueCatService';
 import { BUILD_STAMP } from '../../services/buildStamp';
+import { storeCopy } from '../../utils/storeCopy';
 
-/** What a plan button can do right now. Paid plans are only `ready` once the store has priced them. */
-export type PlanAvailability = 'free' | 'ready' | 'loading' | 'unavailable';
+export type StoreStatus = 'loading' | 'ready' | 'unavailable';
 
 export interface StorePlans {
-  /** The store's own price in the buyer's currency. Paid plans show `--` until the store answers. */
-  priceOf: (product: IAPProductInfo) => string;
-  availability: (product: IAPProductInfo) => PlanAvailability;
-  /** Why this plan cannot be bought yet, in words the athlete can act on. Null when it can. */
-  notice: (product: IAPProductInfo) => string | null;
+  status: StoreStatus;
+  /** The plans from `products` the store sells right now, in the same order. Empty until it answers. */
+  offered: (products: readonly IAPProductInfo[]) => IAPProductInfo[];
+  /** The store's own price in the buyer's currency, or `null` for a plan the store did not price. */
+  priceOf: (product: IAPProductInfo) => string | null;
+  /** "Unable to reach the App Store." while `status` is `'unavailable'`, otherwise `null`. */
+  error: string | null;
   /** Asks the store again after a failure. */
   retry: () => void;
-  /** Which build this is and which store step it is on. Empty once prices are in. Shown small under the buy button. */
+  /** Which build this is and which store step it is on, or the store's own reason for failing. Empty once prices are in. */
   detail: string;
 }
 
 interface Loaded {
-  status: 'loading' | 'ready' | 'unavailable';
+  status: StoreStatus;
   prices: Record<string, string>;
   issue: string | null;
 }
@@ -27,12 +29,12 @@ interface Loaded {
 /** However the store behaves, the spinner ends with a reason after this long. */
 const PRICE_DEADLINE_MS = 20_000;
 const LOADING: Loaded = { status: 'loading', prices: {}, issue: null };
-const PAID_PRODUCTS = Object.values(IAP_PRODUCTS).filter((product) => !product.isFree);
+const PRODUCTS = Object.values(IAP_PRODUCTS);
 
-/** Reads each paid plan's store price out of a product list. */
+/** Reads each plan's store price out of a product list. */
 function pricesFrom(catalog: StoreCatalog): Record<string, string> {
   const prices: Record<string, string> = {};
-  for (const product of PAID_PRODUCTS) {
+  for (const product of PRODUCTS) {
     const price = revenueCatService.packageForPlan(catalog, product.productId)?.product
       ?.priceString;
     if (price) prices[product.productId] = price;
@@ -47,10 +49,11 @@ function initialState(): Loaded {
   const prices = pricesFrom(cached);
   return Object.keys(prices).length > 0 ? { status: 'ready', prices, issue: null } : LOADING;
 }
+
 /**
- * The one place every paywall learns what plans cost.
- * Prices come from the store only, never from the catalog, so a screen can never show a price
- * the store did not confirm, and a missing store is reported instead of waited on.
+ * The one place every paywall learns which plans are on sale and what they cost.
+ * Plans and prices come from the store only, so a screen never lists a plan the store did not
+ * return, and a store that cannot be reached is reported instead of waited on.
  */
 export function useStorePlans(enabled: boolean = true): StorePlans {
   const [loaded, setLoaded] = useState<Loaded>(initialState);
@@ -59,11 +62,7 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
   useEffect(() => {
     if (!enabled) return;
     if (!revenueCatService.isNative()) {
-      setLoaded({
-        status: 'unavailable',
-        prices: {},
-        issue: 'Prices load in the mobile app.',
-      });
+      setLoaded({ status: 'unavailable', prices: {}, issue: 'Plans are sold in the mobile app.' });
       return;
     }
     let cancelled = false;
@@ -82,20 +81,17 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
             : {
                 status: 'unavailable',
                 prices: {},
-                issue:
-                  revenueCatService.lastIssue ??
-                  'The store returned no prices. Check your connection and try again.',
+                issue: revenueCatService.lastIssue ?? 'The store returned no plans.',
               },
         );
       })
-      .catch(() => {
+      .catch((err: unknown) => {
+        console.error('[StorePlans] Store offerings failed', err);
         if (!cancelled)
           setLoaded({
             status: 'unavailable',
             prices: {},
-            issue:
-              revenueCatService.lastIssue ??
-              'The store did not answer in time. Check your connection and try again.',
+            issue: revenueCatService.lastIssue ?? 'The store did not answer in time.',
           });
       })
       .finally(() => clearTimeout(deadline));
@@ -118,24 +114,19 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
   const progress = revenueCatService.progress;
 
   return useMemo<StorePlans>(() => {
-    const availability = (product: IAPProductInfo): PlanAvailability => {
-      if (product.isFree) return 'free';
-      if (loaded.prices[product.productId]) return 'ready';
-      return loaded.status === 'loading' ? 'loading' : 'unavailable';
-    };
+    const priceOf = (product: IAPProductInfo) => loaded.prices[product.productId] ?? null;
     return {
-      priceOf: (product) =>
-        product.isFree ? (product.price ?? '$0') : (loaded.prices[product.productId] ?? '--'),
-      availability,
-      notice: (product) => {
-        const state = availability(product);
-        if (state === 'free' || state === 'ready' || state === 'loading') return null;
-        return loaded.status === 'ready'
-          ? `${product.name} is not live in the store yet.`
-          : loaded.issue;
-      },
+      status: loaded.status,
+      offered: (products) => products.filter((product) => priceOf(product) !== null),
+      priceOf,
+      error: loaded.status === 'unavailable' ? `Unable to reach ${storeCopy().inSentence}.` : null,
       retry,
-      detail: loaded.status === 'ready' ? '' : `Build ${BUILD_STAMP} · ${progress}`,
+      detail:
+        loaded.status === 'ready'
+          ? ''
+          : loaded.status === 'unavailable' && loaded.issue
+            ? loaded.issue
+            : `Build ${BUILD_STAMP} · ${progress}`,
     };
   }, [loaded, retry, progress]);
 }

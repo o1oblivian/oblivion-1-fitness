@@ -2,7 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type CoachRootView = 'athlete' | 'coach';
-export type CoachFloorTab = 'films' | 'programs' | 'floor' | 'directives' | 'inbox' | 'earnings';
+const FLOOR_TABS = ['programs', 'floor', 'directives', 'inbox', 'earnings'] as const;
+export type CoachFloorTab = (typeof FLOOR_TABS)[number];
+
+function isFloorTab(value: unknown): value is CoachFloorTab {
+  return typeof value === 'string' && (FLOOR_TABS as readonly string[]).includes(value);
+}
 
 interface CoachViewState {
   view: CoachRootView;
@@ -51,6 +56,14 @@ export const useCoachViewStore = create<CoachViewState>()(
       setFloorTab: (floorTab) => set({ floorTab }),
       setCoachCard: (userId, has) => set({ coachCard: { userId, has } }),
     }),
-    { name: 'o1fc_coach_view' },
+    {
+      name: 'o1fc_coach_view',
+      version: 1,
+      // Version 0 could have saved the retired Films tab; anything unknown opens on Clients.
+      migrate: (persisted) => {
+        const state = (persisted ?? {}) as Partial<CoachViewState>;
+        return { ...state, floorTab: isFloorTab(state.floorTab) ? state.floorTab : 'floor' };
+      },
+    },
   ),
 );

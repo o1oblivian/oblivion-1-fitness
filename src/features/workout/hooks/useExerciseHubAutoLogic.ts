@@ -26,8 +26,8 @@ function writeLastFocus(discipline: string, category: string) {
   try {
     const next = { ...readLastFocus(), [discipline]: category };
     localStorage.setItem(LAST_FOCUS_KEY, JSON.stringify(next));
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn('[useExerciseHubAutoLogic] Could not save the last category', err);
   }
 }
 

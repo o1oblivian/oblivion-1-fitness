@@ -31,14 +31,18 @@ class TelemetryArbitrationService {
           ? parsed.filter((s: CardioSessionWindow) => s.endTime >= todayStart)
           : [];
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[telemetryArbitrationService] Could not read saved cardio windows', err);
+    }
   }
 
   private saveSessions() {
     if (typeof window === 'undefined') return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.sessionWindows));
-    } catch {}
+    } catch (err) {
+      console.warn('[telemetryArbitrationService] Could not save cardio windows', err);
+    }
   }
 
   /**

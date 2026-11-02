@@ -6,7 +6,7 @@ import {
   CardioTelemetryResult,
 } from '../../../../services/geminiVisionService';
 import { processCardioScanImage } from '../../../log/services/cardioScanService';
-import { ScanError } from '../../../../services/scanErrors';
+import { ScanError, TELEMETRY_UNREADABLE } from '../../../../services/scanErrors';
 import { Capacitor } from '@capacitor/core';
 import {
   capturePhotoDataUrl,
@@ -22,13 +22,12 @@ import {
   type ScanMerge,
   type ScanToSave,
 } from '../../../log/services/cardioScanSave';
-import { estimateStepsFromCardio } from '../../../telemetry/services/stepEstimate';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { CardioMetricsGrid, MetricItem } from './CardioMetricsGrid';
 
 const NO_NUMBERS = {
   ok: false,
-  text: 'No numbers found. Tap any number to enter it, or retake the photo.',
+  text: `${TELEMETRY_UNREADABLE} Or tap any number to enter it.`,
 };
 
 /** The reader's own failure, with a retry offered when another attempt could succeed. */
@@ -55,13 +54,7 @@ const foundMessage = (
     const where = r.deviceType === 'watch' ? 'watch' : 'screen';
     return { ok: true, text: `Read ${r.steps.toLocaleString()} steps from the ${where}.` };
   }
-  const est = estimateStepsFromCardio(r.distanceKm, r.elapsedMinutes);
-  return {
-    ok: true,
-    text: est
-      ? `No steps on screen. Estimated ~${est.toLocaleString()} steps from distance.`
-      : 'Numbers found.',
-  };
+  return { ok: true, text: 'Numbers found. Steps were not on screen.' };
 };
 
 /** "6,157 steps · 188 kcal" for what today's log already holds. */
@@ -84,13 +77,12 @@ function loggedSummary(day: {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onPostCardio?: (data: CardioTelemetryResult) => void;
 }
 
 const SECONDARY_BUTTON =
   'h-11 rounded-2xl bg-o1-well text-o1-text text-o1-caption flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition disabled:opacity-50';
 
-export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostCardio }) => {
+export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -206,11 +198,6 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
     });
   };
 
-  const estimatedSteps =
-    telemetry && telemetry.steps == null
-      ? estimateStepsFromCardio(telemetry.distanceKm, telemetry.elapsedMinutes)
-      : null;
-
   const scanToSave = (): ScanToSave | null => {
     if (!telemetry) return null;
     const readSteps = telemetry.steps || 0;
@@ -222,7 +209,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
           : selectedImage && telemetry.deviceType === 'console'
             ? 'Console'
             : 'Cardio',
-      steps: readSteps || estimatedSteps || 0,
+      steps: readSteps,
       readSteps,
       distanceKm: telemetry.distanceKm || 0,
       durationMinutes: telemetry.elapsedMinutes || 0,
@@ -253,20 +240,17 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
       });
       return;
     }
-    onPostCardio?.(telemetry);
     tactileEngine.playPRCelebration();
     onClose();
   };
 
   const metrics: MetricItem[] = [
-    telemetry?.steps != null
-      ? { id: 'steps', label: 'Steps', num: telemetry.steps.toLocaleString(), unit: 'steps' }
-      : {
-          id: 'steps',
-          label: 'Steps',
-          num: estimatedSteps != null ? `~${estimatedSteps.toLocaleString()}` : '--',
-          unit: estimatedSteps != null ? 'est.' : 'steps',
-        },
+    {
+      id: 'steps',
+      label: 'Steps',
+      num: telemetry?.steps != null ? telemetry.steps.toLocaleString() : '--',
+      unit: 'steps',
+    },
     {
       id: 'elapsed',
       label: 'Time',

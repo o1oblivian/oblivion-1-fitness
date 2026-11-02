@@ -22,7 +22,7 @@ const PILLARS = [
   {
     icon: Users,
     title: 'Coaching',
-    body: 'Find a coach, follow their programs and learn from form reels.',
+    body: 'Find a coach, follow their programs and message them directly.',
   },
 ];
 

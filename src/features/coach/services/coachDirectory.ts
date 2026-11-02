@@ -1,5 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
-import type { ExploreCoach } from '../../reels/reelTypes';
+import type { ExploreCoach } from '../coachTypes';
 
 export interface CoachCard {
   id: string;

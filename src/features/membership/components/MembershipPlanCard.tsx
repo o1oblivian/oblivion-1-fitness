@@ -5,10 +5,10 @@ import { tactileEngine } from '../../../services/tactileEngine';
 
 interface Props {
   product: IAPProductInfo;
+  /** The store's price for this plan; cards are only drawn for plans the store priced. */
+  price: string;
   isSelected: boolean;
   onSelect: (productId: string) => void;
-  /** Live line under the description, used for the Founder Pass count. */
-  note?: string;
 }
 
 function badgeTone(badge: string): string {
@@ -19,7 +19,7 @@ function badgeTone(badge: string): string {
   return 'text-o1-stone border-white/[0.14]';
 }
 
-export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSelect, note }) => {
+export const MembershipPlanCard: React.FC<Props> = ({ product, price, isSelected, onSelect }) => {
   return (
     <div
       onClick={() => {
@@ -64,16 +64,11 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, isSelected, onSel
         <p className="text-o1-label sm:text-o1-label text-o1-muted mt-1 line-clamp-2 leading-snug">
           {product.description}
         </p>
-        {note ? (
-          <p className="text-o1-label font-num tabular-nums text-o1-gold mt-1 leading-snug">
-            {note}
-          </p>
-        ) : null}
       </div>
 
       {/* Price */}
       <div className="mt-2.5 pt-2 border-t border-white/[0.05] flex items-baseline gap-1">
-        <span className="font-num font-black text-xs sm:text-sm text-white">{product.price}</span>
+        <span className="font-num font-black text-xs sm:text-sm text-white">{price}</span>
         {product.periodText && (
           <span className="text-o1-label font-num text-o1-muted">{product.periodText}</span>
         )}

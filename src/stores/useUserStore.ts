@@ -108,7 +108,9 @@ const userStore = createStore<UserState, UserActions>(initialUserState, (set) =>
   setUserId: (userId) => {
     try {
       localStorage.setItem('o1fc_user_id', userId);
-    } catch {}
+    } catch (err) {
+      console.warn('[useUserStore] Could not save the profile to device storage', err);
+    }
     set({ userId });
   },
   setAssignedCoachId: (assigned_coach_id) => {
@@ -118,25 +120,33 @@ const userStore = createStore<UserState, UserActions>(initialUserState, (set) =>
       } else {
         localStorage.removeItem('o1fc_assigned_coach_id');
       }
-    } catch {}
+    } catch (err) {
+      console.warn('[useUserStore] Could not save the profile to device storage', err);
+    }
     set({ assigned_coach_id });
   },
   setHandle: (handle) => {
     try {
       localStorage.setItem('o1_profile_handle', handle);
-    } catch {}
+    } catch (err) {
+      console.warn('[useUserStore] Could not save the profile to device storage', err);
+    }
     set({ handle });
   },
   setWeightKg: (weightKg) => {
     try {
       localStorage.setItem('o1_profile_weight', String(weightKg));
-    } catch {}
+    } catch (err) {
+      console.warn('[useUserStore] Could not save the profile to device storage', err);
+    }
     set({ weightKg });
   },
   setTargetWeightKg: (targetWeightKg) => {
     try {
       localStorage.setItem('o1_profile_target_weight', String(targetWeightKg));
-    } catch {}
+    } catch (err) {
+      console.warn('[useUserStore] Could not save the profile to device storage', err);
+    }
     set({ targetWeightKg });
   },
   setCalibrationProgress: (calibrationProgress) => set({ calibrationProgress }),
@@ -145,32 +155,44 @@ const userStore = createStore<UserState, UserActions>(initialUserState, (set) =>
     if (updates.userId !== undefined) {
       try {
         localStorage.setItem('o1fc_user_id', updates.userId);
-      } catch {}
+      } catch (err) {
+        console.warn('[useUserStore] Could not save the profile to device storage', err);
+      }
     }
     if (updates.avatarUrl !== undefined) {
       try {
         localStorage.setItem('o1_profile_avatar_url', updates.avatarUrl);
-      } catch {}
+      } catch (err) {
+        console.warn('[useUserStore] Could not save the profile to device storage', err);
+      }
     }
     if (updates.name !== undefined) {
       try {
         localStorage.setItem('o1_profile_name', updates.name);
-      } catch {}
+      } catch (err) {
+        console.warn('[useUserStore] Could not save the profile to device storage', err);
+      }
     }
     if (updates.handle !== undefined) {
       try {
         localStorage.setItem('o1_profile_handle', updates.handle);
-      } catch {}
+      } catch (err) {
+        console.warn('[useUserStore] Could not save the profile to device storage', err);
+      }
     }
     if (updates.weightKg !== undefined) {
       try {
         localStorage.setItem('o1_profile_weight', String(updates.weightKg));
-      } catch {}
+      } catch (err) {
+        console.warn('[useUserStore] Could not save the profile to device storage', err);
+      }
     }
     if (updates.targetWeightKg !== undefined) {
       try {
         localStorage.setItem('o1_profile_target_weight', String(updates.targetWeightKg));
-      } catch {}
+      } catch (err) {
+        console.warn('[useUserStore] Could not save the profile to device storage', err);
+      }
     }
     set((prev) => ({ ...prev, ...updates }));
   },

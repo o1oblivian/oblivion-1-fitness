@@ -26,7 +26,6 @@ interface SettingsStoreState {
   heightCm: number;
   weightKg: number;
   bio: string;
-  eliteReelsPresence: boolean;
 
   // 2. Training (discipline and days live in the consultation profile)
   autoDispatch: boolean;
@@ -129,14 +128,6 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     'bio',
     typeof cached.bio === 'string' ? cached.bio : '',
   );
-  const [eliteReelsPresence, setEliteReelsPresenceState] = useState<boolean>(
-    typeof cached.eliteReelsPresence === 'boolean' ? cached.eliteReelsPresence : true,
-  );
-  const setEliteReelsPresence = (val: boolean) => {
-    setEliteReelsPresenceState(val);
-    persistSettingsPatch({ eliteReelsPresence: val });
-  };
-
   // Training
   const [autoDispatch, setAutoDispatch] = usePersistedSetting<boolean>(
     'autoDispatch',
@@ -174,8 +165,8 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     try {
       const storeTarget = useTelemetryStore.getState().stepTarget;
       if (typeof storeTarget === 'number' && storeTarget > 0) return storeTarget;
-    } catch {
-      // ignore
+    } catch (err) {
+      console.warn('[useAthleteSettings] Could not read the saved step target', err);
     }
     if (typeof cached.stepTarget === 'number' && cached.stepTarget > 0) return cached.stepTarget;
     return 10000;
@@ -268,7 +259,6 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
       heightCm,
       weightKg,
       bio,
-      eliteReelsPresence,
       autoDispatch,
       restRecoveryMode,
       weightUnit,
@@ -296,7 +286,9 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
   /** Reminders and Bluetooth sensors belong to this account; stop both before the device is released. */
   const releasePhoneResources = async () => {
     bluetoothSensorService.disconnectAll();
-    await clearReminders().catch(() => {});
+    await clearReminders().catch((err: unknown) => {
+      console.warn('[useAthleteSettings] Could not clear reminders on sign-out', err);
+    });
   };
 
   const handleLogout = (onLogoutCallback?: () => void) => {
@@ -310,8 +302,8 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     try {
       void supabase.auth.stopAutoRefresh();
       void supabase.auth.signOut({ scope: 'local' });
-    } catch {
-      /* reload still drops the stored session */
+    } catch (err) {
+      console.warn('[useAthleteSettings] reload still drops the stored session', err);
     }
     try {
       window.localStorage.setItem('o1fc_signed_out_pending', '1');
@@ -322,8 +314,8 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
         if (key.startsWith('sb-') && key.includes('auth-token'))
           window.localStorage.removeItem(key);
       }
-    } catch {
-      /* releaseDevice still restarts clean */
+    } catch (err) {
+      console.warn('[useAthleteSettings] releaseDevice still restarts clean', err);
     }
     void Promise.race([
       releasePhoneResources(),
@@ -395,8 +387,8 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
           try {
             window.localStorage.clear();
             window.sessionStorage.clear();
-          } catch {
-            // storage unavailable
+          } catch (err) {
+            console.warn('[useAthleteSettings] storage unavailable', err);
           }
           window.dispatchEvent(new CustomEvent('o1fc_account_deleted'));
           window.dispatchEvent(new CustomEvent('o1fc_relaunch_onboarding'));
@@ -490,8 +482,6 @@ export const useProductionSettings = (onShowToast?: (msg: string) => void) => {
     setWeightKg,
     bio,
     setBio,
-    eliteReelsPresence,
-    setEliteReelsPresence,
     autoDispatch,
     setAutoDispatch,
     restRecoveryMode,

@@ -63,7 +63,9 @@ export function useDialDrag(config: DialConfig, initialValue: number) {
     setIsDragging(true);
     try {
       e.currentTarget.setPointerCapture(e.pointerId);
-    } catch {}
+    } catch (err) {
+      console.warn('[useDialDrag] Pointer capture unavailable', err);
+    }
     calculateValueFromPointer(e.clientX, e.clientY);
   };
 
@@ -78,7 +80,9 @@ export function useDialDrag(config: DialConfig, initialValue: number) {
         if (svgRef.current?.hasPointerCapture(e.pointerId)) {
           svgRef.current.releasePointerCapture(e.pointerId);
         }
-      } catch {}
+      } catch (err) {
+        console.warn('[useDialDrag] Could not release pointer capture', err);
+      }
     };
 
     window.addEventListener('pointermove', onMove);

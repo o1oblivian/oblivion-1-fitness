@@ -91,15 +91,23 @@ export const LEGAL_URLS = {
   privacy: `${API_ORIGIN}/privacy`,
   terms: `${API_ORIGIN}/terms`,
   deleteAccount: `${API_ORIGIN}/delete-account`,
+  appleEula: 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
 } as const;
 
-export async function openLegalUrl(kind: 'privacy' | 'terms' | 'delete-account'): Promise<void> {
+/** `'eula'` is the licence that governs a store purchase: Apple's standard EULA on iOS, the club's terms elsewhere. */
+export async function openLegalUrl(
+  kind: 'privacy' | 'terms' | 'eula' | 'delete-account',
+): Promise<void> {
   const url =
     kind === 'privacy'
       ? LEGAL_URLS.privacy
       : kind === 'terms'
         ? LEGAL_URLS.terms
-        : LEGAL_URLS.deleteAccount;
+        : kind === 'eula'
+          ? Capacitor.getPlatform() === 'ios'
+            ? LEGAL_URLS.appleEula
+            : LEGAL_URLS.terms
+          : LEGAL_URLS.deleteAccount;
   await openExternalUrl(url);
 }
 
@@ -110,8 +118,8 @@ export async function openExternalUrl(url: string): Promise<void> {
       await withNativeTimeout(Browser.open({ url }), 'The in-app browser did not open.');
       return;
     }
-  } catch {
-    /* fall through to window.open */
+  } catch (err) {
+    console.warn('[apiBase] fall through to window.open', err);
   }
   if (typeof window !== 'undefined') {
     window.open(url, '_blank', 'noopener,noreferrer');

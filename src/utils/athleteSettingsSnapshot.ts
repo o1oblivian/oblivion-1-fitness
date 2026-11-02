@@ -8,7 +8,6 @@ export interface AthleteSettingsSnapshot {
   defaultBarbellKg: number;
   autoDispatch: boolean;
   restRecoveryMode: boolean;
-  eliteReelsPresence: boolean;
   preWorkoutReminder: boolean;
   coachUpdates: boolean;
   hapticVibration: boolean;
@@ -24,7 +23,6 @@ const DEFAULTS: AthleteSettingsSnapshot = {
   defaultBarbellKg: 20,
   autoDispatch: true,
   restRecoveryMode: false,
-  eliteReelsPresence: true,
   preWorkoutReminder: true,
   coachUpdates: true,
   hapticVibration: true,

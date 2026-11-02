@@ -259,7 +259,7 @@ export function scaledAmount(entry: LibrarySupplement, weightKg: number | null):
 }
 
 export function formatDose(amount: number | undefined, unit: SupplementUnit | undefined): string {
-  if (amount == null || !unit) return '1 serving';
+  if (amount == null || !unit) return 'Dose not set';
   const n = Number.isInteger(amount)
     ? amount.toLocaleString()
     : String(Math.round(amount * 100) / 100);

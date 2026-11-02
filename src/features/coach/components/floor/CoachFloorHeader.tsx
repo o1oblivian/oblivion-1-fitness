@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { tactileEngine } from '../../../../services/tactileEngine';
-import type { StorefrontStats } from '../../../reels/services/coachStorefront';
+import type { StorefrontStats } from '../../services/coachStorefront';
 import { CoachCard, formatHandle, toExploreCoach } from '../../services/coachDirectory';
 import {
   CoachProfileHeader,
@@ -17,14 +17,10 @@ interface CoachFloorHeaderProps {
   /** Display name: the card's, else the account's. */
   name: string;
   storefront: StorefrontStats;
-  /** How many films the coach has, and the newest one's id (opens on avatar tap). */
-  filmCount: number;
-  firstFilmId?: string;
   /** Client count to show, or "--" while the roster loads. */
   clientCount: string;
   onCardChange: (card: CoachCard) => void;
   onStorefrontChange: (changes: Partial<StorefrontStats>) => void;
-  onOpenReel: (reelId: string) => void;
   onOpenVault: () => void;
   onCreateProgram: () => void;
   onOpenWorkout: () => void;
@@ -38,12 +34,9 @@ export function CoachFloorHeader({
   card,
   name,
   storefront,
-  filmCount,
-  firstFilmId,
   clientCount,
   onCardChange,
   onStorefrontChange,
-  onOpenReel,
   onOpenVault,
   onCreateProgram,
   onOpenWorkout,
@@ -66,8 +59,6 @@ export function CoachFloorHeader({
           specialty={specialtyLine}
           bio={card?.bio}
           verified={card?.verified}
-          hasStory={filmCount > 0}
-          onAvatarPress={firstFilmId ? () => onOpenReel(firstFilmId) : undefined}
           onAddClip={onOpenVault}
           onEdit={() => {
             tactileEngine.triggerSelectionBuzz();

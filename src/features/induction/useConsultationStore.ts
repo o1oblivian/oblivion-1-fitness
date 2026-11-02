@@ -32,8 +32,8 @@ function readLocal(): ConsultationProfile {
 function writeLocal(profile: ConsultationProfile) {
   try {
     localStorage.setItem(KEY, JSON.stringify(profile));
-  } catch {
-    /* private mode */
+  } catch (err) {
+    console.warn('[useConsultationStore] private mode', err);
   }
 }
 

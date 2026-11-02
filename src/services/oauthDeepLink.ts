@@ -46,8 +46,8 @@ async function closeNativeBrowser(): Promise<void> {
   try {
     const { Browser } = await import('@capacitor/browser');
     await withNativeTimeout(Browser.close(), 'The in-app browser did not close.', 5_000);
-  } catch {
-    /* already closed */
+  } catch (err) {
+    console.warn('[oauthDeepLink] already closed', err);
   }
 }
 
@@ -84,8 +84,8 @@ export function takeAuthCallbackError(): string | null {
       pendingAuthError = fromUrl;
       try {
         window.history.replaceState({}, document.title, window.location.pathname);
-      } catch {
-        /* ignore */
+      } catch (err) {
+        console.warn('[oauthDeepLink] Could not strip the auth error from the URL', err);
       }
     }
   }
@@ -280,8 +280,8 @@ async function openOAuthUrl(url: string): Promise<void> {
       window.open(url, '_blank', 'noopener,noreferrer');
       return;
     }
-  } catch {
-    /* iframe access may throw */
+  } catch (err) {
+    console.warn('[oauthDeepLink] iframe access may throw', err);
   }
   window.location.assign(url);
 }

@@ -26,15 +26,15 @@ export function recordLocalCrash(error: Error, componentStack?: string): void {
         at: new Date().toISOString(),
       }),
     );
-  } catch {
-    /* quota */
+  } catch (err) {
+    console.warn('[crashLog] Could not store the crash report (storage full)', err);
   }
 }
 
 export function clearLocalCrash(): void {
   try {
     localStorage.removeItem(CRASH_KEY);
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn('[crashLog] Could not clear the stored crash report', err);
   }
 }

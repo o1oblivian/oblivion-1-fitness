@@ -6,7 +6,6 @@ import { useAthleteRealtime } from './hooks/useAthleteRealtime';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { modalActions } from '../../components/modals/useModalStore';
 import { WorkoutHeroBanner } from './components/WorkoutHeroBanner';
-import { ProgramReelsScroller, ReelCategory, reelStoryId } from './components/ProgramReelsScroller';
 import { TrainingHubCards } from './components/TrainingHubCards';
 import { ExerciseHubDrawer } from './components/ExerciseHubDrawer';
 import { ActiveLogCard } from './components/ActiveLogCard';
@@ -14,7 +13,6 @@ import { CoachProtocolAccordionPanel } from './components/CoachProtocolAccordion
 import { IntelCoachAccordionPanel } from './components/IntelCoachAccordionPanel';
 import { MicrocycleStrainTracker } from './components/MicrocycleStrainTracker';
 import { IntelInsightsCard } from './components/IntelInsightsCard';
-import { ReelsHub } from '../reels/ReelsHub';
 import { readAthleteSettingsSnapshot } from '../../utils/athleteSettingsSnapshot';
 import { getAuthenticatedUserId } from '../../services/authUser';
 import type { AssignedWorkoutRow } from '../../types/coach';
@@ -26,11 +24,7 @@ export const WorkoutHub: React.FC = () => {
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     'lift' | 'sports' | 'recovery' | null
   >(() => (readAthleteSettingsSnapshot().restRecoveryMode ? 'recovery' : null));
-  const [isEliteReelsOpen, setIsEliteReelsOpen] = useState(false);
-  const [reelsCategory, setReelsCategory] = useState<ReelCategory>('ALL');
-  const [reelsFilter, setReelsFilter] = useState<string>('ALL');
   const [athleteUid, setAthleteUid] = useState('');
-  const activeReelId = isEliteReelsOpen ? reelStoryId(reelsCategory) : '';
 
   const handleToggleHubTab = (tab: 'intel' | 'coach') => {
     if (tab === 'coach') setCoachNote(null);
@@ -95,17 +89,7 @@ export const WorkoutHub: React.FC = () => {
         <HealthDisclaimerBanner compact />
       </div>
 
-      {/* 2. PROGRAM REELS & STORIES */}
-      <ProgramReelsScroller
-        activeId={activeReelId}
-        onSelect={(category, filterTag) => {
-          setReelsCategory(category);
-          setReelsFilter(filterTag);
-          setIsEliteReelsOpen(true);
-        }}
-      />
-
-      {/* 3. TRAINING HUB SECTION (With Accordion Tabs) */}
+      {/* 2. TRAINING HUB SECTION (With Accordion Tabs) */}
       <TrainingHubCards
         expandedHubTab={expandedHubTab}
         onToggleTab={handleToggleHubTab}
@@ -179,14 +163,6 @@ export const WorkoutHub: React.FC = () => {
 
       {/* 7. BOTTOM BANNER CARDS */}
       <IntelInsightsCard />
-
-      <ReelsHub
-        isOpen={isEliteReelsOpen}
-        onClose={() => setIsEliteReelsOpen(false)}
-        initialMode="grid"
-        initialCategory={reelsCategory}
-        initialFilter={reelsFilter}
-      />
     </div>
   );
 };

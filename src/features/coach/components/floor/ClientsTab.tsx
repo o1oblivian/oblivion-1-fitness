@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { UserPlus } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
-import type { CoachingApplication } from '../../../reels/services/coachStorefront';
+import type { CoachingApplication } from '../../services/coachStorefront';
 import { CoachingRequestCard } from '../CoachingRequests';
 import { RetryAlert } from './FloorBits';
 

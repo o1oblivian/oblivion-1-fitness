@@ -80,7 +80,9 @@ class TactileEngineService {
         }
       }
       if (this.audioCtx && this.audioCtx.state === 'suspended') {
-        this.audioCtx.resume().catch(() => {});
+        this.audioCtx.resume().catch((err: unknown) => {
+          console.warn('[tactileEngine] Could not resume audio', err);
+        });
       }
       return this.audioCtx;
     } catch {
@@ -133,7 +135,9 @@ class TactileEngineService {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
       try {
         navigator.vibrate(pattern.length === 1 ? pattern[0] : pattern);
-      } catch {}
+      } catch (err) {
+        console.warn('[tactileEngine] Vibration failed', err);
+      }
     }
   }
 

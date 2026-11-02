@@ -49,7 +49,7 @@ export const SettingsMembershipSection: React.FC<MembershipSectionProps> = ({
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <span className="text-xs font-sans font-semibold text-white block truncate">
-              {isPro ? 'O1 Club Pass Pro' : 'Core Free'}
+              {isPro ? 'O1 Club Pass Pro' : 'No active plan'}
             </span>
 
             <p className="text-xs text-o1-muted mt-1">

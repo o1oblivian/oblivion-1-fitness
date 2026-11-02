@@ -1,3 +1,4 @@
+import type { User } from '@supabase/supabase-js';
 import { durableClear } from '../utils/durableStore';
 
 /**
@@ -13,7 +14,7 @@ const APP_KEY = /^(o1|olfc)/i;
 const DEVICE_KEYS = new Set([
   'o1_club_taxonomy_v1',
   'o1_pending_invite',
-  'o1_pending_reel_link',
+  'o1_pending_coach_link',
   'o1fc_remember_me',
   'o1fc_remember_email',
   'o1fc_onboarding_completed',
@@ -45,8 +46,8 @@ export function clearAccountData(): void {
   try {
     wipe(localStorage);
     wipe(sessionStorage);
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.warn('[accountScope] storage unavailable', err);
   }
   durableClear();
 }
@@ -70,6 +71,12 @@ function storedSession(): {
     console.error('[AccountScope] Stored session could not be read', err);
     return null;
   }
+}
+
+/** The full Supabase user saved with the stored session, for keeping the identity while offline. */
+export function storedAuthUser(): User | null {
+  const user = storedSession()?.user;
+  return typeof user?.id === 'string' && user.id ? (user as User) : null;
 }
 
 export function storedSessionUser(): SessionUser | null {
@@ -106,8 +113,8 @@ export function claimDeviceAtBoot(): void {
     const owner = localStorage.getItem(OWNER_KEY);
     if (owner && owner !== user.id) takeOver(user);
     else localStorage.setItem(OWNER_KEY, user.id);
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.warn('[accountScope] storage unavailable', err);
   }
 }
 
@@ -136,8 +143,8 @@ export function releaseDevice(): void {
       if (/^sb-.+-auth-token/.test(key)) localStorage.removeItem(key);
     }
     localStorage.setItem(SIGNED_OUT_PENDING_KEY, '1');
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.warn('[accountScope] storage unavailable', err);
   }
   // Detach the store customer so the next account on this phone never inherits this one's plan.
   // Loaded on demand (this file must not import billing at start-up) and capped so sign-out never hangs.

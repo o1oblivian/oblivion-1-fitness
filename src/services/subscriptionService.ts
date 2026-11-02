@@ -10,8 +10,9 @@ import {
 export const PLUS_ENTITLEMENT = 'o1fc_pro_monthly';
 export interface SubscriptionStatus {
   isActive: boolean;
-  tierId: string;
-  tierName: string;
+  /** `null` when the store reports no active plan. */
+  tierId: string | null;
+  tierName: string | null;
   platform: StorePlatform;
   expirationDate: string | null;
   willRenew: boolean;
@@ -43,8 +44,8 @@ export function checkSubscriptionStatus(): SubscriptionStatus {
   if (cached) return toStatus(cached);
   return {
     isActive: false,
-    tierId: 'o1fc_core_free',
-    tierName: 'Core Athlete',
+    tierId: null,
+    tierName: null,
     platform: isNativePlatform()
       ? Capacitor.getPlatform() === 'android'
         ? 'android'

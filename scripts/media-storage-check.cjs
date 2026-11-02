@@ -27,7 +27,10 @@ if (!url || !env.SUPABASE_SERVICE_ROLE_KEY || !anon) {
   process.exit(1);
 }
 const admin = createClient(url, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
-const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+  'base64',
+);
 
 let failures = 0;
 const check = (ok, label, detail = '') => {
@@ -41,15 +44,19 @@ const check = (ok, label, detail = '') => {
   check(!bucketErr && Boolean(media), 'bucket "media" exists', bucketErr?.message);
   check(Boolean(media?.public), 'bucket "media" is public');
 
-  for (const table of ['media_vault', 'reels']) {
-    const { error } = await admin.from(table).select('id').limit(1);
-    check(!error, `table ${table} readable`, error?.message);
+  {
+    const { error } = await admin.from('media_vault').select('id').limit(1);
+    check(!error, 'table media_vault readable', error?.message);
   }
   if (!media) return;
 
   const email = `media-check-${Date.now()}@example.com`;
   const password = `Mc!${Math.random().toString(36).slice(2)}A9`;
-  const { data: created, error: userErr } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+  const { data: created, error: userErr } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
   check(!userErr, 'test user created', userErr?.message);
   if (userErr) return;
   const uid = created.user.id;
@@ -63,7 +70,9 @@ const check = (ok, label, detail = '') => {
     check(!up.error, 'upload into own folder allowed', up.error?.message);
 
     const foreign = `00000000-0000-0000-0000-000000000000/vault/check.png`;
-    const blocked = await client.storage.from('media').upload(foreign, PNG, { contentType: 'image/png' });
+    const blocked = await client.storage
+      .from('media')
+      .upload(foreign, PNG, { contentType: 'image/png' });
     check(Boolean(blocked.error), "upload into someone else's folder blocked");
 
     const publicUrl = client.storage.from('media').getPublicUrl(own).data.publicUrl;
@@ -73,7 +82,10 @@ const check = (ok, label, detail = '') => {
     const del = await client.storage.from('media').remove([own]);
     check(!del.error, 'owner can delete', del.error?.message);
   } finally {
-    await admin.storage.from('media').remove([`${uid}/vault/check.png`]).catch(() => undefined);
+    await admin.storage
+      .from('media')
+      .remove([`${uid}/vault/check.png`])
+      .catch(() => undefined);
     await admin.auth.admin.deleteUser(uid).catch(() => undefined);
   }
 })()

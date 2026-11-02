@@ -1,76 +1,58 @@
 import React, { useState } from 'react';
 import { Info, ChevronDown } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
-import { LEGAL_URLS, openExternalUrl, openLegalUrl } from '../../../services/apiBase';
+import { LEGAL_URLS, openLegalUrl } from '../../../services/apiBase';
 
 interface Props {
   userType: 'athletes' | 'coaches';
-  selectedProductId?: string;
   onOpenHealth?: () => void;
   onOpenDisclaimer?: () => void;
   onShowToast?: (msg: string) => void;
 }
 
+const ATHLETE_FEATURES = [
+  { label: 'Workout Logger', value: 'All exercises' },
+  { label: 'Fuel Tracker', value: 'Full + Intel Scan' },
+  { label: 'Hydration Tracker', value: '✓' },
+  { label: 'Supplement Tracker', value: '✓' },
+  { label: 'Alcohol Impact Tracker', value: '✓' },
+  { label: 'Weekly Progress Charts', value: '✓' },
+  { label: 'Share Progress Cards', value: '✓' },
+  { label: 'Coach Marketplace', value: 'Browse + message' },
+  { label: 'Wallpapers', value: 'All unlocked' },
+  { label: 'Watch Dial Faces', value: 'All unlocked' },
+  { label: 'Body stats', value: 'Deep Analytics' },
+  { label: 'Progress Photo Vault', value: 'Unlimited' },
+  { label: 'Data Export', value: '✓' },
+  { label: '5-Axis Athlete Polygon', value: '✓' },
+  { label: 'Training load balance', value: '✓' },
+];
+
+const COACH_FEATURES = [
+  { label: 'Client Roster', value: 'Unlimited' },
+  { label: 'Program Sales Fee', value: '10%' },
+  { label: 'Workout Dispatch', value: '✓' },
+  { label: 'Client Detail View', value: '✓' },
+  { label: 'Form Check Video Review', value: '✓' },
+  { label: 'Client Consent Sharing', value: '✓' },
+  { label: 'Transformation Studio', value: '✓' },
+  { label: 'Client Progress Export', value: '✓' },
+  { label: 'Earnings Dashboard', value: '✓' },
+  { label: 'Club Pass Pro features', value: '✓' },
+];
+
+const COLLAPSED_ROWS = 8;
+
 export const MembershipPlanFeatures: React.FC<Props> = ({
   userType,
-  selectedProductId,
   onOpenHealth,
   onOpenDisclaimer,
   onShowToast,
 }) => {
   const [showExt, setShowExt] = useState(false);
-  const isFreeAthlete = selectedProductId === 'o1fc_core_free';
-  const isFreeCoach = selectedProductId === 'o1fc_coach_free';
-
-  const athleteFeatures = [
-    { label: 'HD Form Reels', value: '✓' },
-    { label: 'Workout Logger', value: 'All exercises' },
-    { label: 'Fuel Tracker', value: isFreeAthlete ? 'Basic' : 'Full + Intel Scan' },
-    { label: 'Hydration Tracker', value: '✓' },
-    { label: 'Supplement Tracker', value: '✓' },
-    { label: 'Alcohol Impact Tracker', value: '✓' },
-    { label: 'Weekly Progress Charts', value: '✓' },
-    { label: 'Share Progress Cards', value: '✓' },
-    { label: 'Coach Marketplace', value: 'Browse + message' },
-    { label: 'Wallpapers', value: isFreeAthlete ? '3 presets' : 'All unlocked' },
-    { label: 'Watch Dial Faces', value: isFreeAthlete ? '1 default' : 'All unlocked' },
-    { label: 'Body stats', value: isFreeAthlete ? 'View only' : 'Deep Analytics' },
-    { label: 'Progress Photo Vault', value: isFreeAthlete ? '5 photos' : 'Unlimited' },
-    { label: 'Data Export', value: isFreeAthlete ? '—' : '✓' },
-  ];
-
-  const athleteExtFeatures = [
-    { label: '5-Axis Athlete Polygon', value: isFreeAthlete ? '—' : '✓' },
-    { label: 'Training load balance', value: isFreeAthlete ? '—' : '✓' },
-  ];
-
-  const coachFeatures = [
-    { label: 'Client Roster', value: isFreeCoach ? 'Up to 5 athletes' : 'Unlimited' },
-    { label: 'Program Sales Fee', value: isFreeCoach ? '15%' : '10%' },
-    { label: 'Workout Dispatch', value: '✓' },
-    { label: 'Client Detail View', value: '✓' },
-    { label: 'Form Check Video Review', value: '✓' },
-    { label: 'Client Consent Sharing', value: '✓' },
-    { label: 'Transformation Studio', value: '✓' },
-    { label: 'Client Progress Export', value: '✓' },
-    { label: 'Earnings Dashboard', value: '✓' },
-    { label: 'Club Pass Pro features', value: isFreeCoach ? '—' : '✓' },
-  ];
-
-  const coachExtFeatures: { label: string; value: string }[] = [];
-
-  const base = userType === 'athletes' ? athleteFeatures : coachFeatures;
-  const ext = userType === 'athletes' ? athleteExtFeatures : coachExtFeatures;
-  const displayList = showExt ? [...base, ...ext] : base.slice(0, 8);
-
-  const headingText =
-    userType === 'athletes'
-      ? isFreeAthlete
-        ? 'Included in core free'
-        : 'included in premium pro'
-      : isFreeCoach
-        ? 'INCLUDED IN COACH STARTER (UP TO 5 ATHLETES)'
-        : 'Included in coach pro';
+  const base = userType === 'athletes' ? ATHLETE_FEATURES : COACH_FEATURES;
+  const displayList = showExt ? base : base.slice(0, COLLAPSED_ROWS);
+  const headingText = userType === 'athletes' ? 'Included in premium pro' : 'Included in coach pro';
 
   return (
     <div className="space-y-3 pt-2 text-o1-ink-soft">
@@ -93,19 +75,21 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={() => {
-          tactileEngine.triggerSelectionBuzz();
-          setShowExt(!showExt);
-        }}
-        className="w-full flex items-center justify-center gap-1 text-xs text-o1-muted hover:text-white py-1 transition cursor-pointer font-num"
-      >
-        <ChevronDown
-          className={`w-3.5 h-3.5 transition-transform ${showExt ? 'rotate-180' : ''}`}
-        />
-        <span>{showExt ? 'Show less' : `Show all ${base.length + ext.length} features`}</span>
-      </button>
+      {base.length > COLLAPSED_ROWS && (
+        <button
+          type="button"
+          onClick={() => {
+            tactileEngine.triggerSelectionBuzz();
+            setShowExt(!showExt);
+          }}
+          className="w-full flex items-center justify-center gap-1 text-xs text-o1-muted hover:text-white py-1 transition cursor-pointer font-num"
+        >
+          <ChevronDown
+            className={`w-3.5 h-3.5 transition-transform ${showExt ? 'rotate-180' : ''}`}
+          />
+          <span>{showExt ? 'Show less' : `Show all ${base.length} features`}</span>
+        </button>
+      )}
 
       {/* O1FC Intel Insights Pill */}
       <div className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between">
@@ -122,14 +106,12 @@ export const MembershipPlanFeatures: React.FC<Props> = ({
 
       <div className="flex items-center justify-center gap-3 text-o1-label text-o1-muted underline pt-1">
         <a
-          href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+          href={LEGAL_URLS.appleEula}
           target="_blank"
           rel="noreferrer"
           onClick={(e) => {
             e.preventDefault();
-            void openExternalUrl(
-              'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
-            );
+            void openLegalUrl('eula');
           }}
           className="hover:text-white"
         >

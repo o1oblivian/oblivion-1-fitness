@@ -493,8 +493,8 @@ export function safeReturnBase(candidate: unknown, fallback: string): string {
         '',
       );
     }
-  } catch {
-    /* fall through */
+  } catch (err) {
+    console.warn('[stripeLedger] fall through', err);
   }
   return fallback;
 }

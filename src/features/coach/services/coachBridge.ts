@@ -16,7 +16,7 @@ import {
   StorefrontProgram,
   mapProgramRow,
   withProgramContent,
-} from '../../reels/services/coachStorefront';
+} from './coachStorefront';
 
 export interface CoachInviteIdentity {
   id: string;

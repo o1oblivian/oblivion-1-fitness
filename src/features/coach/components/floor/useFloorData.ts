@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../../../services/supabaseClient';
 import { liveChannel } from '../../../../services/realtimeChannel';
 import {
@@ -7,9 +7,8 @@ import {
   StorefrontStats,
   fetchStorefrontPrograms,
   fetchStorefrontStats,
-} from '../../../reels/services/coachStorefront';
+} from '../../services/coachStorefront';
 import { fetchLatestCoachFeedback } from '../../services/coachService';
-import { fetchCoachFilms, ProfileFilm } from '../../services/coachFilms';
 import type { CoachFloorTab } from '../../store/useCoachViewStore';
 
 interface FloorDataInput {
@@ -17,36 +16,20 @@ interface FloorDataInput {
   tab: CoachFloorTab;
   /** Bumped after a program is published so the Programs tab reloads. */
   programsRevision: number;
-  /** Reload the films when the coach publishes or removes a reel. */
-  ownReelCount: number;
 }
 
-/** Loads what the coach console shows: films, storefront numbers, programs, and the latest notes sent. */
-export function useFloorData({ coachId, tab, programsRevision, ownReelCount }: FloorDataInput) {
-  const [films, setFilms] = useState<ProfileFilm[] | null>(null);
-  const [filmsFailed, setFilmsFailed] = useState(false);
+/** Loads what the coach console shows: storefront numbers, programs, and the latest notes sent. */
+export function useFloorData({ coachId, tab, programsRevision }: FloorDataInput) {
   const [storefront, setStorefront] = useState<StorefrontStats>(EMPTY_STATS);
   const [programs, setPrograms] = useState<StorefrontProgram[] | null>(null);
   const [latestFeedback, setLatestFeedback] = useState<Record<string, string>>({});
-
-  const loadFilms = useCallback(async () => {
-    if (!coachId) return;
-    const rows = await fetchCoachFilms(coachId);
-    setFilmsFailed(rows === null);
-    if (rows) setFilms(rows);
-    else setFilms((prev) => prev ?? []);
-  }, [coachId]);
-
-  useEffect(() => {
-    void loadFilms();
-  }, [loadFilms, ownReelCount]);
 
   useEffect(() => {
     if (!coachId) return;
     let live = true;
     void fetchStorefrontStats(coachId)
       .then((next) => live && setStorefront(next))
-      .catch(() => undefined);
+      .catch((error: unknown) => console.warn('[CoachFloor] Storefront stats failed', error));
     return () => {
       live = false;
     };
@@ -57,7 +40,10 @@ export function useFloorData({ coachId, tab, programsRevision, ownReelCount }: F
     let live = true;
     void fetchStorefrontPrograms(coachId)
       .then((next) => live && setPrograms(next))
-      .catch(() => live && setPrograms([]));
+      .catch((error: unknown) => {
+        console.warn('[CoachFloor] Programs failed', error);
+        if (live) setPrograms([]);
+      });
     return () => {
       live = false;
     };
@@ -65,7 +51,10 @@ export function useFloorData({ coachId, tab, programsRevision, ownReelCount }: F
 
   useEffect(() => {
     if (!coachId) return;
-    const refresh = () => void fetchLatestCoachFeedback(coachId).then(setLatestFeedback);
+    const refresh = () =>
+      void fetchLatestCoachFeedback(coachId)
+        .then(setLatestFeedback)
+        .catch((error: unknown) => console.warn('[CoachFloor] Latest feedback failed', error));
     refresh();
     const channel = liveChannel(`coach-feedback-${coachId}`)
       .on(
@@ -85,9 +74,6 @@ export function useFloorData({ coachId, tab, programsRevision, ownReelCount }: F
   }, [coachId]);
 
   return {
-    films,
-    filmsFailed,
-    loadFilms,
     storefront,
     setStorefront,
     programs,

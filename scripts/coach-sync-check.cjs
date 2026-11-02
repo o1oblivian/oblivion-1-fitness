@@ -21,7 +21,6 @@ if (!url || !anonKey || !env.SUPABASE_SERVICE_ROLE_KEY) {
 }
 const opts = { auth: { persistSession: false } };
 const admin = createClient(url, env.SUPABASE_SERVICE_ROLE_KEY, opts);
-const anon = createClient(url, anonKey, opts);
 
 let failed = 0;
 const check = (ok, label, detail = '') => {
@@ -33,7 +32,11 @@ const rows = (res) => (res.error ? [] : res.data || []);
 async function makeUser(tag) {
   const email = `coach-sync-${tag}-${Date.now()}@example.com`;
   const password = `P${Math.random().toString(36).slice(2)}!9x`;
-  const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+  });
   if (error) throw new Error(`create ${tag}: ${error.message}`);
   const client = createClient(url, anonKey, opts);
   const signIn = await client.auth.signInWithPassword({ email, password });
@@ -50,7 +53,6 @@ async function makeUser(tag) {
     completion: crypto.randomUUID(),
     checkin: crypto.randomUUID(),
     message: `msg-coach-${crypto.randomUUID()}`,
-    reel: `coach-reel-sync-${Date.now()}`,
   };
   try {
     const coach = await makeUser('coach');
@@ -60,87 +62,277 @@ async function makeUser(tag) {
     const outsider = await makeUser('outsider');
     users.push(outsider);
 
-    const card = await coach.client.from('coach_profiles').insert({ id: coach.id, display_name: 'Sync Check Coach', accepting_new_athletes: false });
+    const card = await coach.client
+      .from('coach_profiles')
+      .insert({ id: coach.id, display_name: 'Sync Check Coach', accepting_new_athletes: false });
     check(!card.error, 'coach creates public card', card.error?.message);
 
-    const selfLink = await outsider.client.from('coach_clients').insert({ coach_id: coach.id, client_id: outsider.id, status: 'active', client_name: 'Outsider' });
+    const selfLink = await outsider.client
+      .from('coach_clients')
+      .insert({
+        coach_id: coach.id,
+        client_id: outsider.id,
+        status: 'active',
+        client_name: 'Outsider',
+      });
     check(Boolean(selfLink.error), 'athlete cannot self-link to a coach');
-    const link = await coach.client.from('coach_clients').insert({ coach_id: coach.id, client_id: athlete.id, status: 'active', client_name: 'Sync Athlete' });
+    const link = await coach.client
+      .from('coach_clients')
+      .insert({
+        coach_id: coach.id,
+        client_id: athlete.id,
+        status: 'active',
+        client_name: 'Sync Athlete',
+      });
     check(!link.error, 'coach links athlete', link.error?.message);
-    const roster = await coach.client.from('coach_clients').select('client_id, client_name').eq('coach_id', coach.id).eq('status', 'active');
-    check(rows(roster).some((r) => r.client_id === athlete.id), 'coach sees athlete on roster', roster.error?.message);
-    const rosterLeak = await outsider.client.from('coach_clients').select('client_id').eq('coach_id', coach.id);
+    const roster = await coach.client
+      .from('coach_clients')
+      .select('client_id, client_name')
+      .eq('coach_id', coach.id)
+      .eq('status', 'active');
+    check(
+      rows(roster).some((r) => r.client_id === athlete.id),
+      'coach sees athlete on roster',
+      roster.error?.message,
+    );
+    const rosterLeak = await outsider.client
+      .from('coach_clients')
+      .select('client_id')
+      .eq('coach_id', coach.id);
     check(rows(rosterLeak).length === 0, 'outsider cannot read roster');
 
-    const note = await coach.client.from('coach_directives').insert({ id: ids.note, coach_id: coach.id, tag: 'General', title: 'Sync note', summary: 'Hydrate', affected_count: 1, priority: 'NORMAL' }).select('id').single();
+    const note = await coach.client
+      .from('coach_directives')
+      .insert({
+        id: ids.note,
+        coach_id: coach.id,
+        tag: 'General',
+        title: 'Sync note',
+        summary: 'Hydrate',
+        affected_count: 1,
+        priority: 'NORMAL',
+      })
+      .select('id')
+      .single();
     check(!note.error, 'coach posts note', note.error?.message);
-    const edited = await coach.client.from('coach_directives').update({ summary: 'Hydrate more' }).eq('id', ids.note).select('summary');
+    const edited = await coach.client
+      .from('coach_directives')
+      .update({ summary: 'Hydrate more' })
+      .eq('id', ids.note)
+      .select('summary');
     check(rows(edited)[0]?.summary === 'Hydrate more', 'coach edits note', edited.error?.message);
-    const athleteNote = await athlete.client.from('coach_directives').select('summary').eq('id', ids.note);
-    check(rows(athleteNote)[0]?.summary === 'Hydrate more', 'linked athlete reads edited note', athleteNote.error?.message);
-    const forged = await outsider.client.from('coach_directives').update({ summary: 'hijack' }).eq('id', ids.note).select('id');
+    const athleteNote = await athlete.client
+      .from('coach_directives')
+      .select('summary')
+      .eq('id', ids.note);
+    check(
+      rows(athleteNote)[0]?.summary === 'Hydrate more',
+      'linked athlete reads edited note',
+      athleteNote.error?.message,
+    );
+    const forged = await outsider.client
+      .from('coach_directives')
+      .update({ summary: 'hijack' })
+      .eq('id', ids.note)
+      .select('id');
     check(rows(forged).length === 0, 'outsider cannot edit note');
-    const removed = await coach.client.from('coach_directives').delete().eq('id', ids.note).select('id');
+    const removed = await coach.client
+      .from('coach_directives')
+      .delete()
+      .eq('id', ids.note)
+      .select('id');
     check(rows(removed).length === 1, 'coach deletes note', removed.error?.message);
 
-    const plan = { version: 1, difficulty: 'Intermediate', overview: 'Sync', methodology: '', weeks: [{ week: 1, days: [{ day: 1, title: 'Push', exercises: [{ name: 'Bench', sets: 3, reps: '8' }] }] }] };
-    const program = await coach.client.from('coach_programs').insert({ id: ids.program, coach_id: coach.id, title: 'Sync Program', weeks_duration: 1, program_data: plan, price_cents: 0, listed: true });
+    const plan = {
+      version: 1,
+      difficulty: 'Intermediate',
+      overview: 'Sync',
+      methodology: '',
+      weeks: [
+        {
+          week: 1,
+          days: [{ day: 1, title: 'Push', exercises: [{ name: 'Bench', sets: 3, reps: '8' }] }],
+        },
+      ],
+    };
+    const program = await coach.client
+      .from('coach_programs')
+      .insert({
+        id: ids.program,
+        coach_id: coach.id,
+        title: 'Sync Program',
+        weeks_duration: 1,
+        program_data: plan,
+        price_cents: 0,
+        listed: true,
+      });
     check(!program.error, 'coach publishes program with full plan', program.error?.message);
-    const athleteProgram = await athlete.client.rpc('program_content', { program_ids: [ids.program] });
-    check(rows(athleteProgram)[0]?.program_data?.weeks?.[0]?.days?.[0]?.exercises?.length === 1, 'athlete reads free week-by-week plan', athleteProgram.error?.message);
+    const athleteProgram = await athlete.client.rpc('program_content', {
+      program_ids: [ids.program],
+    });
+    check(
+      rows(athleteProgram)[0]?.program_data?.weeks?.[0]?.days?.[0]?.exercises?.length === 1,
+      'athlete reads free week-by-week plan',
+      athleteProgram.error?.message,
+    );
 
-    const paid = await coach.client.from('coach_programs').insert({ id: ids.paidProgram, coach_id: coach.id, title: 'Paid Program', weeks_duration: 1, program_data: plan, week_one: ['Push'], price_cents: 4900, listed: true });
+    const paid = await coach.client
+      .from('coach_programs')
+      .insert({
+        id: ids.paidProgram,
+        coach_id: coach.id,
+        title: 'Paid Program',
+        weeks_duration: 1,
+        program_data: plan,
+        week_one: ['Push'],
+        price_cents: 4900,
+        listed: true,
+      });
     check(!paid.error, 'coach publishes paid program', paid.error?.message);
-    const paidListing = await outsider.client.from('coach_programs').select('id, title, price_cents').eq('id', ids.paidProgram);
+    const paidListing = await outsider.client
+      .from('coach_programs')
+      .select('id, title, price_cents')
+      .eq('id', ids.paidProgram);
     check(rows(paidListing).length === 1, 'outsider sees paid listing', paidListing.error?.message);
-    const paidRaw = await outsider.client.from('coach_programs').select('program_data').eq('id', ids.paidProgram);
-    check(Boolean(paidRaw.error) && rows(paidRaw).length === 0, 'outsider cannot select paid plan column');
+    const paidRaw = await outsider.client
+      .from('coach_programs')
+      .select('program_data')
+      .eq('id', ids.paidProgram);
+    check(
+      Boolean(paidRaw.error) && rows(paidRaw).length === 0,
+      'outsider cannot select paid plan column',
+    );
     const paidWeek = await outsider.client.from('program_catalog').select('week_one').limit(1);
     check(Boolean(paidWeek.error), 'outsider cannot select catalog week column');
-    const paidRpc = await outsider.client.rpc('program_content', { program_ids: [ids.paidProgram] });
-    check(!paidRpc.error && rows(paidRpc).length === 0, 'outsider gets no paid content from rpc', paidRpc.error?.message);
+    const paidRpc = await outsider.client.rpc('program_content', {
+      program_ids: [ids.paidProgram],
+    });
+    check(
+      !paidRpc.error && rows(paidRpc).length === 0,
+      'outsider gets no paid content from rpc',
+      paidRpc.error?.message,
+    );
     const ownerRpc = await coach.client.rpc('program_content', { program_ids: [ids.paidProgram] });
-    check(rows(ownerRpc)[0]?.program_data?.weeks?.length === 1, 'coach reads own paid plan', ownerRpc.error?.message);
-    const selfEnroll = await outsider.client.from('program_enrollments').insert({ athlete_id: outsider.id, program_id: ids.paidProgram, coach_id: coach.id });
+    check(
+      rows(ownerRpc)[0]?.program_data?.weeks?.length === 1,
+      'coach reads own paid plan',
+      ownerRpc.error?.message,
+    );
+    const selfEnroll = await outsider.client
+      .from('program_enrollments')
+      .insert({ athlete_id: outsider.id, program_id: ids.paidProgram, coach_id: coach.id });
     check(Boolean(selfEnroll.error), 'outsider cannot self-enroll in paid program');
 
-    const done = await athlete.client.from('workout_completions').insert({ id: ids.completion, coach_id: coach.id, athlete_id: athlete.id, metrics_summary: { title: 'Push', volumeKg: 1200 }, submitted_at: new Date().toISOString() });
+    const done = await athlete.client
+      .from('workout_completions')
+      .insert({
+        id: ids.completion,
+        coach_id: coach.id,
+        athlete_id: athlete.id,
+        metrics_summary: { title: 'Push', volumeKg: 1200 },
+        submitted_at: new Date().toISOString(),
+      });
     check(!done.error, 'athlete publishes finished session', done.error?.message);
-    const coachDone = await coach.client.from('workout_completions').select('id').eq('id', ids.completion);
+    const coachDone = await coach.client
+      .from('workout_completions')
+      .select('id')
+      .eq('id', ids.completion);
     check(rows(coachDone).length === 1, 'coach sees finished session', coachDone.error?.message);
-    const feedback = await coach.client.from('workout_completions').update({ metrics_summary: { title: 'Push', volumeKg: 1200, feedback: 'Great', feedbackAt: new Date().toISOString() } }).eq('id', ids.completion).select('id');
+    const feedback = await coach.client
+      .from('workout_completions')
+      .update({
+        metrics_summary: {
+          title: 'Push',
+          volumeKg: 1200,
+          feedback: 'Great',
+          feedbackAt: new Date().toISOString(),
+        },
+      })
+      .eq('id', ids.completion)
+      .select('id');
     check(rows(feedback).length === 1, 'coach saves session feedback', feedback.error?.message);
-    const seen = await athlete.client.from('workout_completions').select('metrics_summary').eq('id', ids.completion);
-    check(rows(seen)[0]?.metrics_summary?.feedback === 'Great', 'athlete reads session feedback', seen.error?.message);
-    const doneLeak = await outsider.client.from('workout_completions').select('id').eq('id', ids.completion);
+    const seen = await athlete.client
+      .from('workout_completions')
+      .select('metrics_summary')
+      .eq('id', ids.completion);
+    check(
+      rows(seen)[0]?.metrics_summary?.feedback === 'Great',
+      'athlete reads session feedback',
+      seen.error?.message,
+    );
+    const doneLeak = await outsider.client
+      .from('workout_completions')
+      .select('id')
+      .eq('id', ids.completion);
     check(rows(doneLeak).length === 0, 'outsider cannot read finished session');
 
-    const msg = await coach.client.from('coach_messages').insert({ id: ids.message, coach_id: coach.id, athlete_id: athlete.id, sender_name: 'Sync Check Coach', message: 'Nice work' });
+    const msg = await coach.client
+      .from('coach_messages')
+      .insert({
+        id: ids.message,
+        coach_id: coach.id,
+        athlete_id: athlete.id,
+        sender_name: 'Sync Check Coach',
+        message: 'Nice work',
+      });
     check(!msg.error, 'coach sends message', msg.error?.message);
-    const inbox = await athlete.client.from('coach_messages').select('message').eq('id', ids.message);
+    const inbox = await athlete.client
+      .from('coach_messages')
+      .select('message')
+      .eq('id', ids.message);
     check(rows(inbox)[0]?.message === 'Nice work', 'athlete reads message', inbox.error?.message);
     const msgLeak = await outsider.client.from('coach_messages').select('id').eq('id', ids.message);
     check(rows(msgLeak).length === 0, 'outsider cannot read message');
 
-    const checkin = await athlete.client.from('athlete_checkins').insert({ id: ids.checkin, athlete_id: athlete.id, athlete_name: 'Sync Athlete', coach_id: coach.id, weight_kg: 80, sleep_hours: 7, soreness: 3, stress: 2, notes: 'ok' });
+    const checkin = await athlete.client
+      .from('athlete_checkins')
+      .insert({
+        id: ids.checkin,
+        athlete_id: athlete.id,
+        athlete_name: 'Sync Athlete',
+        coach_id: coach.id,
+        weight_kg: 80,
+        sleep_hours: 7,
+        soreness: 3,
+        stress: 2,
+        notes: 'ok',
+      });
     check(!checkin.error, 'athlete submits check-in', checkin.error?.message);
-    const reply = await coach.client.from('athlete_checkins').update({ feedback_text: 'Keep going', feedback_at: new Date().toISOString() }).eq('id', ids.checkin).select('id');
+    const reply = await coach.client
+      .from('athlete_checkins')
+      .update({ feedback_text: 'Keep going', feedback_at: new Date().toISOString() })
+      .eq('id', ids.checkin)
+      .select('id');
     check(rows(reply).length === 1, 'coach replies to check-in', reply.error?.message);
-    const replySeen = await athlete.client.from('athlete_checkins').select('feedback_text').eq('id', ids.checkin);
-    check(rows(replySeen)[0]?.feedback_text === 'Keep going', 'athlete reads check-in reply', replySeen.error?.message);
-    const checkinLeak = await outsider.client.from('athlete_checkins').select('id').eq('id', ids.checkin);
+    const replySeen = await athlete.client
+      .from('athlete_checkins')
+      .select('feedback_text')
+      .eq('id', ids.checkin);
+    check(
+      rows(replySeen)[0]?.feedback_text === 'Keep going',
+      'athlete reads check-in reply',
+      replySeen.error?.message,
+    );
+    const checkinLeak = await outsider.client
+      .from('athlete_checkins')
+      .select('id')
+      .eq('id', ids.checkin);
     check(rows(checkinLeak).length === 0, 'outsider cannot read check-in');
 
-    const reel = await coach.client.from('reels').insert({ id: ids.reel, title: 'Sync reel', category: 'ALL', filter_tag: 'ALL', video_url: `${url}/storage/v1/object/public/reels/sync-check.mp4`, coach_id: coach.id, cues: '' });
-    check(!reel.error, 'coach publishes reel', reel.error?.message);
-    const feed = await anon.from('reels').select('id').eq('id', ids.reel);
-    check(rows(feed).length === 1, 'reel visible in public feed', feed.error?.message);
-    const reelDelete = await coach.client.from('reels').delete().eq('id', ids.reel).select('id');
-    check(rows(reelDelete).length === 1, 'coach deletes own reel', reelDelete.error?.message);
-
-    const totals = await admin.rpc('coach_ledger_totals', { p_coach: coach.id, p_hold_days: 7 }).single();
-    check(!totals.error && Number(totals.data?.released_cents) === 0 && Number(totals.data?.paid_cents) === 0, 'server reads coach balance totals', totals.error?.message);
-    const totalsLeak = await coach.client.rpc('coach_ledger_totals', { p_coach: coach.id, p_hold_days: 0 });
+    const totals = await admin
+      .rpc('coach_ledger_totals', { p_coach: coach.id, p_hold_days: 7 })
+      .single();
+    check(
+      !totals.error &&
+        Number(totals.data?.released_cents) === 0 &&
+        Number(totals.data?.paid_cents) === 0,
+      'server reads coach balance totals',
+      totals.error?.message,
+    );
+    const totalsLeak = await coach.client.rpc('coach_ledger_totals', {
+      p_coach: coach.id,
+      p_hold_days: 0,
+    });
     check(Boolean(totalsLeak.error), 'app users cannot call balance totals');
   } catch (err) {
     failed += 1;
@@ -148,12 +340,14 @@ async function makeUser(tag) {
   } finally {
     const userIds = users.map((u) => u.id);
     if (userIds.length) {
-      await admin.from('reels').delete().eq('id', ids.reel);
       await admin.from('coach_messages').delete().eq('id', ids.message);
       await admin.from('athlete_checkins').delete().eq('id', ids.checkin);
       await admin.from('workout_completions').delete().eq('id', ids.completion);
       await admin.from('coach_programs').delete().in('id', [ids.program, ids.paidProgram]);
-      await admin.from('program_enrollments').delete().in('program_id', [ids.program, ids.paidProgram]);
+      await admin
+        .from('program_enrollments')
+        .delete()
+        .in('program_id', [ids.program, ids.paidProgram]);
       await admin.from('coach_directives').delete().eq('id', ids.note);
       await admin.from('coach_clients').delete().in('coach_id', userIds);
       await admin.from('coach_profiles').delete().in('id', userIds);

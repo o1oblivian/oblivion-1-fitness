@@ -23,8 +23,8 @@ import './index.css';
         if (parsed.origin === window.location.origin && parsed.pathname.startsWith('/api/')) {
           return new Request(`${base}${parsed.pathname}${parsed.search}${parsed.hash}`, input);
         }
-      } catch {
-        /* keep original request */
+      } catch (err) {
+        console.warn('[main] Could not parse the request URL; sending it unchanged', err);
       }
     }
     return input;
@@ -81,7 +81,9 @@ class RootErrorBoundary extends Component<RootBoundaryProps, RootBoundaryState> 
     try {
       localStorage.clear();
       sessionStorage.clear();
-    } catch {}
+    } catch (err) {
+      console.warn('[main] Could not clear storage before reload', err);
+    }
     window.location.reload();
   };
 

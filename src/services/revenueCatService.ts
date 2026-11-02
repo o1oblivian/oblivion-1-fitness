@@ -39,8 +39,9 @@ export interface StoreCatalog {
 
 export interface EntitlementInfo {
   isActive: boolean;
-  tierId: string;
-  tierName: string;
+  /** The store product that grants the plan. `null` when the store reports no active plan. */
+  tierId: string | null;
+  tierName: string | null;
   platform: StorePlatform;
   expiresAt: string | null;
   willRenew: boolean;
@@ -56,8 +57,8 @@ function currentPlatform(): StorePlatform {
 export function freeEntitlement(platform: StorePlatform = currentPlatform()): EntitlementInfo {
   return {
     isActive: false,
-    tierId: 'o1fc_core_free',
-    tierName: 'Core Athlete',
+    tierId: null,
+    tierName: null,
     platform,
     expiresAt: null,
     willRenew: false,
@@ -236,8 +237,11 @@ function rememberEntitlement(info: EntitlementInfo): void {
         willRenew: info.willRenew,
       }),
     );
-  } catch {
-    /* storage full or blocked; the store stays the source of truth */
+  } catch (err) {
+    console.warn(
+      '[revenueCatService] storage full or blocked; the store stays the source of truth',
+      err,
+    );
   }
 }
 
@@ -316,16 +320,19 @@ class RevenueCatManager {
     try {
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(STATUS_KEY);
-    } catch {
-      /* storage blocked */
+    } catch (err) {
+      console.warn('[revenueCatService] storage blocked', err);
     }
     if (!isNativeStorePlatform()) return;
     try {
       const { isConfigured } = await Purchases.isConfigured();
       if (isConfigured)
         await withStoreTimeout(Purchases.logOut(), 'Store sign-out did not answer.', 4_000);
-    } catch {
-      /* an anonymous store customer cannot log out; nothing to clear */
+    } catch (err) {
+      console.warn(
+        '[revenueCatService] an anonymous store customer cannot log out; nothing to clear',
+        err,
+      );
     }
   }
 
@@ -495,7 +502,8 @@ class RevenueCatManager {
   private async claimOwnedPlan(planId: string, athleteId: string): Promise<PurchaseResult> {
     const { info, error } = await this.restore(athleteId);
     if (error) return { success: false, error };
-    const matches = planKind(planId) !== 'coach' || planKind(info.tierId) === 'coach';
+    const matches =
+      planKind(planId) !== 'coach' || (info.tierId !== null && planKind(info.tierId) === 'coach');
     if (info.isActive && matches) return { success: true };
     return {
       success: false,

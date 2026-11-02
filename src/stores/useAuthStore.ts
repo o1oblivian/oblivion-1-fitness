@@ -4,7 +4,8 @@ import { errorMessage } from '../../shared/errorMessage';
 import { supabase } from '../services/supabaseClient';
 import { safeStorage } from '../utils/safeStorage';
 import { useUserStore } from './useUserStore';
-import { releaseDevice } from '../services/accountScope';
+import { releaseDevice, storedAuthUser } from '../services/accountScope';
+import { isNetworkFailure, withinOfflineWindow } from '../services/sessionGate';
 import { getOAuthRedirectTo } from '../services/oauthDeepLink';
 
 function clearStoredSession(): void {
@@ -15,8 +16,8 @@ function clearStoredSession(): void {
     for (const key of Object.keys(window.localStorage)) {
       if (key.startsWith('sb-') && key.includes('auth-token')) window.localStorage.removeItem(key);
     }
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.warn('[useAuthStore] storage unavailable', err);
   }
 }
 
@@ -77,7 +78,7 @@ const getStoredRole = (): 'coach' | 'athlete' => {
   return r === 'coach' ? 'coach' : 'athlete';
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   session: null,
   profile: { role: getStoredRole() },
@@ -100,8 +101,22 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ user: null, session: null, isAuthenticated: false, isLoading: false });
         return;
       }
-      const { data } = await supabase.auth.getSession();
-      if (data?.session?.user) {
+      const { data, error } = await supabase.auth.getSession();
+      const offlineUser =
+        !data?.session?.user && isNetworkFailure(error) && withinOfflineWindow()
+          ? storedAuthUser()
+          : null;
+      if (offlineUser) {
+        // No signal and the access token expired: keep the stored identity until the reconnect refresh.
+        set({
+          user: offlineUser,
+          session: null,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+        useUserStore.getState().setUserId(offlineUser.id);
+      } else if (data?.session?.user) {
         set({
           user: data.session.user,
           session: data.session,
@@ -156,7 +171,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           safeStorage.setItem('o1fc_user_id', session.user.id);
           useUserStore.getState().setUserId(session.user.id);
           if (session.user.email) safeStorage.setItem('o1fc_user_email', session.user.email);
-        } else if (event === 'INITIAL_SESSION' && !session) {
+        } else if (event === 'INITIAL_SESSION' && !session && !get().isAuthenticated) {
           set({ user: null, session: null, isAuthenticated: false, isLoading: false });
         }
       });
@@ -244,7 +259,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     try {
       await supabase.auth.signOut({ scope: 'local' });
-    } catch {}
+    } catch (err) {
+      console.warn(
+        '[useAuthStore] Supabase sign-out failed; clearing the local session anyway',
+        err,
+      );
+    }
     clearStoredSession();
     set({ user: null, session: null, isAuthenticated: false, error: null });
     if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('o1fc_signed_out'));

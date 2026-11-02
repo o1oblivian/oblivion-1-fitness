@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { MessageCircle } from 'lucide-react';
-import { ExploreCoach } from '../../reelTypes';
+import { ExploreCoach } from '../../coachTypes';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { useConsultationStore } from '../../../induction/useConsultationStore';
 import { INTAKE_TITLES, optionsIn, useClubTaxonomy } from '../../../induction/useClubTaxonomyStore';

@@ -87,7 +87,9 @@ export class WebBleDriver implements BleDriver {
     const entry = this.devices.get(deviceId);
     this.devices.delete(deviceId);
     if (!entry) return;
-    await entry.measurement?.stopNotifications().catch(() => {});
+    await entry.measurement?.stopNotifications().catch((err: unknown) => {
+      console.warn('[webBleDriver] Could not stop heart rate notifications', err);
+    });
     if (entry.device.gatt?.connected) entry.device.gatt.disconnect();
   }
 }

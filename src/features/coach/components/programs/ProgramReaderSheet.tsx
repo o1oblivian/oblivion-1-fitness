@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
-import { nextReelCover, reelCover } from '../../../reels/coverPresets';
+import { nextProgramCover, programCover } from '../../coverPresets';
 import { EnrolledProgram } from '../../services/myPrograms';
 import { ProgramPlanView } from './ProgramPlanView';
 
@@ -70,14 +70,14 @@ export const ProgramReaderSheet: React.FC<ProgramReaderSheetProps> = ({
         <div className="mx-auto w-full max-w-xl">
           <div className="relative aspect-[16/9] w-full bg-o1-surface">
             <img
-              src={reelCover(program.id, program.coverUrl)}
+              src={programCover(program.id, program.coverUrl)}
               alt=""
               className="h-full w-full object-cover"
               onError={(event) => {
                 const img = event.currentTarget;
                 if (img.dataset.cover === '1') return;
                 img.dataset.cover = '1';
-                img.src = nextReelCover(img.src);
+                img.src = nextProgramCover(img.src);
               }}
             />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />

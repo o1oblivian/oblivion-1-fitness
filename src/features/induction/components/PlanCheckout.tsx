@@ -2,35 +2,30 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 import { openLegalUrl } from '../../../services/apiBase';
 import { storeCopy } from '../../../utils/storeCopy';
 import type { PlanCopy } from '../../membership/planCatalog';
-import type { PlanAvailability } from '../../membership/useStorePlans';
-import type { MembershipTier } from '../consultationTypes';
 
 interface PlanCheckoutProps {
-  plan: PlanCopy;
-  picked: MembershipTier;
-  /** Localised store price of the picked plan. */
-  price: string;
-  availability: PlanAvailability;
+  /** The picked plan, or `null` when the store is offering nothing to buy. */
+  plan: PlanCopy | null;
+  /** The store's price for the picked plan. */
+  price: string | null;
   /** A purchase, restore, or finish is in progress. */
   working: boolean;
   restoring: boolean;
   error: string | null;
   onBuy: () => void;
-  onStartFree: () => void;
+  onNotNow: () => void;
   onRestore: () => void;
 }
 
-/** The buy button, "start free" link, price disclosure, restore, and legal links under the plan list. */
+/** The buy button, "not now" link, price disclosure, restore, and legal links under the plan list. */
 export function PlanCheckout({
   plan,
-  picked,
   price,
-  availability,
   working,
   restoring,
   error,
   onBuy,
-  onStartFree,
+  onNotNow,
   onRestore,
 }: PlanCheckoutProps) {
   const store = storeCopy();
@@ -45,49 +40,43 @@ export function PlanCheckout({
           <span>{error}</span>
         </div>
       ) : null}
-      <button
-        type="button"
-        onClick={onBuy}
-        disabled={working || availability === 'loading'}
-        className="flex h-10 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-body font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
-      >
-        {working || availability === 'loading' ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
-        ) : plan.product.isFree ? (
-          `Start with ${picked === 'coach' ? 'Coach Starter' : 'Core'}`
-        ) : availability === 'unavailable' ? (
-          'Retry store connection'
-        ) : plan.renews ? (
-          `Subscribe · ${price} per month`
-        ) : (
-          `Buy once · ${price}`
-        )}
-      </button>
-      {!plan.product.isFree ? (
-        <button
-          type="button"
-          onClick={onStartFree}
-          disabled={working}
-          className="h-9 w-full text-o1-caption font-normal text-o1-muted"
-        >
-          Not now, start free
-        </button>
-      ) : null}
-      <p className="mt-1 text-center text-o1-label font-normal leading-snug text-o1-muted/70">
-        {plan.product.isFree
-          ? 'No payment needed. Upgrade any time from Settings.'
-          : availability !== 'ready'
-            ? `Prices come from ${store.inSentence}.`
-            : plan.renews
+      {plan && price ? (
+        <>
+          <button
+            type="button"
+            onClick={onBuy}
+            disabled={working}
+            className="flex h-10 w-full items-center justify-center rounded-full bg-o1-crimson text-o1-body font-medium text-white transition hover:bg-o1-crimson-hover active:scale-[0.98] active:bg-o1-crimson-press disabled:opacity-60"
+          >
+            {working ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : plan.renews ? (
+              `Subscribe · ${price} per month`
+            ) : (
+              `Buy once · ${price}`
+            )}
+          </button>
+          <p className="mt-1 text-center text-o1-label font-normal leading-snug text-o1-muted/70">
+            {plan.renews
               ? `Renews monthly at ${price} until cancelled. Cancel at least 24 hours before renewal in ${store.settings}.`
               : `One payment through ${store.inSentence}. It never renews.`}
-      </p>
+          </p>
+        </>
+      ) : null}
+      <button
+        type="button"
+        onClick={onNotNow}
+        disabled={working}
+        className="h-9 w-full text-o1-caption font-normal text-o1-muted"
+      >
+        Not now
+      </button>
       <div className="flex items-center justify-center gap-5 text-o1-label font-normal text-o1-muted">
         <button type="button" onClick={onRestore} disabled={working} className="h-8">
           {restoring ? 'Restoring…' : 'Restore purchases'}
         </button>
-        <button type="button" onClick={() => void openLegalUrl('terms')} className="h-9">
-          Terms
+        <button type="button" onClick={() => void openLegalUrl('eula')} className="h-9">
+          Terms of Use (EULA)
         </button>
         <button type="button" onClick={() => void openLegalUrl('privacy')} className="h-9">
           Privacy

@@ -48,7 +48,9 @@ function getSafeEnv(key: string): string {
       .process;
     const fromProcess = nodeProcess?.env?.[key];
     if (fromProcess) return fromProcess;
-  } catch {}
+  } catch (err) {
+    console.warn(`[supabaseClient] Could not read ${key} from the environment`, err);
+  }
   return '';
 }
 
@@ -88,8 +90,8 @@ function finishPendingSignOut(): void {
     localStorage.removeItem('o1fc_user_id');
     localStorage.removeItem('o1fc_user_email');
     localStorage.removeItem('o1fc_signed_out_pending');
-  } catch {
-    /* storage unavailable */
+  } catch (err) {
+    console.warn('[supabaseClient] storage unavailable', err);
   }
 }
 finishPendingSignOut();

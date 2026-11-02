@@ -88,7 +88,9 @@ export class NativeBleDriver implements BleDriver {
     try {
       await client
         .stopNotifications(deviceId, BLE_UUIDS.HEART_RATE_SERVICE, BLE_UUIDS.HEART_RATE_MEASUREMENT)
-        .catch(() => {});
+        .catch((err: unknown) => {
+          console.warn('[nativeBleDriver] Could not stop heart rate notifications', err);
+        });
       await client.disconnect(deviceId);
     } catch (err) {
       console.warn('[NativeBLE] Disconnect notice:', err);

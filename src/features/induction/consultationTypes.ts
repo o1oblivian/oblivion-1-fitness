@@ -44,7 +44,7 @@ export function parseTrainingDays(raw: unknown): TrainingDay[] {
   return WEEK.filter((day) => days.includes(day));
 }
 
-/** Plain goal to the discipline that orders reels and coaches. Sport athletes pick their own. */
+/** Plain goal to the discipline that orders programs and coaches. Sport athletes pick their own. */
 export const GOAL_DISCIPLINE: Record<Exclude<Goal, 'sport'>, Discipline> = {
   fitness: 'hybrid',
   muscle: 'hypertrophy',

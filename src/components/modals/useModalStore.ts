@@ -2,11 +2,10 @@ import { createStore } from '../../utils/createStore';
 import {
   ModalType,
   ModalPayloadMap,
-  CardioScannerPayload,
+  CoachProfilePayload,
   ExerciseSwapperPayload,
   HydrationPayload,
   GenericToastPayload,
-  EliteReelsPayload,
 } from './types';
 import { tactileEngine } from '../../services/tactileEngine';
 
@@ -19,8 +18,8 @@ interface ModalStoreActions {
   openModal: <T extends ModalType>(modalType: T, payload?: ModalPayloadMap[T]) => void;
   closeModal: () => void;
   openSettings: (payload?: GenericToastPayload) => void;
-  openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => void;
-  openCardioScanner: (payload?: CardioScannerPayload) => void;
+  openCoachProfile: (payload: CoachProfilePayload) => void;
+  openCardioScanner: () => void;
   openExerciseSwapper: (payload?: ExerciseSwapperPayload) => void;
   openHydration: (payload?: HydrationPayload) => void;
   openSupplements: (payload?: GenericToastPayload) => void;
@@ -51,16 +50,12 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(initialState,
     modalStore.actions.openModal('SETTINGS', payload || {});
   },
 
-  openFullEliteReels: (options?: 'grid' | 'player' | EliteReelsPayload) => {
-    const payload =
-      typeof options === 'string'
-        ? { initialMode: options }
-        : options || { initialMode: 'player' as const };
-    modalStore.actions.openModal('FULL_ELITE_REELS', payload);
+  openCoachProfile: (payload) => {
+    modalStore.actions.openModal('COACH_PROFILE', payload);
   },
 
-  openCardioScanner: (payload) => {
-    modalStore.actions.openModal('CARDIO_SCANNER', payload || {});
+  openCardioScanner: () => {
+    modalStore.actions.openModal('CARDIO_SCANNER', {});
   },
 
   openExerciseSwapper: (payload) => {

@@ -2,7 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('./supabaseClient', () => ({ supabase: { auth: { getSession: vi.fn() } } }));
 
-import { isLiveSession, OFFLINE_SESSION_MS, resolveGateStatus } from './sessionGate';
+import {
+  isLiveSession,
+  OFFLINE_SESSION_MS,
+  resolveGateStatus,
+  withinOfflineWindow,
+} from './sessionGate';
 
 const store = new Map<string, string>();
 
@@ -108,5 +113,20 @@ describe('isLiveSession', () => {
     expect(isLiveSession({ expires_at: inAnHour } as never, NOW)).toBe(false);
     expect(isLiveSession({ user, expires_at: inAnHour } as never, NOW)).toBe(true);
     expect(isLiveSession({ user, expires_at: anHourAgo } as never, NOW)).toBe(false);
+  });
+});
+
+describe('withinOfflineWindow', () => {
+  const now = () => NOW;
+
+  it('keeps a login issued up to 30 days ago', () => {
+    expect(withinOfflineWindow(() => NOW - 2 * 60 * 60 * 1000, now)).toBe(true);
+    expect(withinOfflineWindow(() => NOW - OFFLINE_SESSION_MS, now)).toBe(true);
+  });
+
+  it('drops a login older than 30 days, a missing one, or one from the future', () => {
+    expect(withinOfflineWindow(() => NOW - OFFLINE_SESSION_MS - 1, now)).toBe(false);
+    expect(withinOfflineWindow(() => null, now)).toBe(false);
+    expect(withinOfflineWindow(() => NOW + 1000, now)).toBe(false);
   });
 });

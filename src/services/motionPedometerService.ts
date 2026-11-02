@@ -61,7 +61,9 @@ class MotionPedometerService {
     try {
       if (on) localStorage.removeItem(OFF_KEY);
       else localStorage.setItem(OFF_KEY, '1');
-    } catch {}
+    } catch (err) {
+      console.warn('[motionPedometerService] Could not save the step counter setting', err);
+    }
   }
 
   public subscribe(cb: MotionCallback): () => void {

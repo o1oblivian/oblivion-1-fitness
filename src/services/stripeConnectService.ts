@@ -54,8 +54,8 @@ const CHECKOUT_PENDING_MS = 60 * 60_000;
 export function markCheckoutPending(): void {
   try {
     localStorage.setItem(CHECKOUT_PENDING_KEY, String(Date.now()));
-  } catch {
-    /* private mode */
+  } catch (err) {
+    console.warn('[stripeConnectService] private mode', err);
   }
 }
 

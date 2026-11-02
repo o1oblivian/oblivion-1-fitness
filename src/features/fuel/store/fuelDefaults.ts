@@ -16,8 +16,8 @@ function deviceCountry(): string {
   try {
     const region = new Intl.Locale(navigator.language).maximize().region;
     if (region && /^[A-Z]{2}$/.test(region)) return region;
-  } catch {
-    /* locale unavailable */
+  } catch (err) {
+    console.warn('[fuelDefaults] locale unavailable', err);
   }
   return 'AU';
 }

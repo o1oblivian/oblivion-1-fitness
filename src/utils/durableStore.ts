@@ -106,8 +106,8 @@ export function durableClear(): void {
 export async function restoreDurable(restore: (key: string, value: string) => void): Promise<void> {
   try {
     void navigator.storage?.persist?.();
-  } catch {
-    // persistence is best-effort
+  } catch (err) {
+    console.warn('[durableStore] persistence is best-effort', err);
   }
   let abandoned = false;
   const work = (async () => {

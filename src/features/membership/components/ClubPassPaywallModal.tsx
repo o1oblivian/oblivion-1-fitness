@@ -9,14 +9,13 @@ import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
 import { COACH_PAYWALL_FEATURE } from '../planCatalog';
 import { useStorePlans } from '../useStorePlans';
 import { useStorePurchase } from '../useStorePurchase';
-import { founderPassLine, isFounderProduct, useFounderPasses } from '../useFounderPasses';
-import { freeAccessLine, isFreeAccessProduct, useFreeAccessSpots } from '../useFreeAccessSpots';
+import { StorePlansState } from './StorePlansState';
 
 type Audience = 'athletes' | 'coaches';
 
 const PLANS: Record<Audience, readonly IAPProductInfo[]> = {
-  athletes: [IAP_PRODUCTS.founder_pass, IAP_PRODUCTS.core_free, IAP_PRODUCTS.premium],
-  coaches: [IAP_PRODUCTS.coach_free, IAP_PRODUCTS.coach_pro],
+  athletes: [IAP_PRODUCTS.founder_pass, IAP_PRODUCTS.premium],
+  coaches: [IAP_PRODUCTS.coach_pro],
 };
 
 const DEFAULT_PLAN: Record<Audience, string> = {
@@ -39,9 +38,6 @@ export const ClubPassPaywallModal: React.FC = () => {
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
   const storePlans = useStorePlans(isPaywallOpen);
   const purchase = useStorePurchase();
-  const founder = useFounderPasses(isPaywallOpen);
-  const founderLine = founderPassLine(founder);
-  const freeLine = freeAccessLine(useFreeAccessSpots(isPaywallOpen));
 
   // Opening from a coach prompt (roster full) lands on the coach plans; every other entry starts on athletes.
   useEffect(() => {
@@ -53,20 +49,11 @@ export const ClubPassPaywallModal: React.FC = () => {
 
   if (!isPaywallOpen) return null;
 
-  const plans = PLANS[audience];
-  const selected = plans.find((p) => p.productId === selectedId) || plans[0];
-  const kind = planKind(selected.productId);
-  const availability = storePlans.availability(selected);
-  const priceOf = storePlans.priceOf;
-  const notice = statusMsg ?? purchase.error ?? storePlans.notice(selected);
-  const waiting = purchase.busy || availability === 'loading';
-  const ctaLabel = selected.isFree
-    ? 'Continue Free →'
-    : availability === 'unavailable'
-      ? 'Retry store connection'
-      : kind === 'lifetime'
-        ? `Get Lifetime Access → ${priceOf(selected)}`
-        : `Subscribe → ${priceOf(selected)}/mo`;
+  const plans = storePlans.offered(PLANS[audience]);
+  const selected = plans.find((p) => p.productId === selectedId) ?? plans[0] ?? null;
+  const selectedPrice = selected ? storePlans.priceOf(selected) : null;
+  const kind = selected ? planKind(selected.productId) : null;
+  const notice = statusMsg ?? purchase.error;
 
   const select = (productId: string) => {
     purchase.clearError();
@@ -81,21 +68,10 @@ export const ClubPassPaywallModal: React.FC = () => {
   };
 
   const handlePrimary = async () => {
+    if (!selected) return;
     tactileEngine.triggerSelectionBuzz();
     purchase.clearError();
     setStatusMsg(null);
-    if (selected.isFree) {
-      closePaywall();
-      return;
-    }
-    if (isFounderProduct(selected.productId) && founder && founder.remaining <= 0) {
-      setStatusMsg('Founder Pass is sold out.');
-      return;
-    }
-    if (availability === 'unavailable') {
-      storePlans.retry();
-      return;
-    }
     if (await purchase.buy(selected.productId)) {
       tactileEngine.playPRCelebration();
       closePaywall();
@@ -181,47 +157,47 @@ export const ClubPassPaywallModal: React.FC = () => {
             </div>
           )}
 
-          <div className="space-y-2 pt-1">
-            {plans.map((plan) => (
-              <button
-                key={plan.productId}
-                type="button"
-                onClick={() => {
-                  tactileEngine.triggerSelectionBuzz();
-                  select(plan.productId);
-                }}
-                className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition-all ${
-                  selected.productId === plan.productId
-                    ? 'bg-o1-well border-[rgba(196,18,26,0.4)]'
-                    : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14]'
-                }`}
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold font-num text-white">{plan.name}</span>
-                    {plan.badge && (
-                      <span className="text-o1-label font-num px-2 py-0.5 rounded-full bg-o1-well text-o1-muted border border-white/[0.07] font-bold">
-                        {plan.badge}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-o1-label font-num text-o1-muted block mt-0.5">
-                    {plan.description}
-                  </span>
-                  {(isFounderProduct(plan.productId) ? founderLine : '') ||
-                  (isFreeAccessProduct(plan.productId) ? freeLine : '') ? (
-                    <span className="text-o1-label font-num tabular-nums text-o1-gold block mt-0.5">
-                      {isFounderProduct(plan.productId) ? founderLine : freeLine}
+          <StorePlansState plans={storePlans} offeredCount={plans.length} />
+
+          {plans.length > 0 && (
+            <div className="space-y-2 pt-1">
+              {plans.map((plan) => (
+                <button
+                  key={plan.productId}
+                  type="button"
+                  onClick={() => {
+                    tactileEngine.triggerSelectionBuzz();
+                    select(plan.productId);
+                  }}
+                  className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between gap-3 cursor-pointer transition-all ${
+                    selected?.productId === plan.productId
+                      ? 'bg-o1-well border-[rgba(196,18,26,0.4)]'
+                      : 'bg-o1-card border-white/[0.07] hover:border-white/[0.14]'
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold font-num text-white">{plan.name}</span>
+                      {plan.badge && (
+                        <span className="text-o1-label font-num px-2 py-0.5 rounded-full bg-o1-well text-o1-muted border border-white/[0.07] font-bold">
+                          {plan.badge}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-o1-label font-num text-o1-muted block mt-0.5">
+                      {plan.description}
                     </span>
-                  ) : null}
-                </div>
-                <span className="text-sm font-black font-num text-white shrink-0 text-right">
-                  {priceOf(plan)}
-                  <span className="text-o1-label font-normal text-o1-muted">{plan.periodText}</span>
-                </span>
-              </button>
-            ))}
-          </div>
+                  </div>
+                  <span className="text-sm font-black font-num text-white shrink-0 text-right">
+                    {storePlans.priceOf(plan)}
+                    <span className="text-o1-label font-normal text-o1-muted">
+                      {plan.periodText}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
           {notice && (
             <div
               role="alert"
@@ -234,37 +210,37 @@ export const ClubPassPaywallModal: React.FC = () => {
         </div>
 
         <div className="p-4 border-t border-white/[0.05] bg-o1-card space-y-2">
-          <button
-            onClick={handlePrimary}
-            disabled={waiting}
-            className="w-full py-3.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
-          >
-            {waiting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>{purchase.busy ? 'Opening the store...' : 'Loading store prices...'}</span>
-              </>
-            ) : (
-              <>
-                {!selected.isFree && <ShieldCheck className="w-4 h-4" />}
-                <span>{ctaLabel}</span>
-              </>
-            )}
-          </button>
-
-          {storePlans.detail ? (
-            <p className="text-o1-label font-num text-o1-faint text-center break-words">
-              {storePlans.detail}
-            </p>
-          ) : null}
+          {selected && selectedPrice && (
+            <button
+              onClick={handlePrimary}
+              disabled={purchase.busy}
+              className="w-full py-3.5 rounded-xl bg-o1-crimson hover:bg-o1-crimson-hover text-white font-tactical font-black text-xs tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98 transition disabled:opacity-50"
+            >
+              {purchase.busy ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Opening the store...</span>
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>
+                    {kind === 'lifetime'
+                      ? `Get Lifetime Access → ${selectedPrice}`
+                      : `Subscribe → ${selectedPrice}/mo`}
+                  </span>
+                </>
+              )}
+            </button>
+          )}
 
           <div className="flex items-center justify-center gap-3 text-o1-label font-sans text-o1-muted">
             <button
               type="button"
-              onClick={() => void openLegalUrl('terms')}
+              onClick={() => void openLegalUrl('eula')}
               className="hover:text-white underline cursor-pointer"
             >
-              Terms of Use
+              Terms of Use (EULA)
             </button>
             <span>•</span>
             <button

@@ -7,7 +7,7 @@ import { ProgramCreatorModal } from './programCreator';
 import type { ProgramFormData } from './programCreator/types';
 import { fetchOwnPrograms, publishProgram, unlistProgram } from '../services/coachBridge';
 import { exerciseCount } from '../services/programPlan';
-import type { StorefrontProgram } from '../../reels/services/coachStorefront';
+import type { StorefrontProgram } from '../services/coachStorefront';
 
 export interface CoachProgramsHubModalProps {
   isOpen: boolean;

@@ -106,8 +106,8 @@ const loadCustom = (): string | null => {
   try {
     const raw = localStorage.getItem(CUSTOM_KEY);
     if (typeof raw === 'string' && raw.startsWith('data:image/')) return raw;
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn('[useWallpaperStore] Could not read the custom wallpaper', err);
   }
   return null;
 };
@@ -127,8 +127,8 @@ const persistBroken = (urls: string[]) => {
   if (typeof window === 'undefined') return;
   try {
     sessionStorage.setItem(BROKEN_KEY, JSON.stringify(urls));
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn('[useWallpaperStore] Could not save the broken wallpaper list', err);
   }
 };
 
@@ -150,8 +150,8 @@ const persistSettings = (
         brightness: s.brightness,
       }),
     );
-  } catch {
-    /* ignore */
+  } catch (err) {
+    console.warn('[useWallpaperStore] Could not save wallpaper settings', err);
   }
 };
 

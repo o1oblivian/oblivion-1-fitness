@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { useModalStore } from '../../../../components/modals/useModalStore';
-import { ExploreCoach } from '../../../reels/reelTypes';
-import { nextReelCover, reelCover } from '../../../reels/coverPresets';
-import { CoachDirectMessageModal } from '../../../reels/components/CoachDirectMessageModal';
-import { priceLabel } from '../../../reels/components/profile/CoachProgramsTab';
-import { PROGRAMS_EVENT, ProgramCoach } from '../../../reels/services/coachStorefront';
+import { ExploreCoach } from '../../coachTypes';
+import { nextProgramCover, programCover } from '../../coverPresets';
+import { CoachDirectMessageModal } from '../CoachDirectMessageModal';
+import { priceLabel } from '../profile/CoachProgramsTab';
+import { PROGRAMS_EVENT, ProgramCoach } from '../../services/coachStorefront';
 import {
   BrowseProgram,
   EnrolledProgram,
@@ -19,14 +19,14 @@ import { ProgramReaderSheet } from './ProgramReaderSheet';
 function Cover({ id, url, className }: { id: string; url: string; className: string }) {
   return (
     <img
-      src={reelCover(id, url)}
+      src={programCover(id, url)}
       alt=""
       className={className}
       onError={(event) => {
         const img = event.currentTarget;
         if (img.dataset.cover === '1') return;
         img.dataset.cover = '1';
-        img.src = nextReelCover(img.src);
+        img.src = nextProgramCover(img.src);
       }}
     />
   );
@@ -57,7 +57,7 @@ function meta(program: { weeks: string; daysPerWeek: number | null }): string {
 }
 
 export const AthleteProgramsPanel: React.FC = () => {
-  const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
+  const openCoachProfile = useModalStore((s) => s.openCoachProfile);
   const [mine, setMine] = useState<EnrolledProgram[] | null>(null);
   const [browse, setBrowse] = useState<BrowseProgram[] | null>(null);
   const [browseFailed, setBrowseFailed] = useState(false);
@@ -84,7 +84,10 @@ export const AthleteProgramsPanel: React.FC = () => {
   const loadMine = useCallback(() => {
     void fetchMyPrograms()
       .then(setMine)
-      .catch(() => setMine(null));
+      .catch((error: unknown) => {
+        console.warn('[AthletePrograms] My programs failed to load', error);
+        setMine(null);
+      });
   }, []);
 
   useEffect(() => {
@@ -94,7 +97,8 @@ export const AthleteProgramsPanel: React.FC = () => {
         setBrowseFailed(false);
         setBrowse(rows);
       })
-      .catch(() => {
+      .catch((error: unknown) => {
+        console.warn('[AthletePrograms] Program browse failed to load', error);
         setBrowseFailed(true);
         setBrowse([]);
       });
@@ -121,9 +125,7 @@ export const AthleteProgramsPanel: React.FC = () => {
       : 'Past program'
     : '';
 
-  const openCoach = (coachId: string, tab: 'reels' | 'programs') => {
-    openFullEliteReels({ initialMode: 'grid', initialCoachId: coachId, initialProfileTab: tab });
-  };
+  const openCoach = (coachId: string) => openCoachProfile({ coachId, initialTab: 'programs' });
 
   const changeStatus = async (program: EnrolledProgram, status: 'active' | 'closed') => {
     setBusy(true);
@@ -261,7 +263,7 @@ export const AthleteProgramsPanel: React.FC = () => {
                   onClick={() => {
                     tactileEngine.triggerSelectionBuzz();
                     if (owned) setReadingId(program.id);
-                    else openCoach(program.coach.id, 'programs');
+                    else openCoach(program.coach.id);
                   }}
                   className="w-[168px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.07] bg-o1-surface text-left active:scale-[0.98]"
                   aria-label={`${program.title} by ${program.coach.name}`}
@@ -310,7 +312,7 @@ export const AthleteProgramsPanel: React.FC = () => {
         onClose={() => setReadingId(null)}
         onOpenCoach={(program) => {
           setReadingId(null);
-          openCoach(program.coach.id, 'reels');
+          openCoach(program.coach.id);
         }}
         onMessageCoach={(program) => setMessageCoach(asExploreCoach(program.coach))}
         onSetStatus={(program, status) => void changeStatus(program, status)}

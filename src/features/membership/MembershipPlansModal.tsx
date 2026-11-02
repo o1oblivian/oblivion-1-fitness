@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Shield, ArrowRight, CheckCircle2, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { X, Shield, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { tactileEngine } from '../../services/tactileEngine';
 import { isNativeStorePlatform } from '../../services/purchasesService';
@@ -9,10 +9,9 @@ import { storeCopy } from '../../utils/storeCopy';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { MembershipPlanCard } from './components/MembershipPlanCard';
 import { MembershipPlanFeatures } from './components/MembershipPlanFeatures';
+import { StorePlansState } from './components/StorePlansState';
 import { useStorePlans } from './useStorePlans';
 import { useStorePurchase } from './useStorePurchase';
-import { founderPassLine, isFounderProduct, useFounderPasses } from './useFounderPasses';
-import { freeAccessLine, isFreeAccessProduct, useFreeAccessSpots } from './useFreeAccessSpots';
 
 export interface MembershipPlansModalProps {
   isOpen: boolean;
@@ -26,11 +25,10 @@ export interface MembershipPlansModalProps {
 
 const ATHLETE_PRODUCTS: readonly IAPProductInfo[] = [
   IAP_PRODUCTS.founder_pass,
-  IAP_PRODUCTS.core_free,
   IAP_PRODUCTS.premium,
 ];
 
-const COACH_PRODUCTS: readonly IAPProductInfo[] = [IAP_PRODUCTS.coach_free, IAP_PRODUCTS.coach_pro];
+const COACH_PRODUCTS: readonly IAPProductInfo[] = [IAP_PRODUCTS.coach_pro];
 
 export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   isOpen,
@@ -48,20 +46,14 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   const { restorePurchases } = useSubscription();
   const plans = useStorePlans(isOpen);
   const purchase = useStorePurchase();
-  const founder = useFounderPasses(isOpen);
-  const founderLine = founderPassLine(founder);
-  const freeSpots = useFreeAccessSpots(isOpen);
-  const freeLine = freeAccessLine(freeSpots);
 
   const nativeStore = isNativeStorePlatform();
   const store = storeCopy();
-  const currentProducts = userType === 'athletes' ? ATHLETE_PRODUCTS : COACH_PRODUCTS;
+  const currentProducts = plans.offered(
+    userType === 'athletes' ? ATHLETE_PRODUCTS : COACH_PRODUCTS,
+  );
   const currentSelected =
-    [...ATHLETE_PRODUCTS, ...COACH_PRODUCTS].find((p) => p.productId === selectedProductId) ||
-    currentProducts[0];
-  const isFreePlanSelected = currentSelected.isFree;
-  const availability = plans.availability(currentSelected);
-  const banner = purchase.error ?? plans.notice(currentSelected);
+    currentProducts.find((p) => p.productId === selectedProductId) ?? currentProducts[0] ?? null;
 
   const handleSelectPlan = (productId: string) => {
     purchase.clearError();
@@ -77,37 +69,13 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
   };
 
   const handleMainAction = async () => {
+    if (!currentSelected) return;
     tactileEngine.triggerSelectionBuzz();
     purchase.clearError();
-
-    if (isFreePlanSelected) {
+    if (await purchase.buy(currentSelected.productId)) {
       tactileEngine.playPRCelebration();
-      const message =
-        userType === 'athletes'
-          ? freeSpots && freeSpots.remaining <= 0
-            ? 'Core Free tier active.'
-            : 'Core Free tier active • 90-day full access included!'
-          : 'Coach Starter active • Up to 5 athletes, 15% fee on program sales.';
-      onShowToast?.(message);
-      if (onSelectPlan) onSelectPlan(selectedProductId);
-      onClose();
-      return;
-    }
-
-    if (isFounderProduct(selectedProductId) && founder && founder.remaining <= 0) {
-      onShowToast?.('Founder Pass is sold out.');
-      return;
-    }
-
-    if (availability === 'unavailable') {
-      plans.retry();
-      return;
-    }
-
-    if (await purchase.buy(selectedProductId)) {
-      tactileEngine.playPRCelebration();
-      if (onCheckout) onCheckout(selectedProductId);
-      if (onSelectPlan) onSelectPlan(selectedProductId);
+      if (onCheckout) onCheckout(currentSelected.productId);
+      if (onSelectPlan) onSelectPlan(currentSelected.productId);
       onShowToast?.(`Subscribed to ${currentSelected.name}`);
       onClose();
     }
@@ -182,63 +150,34 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             ))}
           </div>
 
-          {/* Launch Special Banner (Athletes Tab) */}
-          {userType === 'athletes' && (
-            <div
-              onClick={() => {
-                tactileEngine.triggerSelectionBuzz();
-                handleSelectPlan(IAP_PRODUCTS.founder_pass.productId);
-              }}
-              className="p-3 rounded-2xl bg-o1-well border border-white/[0.07] flex items-center justify-between cursor-pointer hover:border-o1-crimson/50 transition-colors"
-            >
-              <div>
-                <span className="text-o1-label font-num font-bold tracking-wider text-o1-stone">
-                  Launch special
-                </span>
-                <p className="text-o1-label text-o1-muted mt-0.5 leading-snug">
-                  <strong className="text-white">
-                    {plans.priceOf(IAP_PRODUCTS.founder_pass)} Lifetime Founder Pass
-                  </strong>{' '}
-                  — Training OS Pro forever.
-                  {founderLine ? (
-                    <span className="mt-0.5 block tabular-nums text-o1-gold">{founderLine}</span>
-                  ) : null}
-                </p>
-              </div>
-            </div>
-          )}
+          <StorePlansState plans={plans} offeredCount={currentProducts.length} />
 
           {/* Plans grid: two columns; a last plan with no partner takes the full row. */}
-          <div className="grid grid-cols-2 gap-2.5">
-            {currentProducts.map((p, index) => (
-              <div
-                key={p.productId}
-                className={
-                  index === currentProducts.length - 1 && currentProducts.length % 2 === 1
-                    ? 'col-span-2 flex flex-col'
-                    : 'flex flex-col'
-                }
-              >
-                <MembershipPlanCard
-                  product={{ ...p, price: plans.priceOf(p) }}
-                  isSelected={selectedProductId === p.productId}
-                  onSelect={handleSelectPlan}
-                  note={
-                    isFounderProduct(p.productId)
-                      ? founderLine
-                      : isFreeAccessProduct(p.productId)
-                        ? freeLine
-                        : undefined
+          {currentProducts.length > 0 && (
+            <div className="grid grid-cols-2 gap-2.5">
+              {currentProducts.map((p, index) => (
+                <div
+                  key={p.productId}
+                  className={
+                    index === currentProducts.length - 1 && currentProducts.length % 2 === 1
+                      ? 'col-span-2 flex flex-col'
+                      : 'flex flex-col'
                   }
-                />
-              </div>
-            ))}
-          </div>
+                >
+                  <MembershipPlanCard
+                    product={p}
+                    price={plans.priceOf(p) ?? ''}
+                    isSelected={currentSelected?.productId === p.productId}
+                    onSelect={handleSelectPlan}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Feature Comparison Matrix */}
           <MembershipPlanFeatures
             userType={userType}
-            selectedProductId={selectedProductId}
             onOpenHealth={onOpenHealth}
             onOpenDisclaimer={onOpenDisclaimer}
             onShowToast={onShowToast}
@@ -247,63 +186,41 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
           {/* Billing Notice */}
           <div className="flex items-start gap-2 pt-1 text-o1-label text-o1-muted leading-snug">
             <Shield className="w-4 h-4 text-o1-olive shrink-0 mt-0.5" />
-            <span>
-              {isFreePlanSelected
-                ? userType === 'athletes'
-                  ? 'Core Free includes 90 days full access + permanent workout logger & hydration tracking. No credit card required.'
-                  : 'Coach Starter includes up to 5 roster athletes, workout dispatch and the review studio. Program sales carry a 15% platform fee.'
-                : nativeStore
-                  ? store.subscriptionNotice
-                  : 'Billed by the store.'}
-            </span>
+            <span>{nativeStore ? store.subscriptionNotice : 'Billed by the store.'}</span>
           </div>
 
-          {banner && (
+          {purchase.error && (
             <div
               role="alert"
               className="p-3 rounded-2xl bg-o1-yellow/10 border border-o1-yellow/30 text-o1-yellow text-xs font-num text-center flex items-center justify-center gap-2"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{banner}</span>
+              <span>{purchase.error}</span>
             </div>
           )}
 
           {/* Main Action Button */}
-          <button
-            type="button"
-            id="btn-subscribe-master"
-            onClick={handleMainAction}
-            disabled={purchase.busy || availability === 'loading'}
-            className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-tactical font-black text-xs py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
-          >
-            {purchase.busy || availability === 'loading' ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                <span>{purchase.busy ? 'Opening the store...' : 'Loading store prices...'}</span>
-              </>
-            ) : isFreePlanSelected ? (
-              <>
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Continue with Free</span>
-              </>
-            ) : availability === 'unavailable' ? (
-              <>
-                <RefreshCw className="w-4 h-4" />
-                <span>Retry store connection</span>
-              </>
-            ) : (
-              <>
-                <span>{nativeStore ? store.subscribeLabel : 'Subscribe'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-
-          {plans.detail ? (
-            <p className="text-o1-label font-num text-o1-faint text-center break-words">
-              {plans.detail}
-            </p>
-          ) : null}
+          {currentSelected && (
+            <button
+              type="button"
+              id="btn-subscribe-master"
+              onClick={handleMainAction}
+              disabled={purchase.busy}
+              className="w-full bg-o1-crimson hover:bg-o1-crimson-hover active:bg-o1-crimson-press text-white font-tactical font-black text-xs py-3.5 px-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+            >
+              {purchase.busy ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Opening the store...</span>
+                </>
+              ) : (
+                <>
+                  <span>{nativeStore ? store.subscribeLabel : 'Subscribe'}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          )}
 
           {/* Footer Links & Restore */}
           <div className="flex items-center justify-center gap-2.5 text-o1-label font-num text-o1-muted flex-wrap">
@@ -321,10 +238,10 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             <span>•</span>
             <button
               type="button"
-              onClick={() => void openLegalUrl('terms')}
+              onClick={() => void openLegalUrl('eula')}
               className="hover:text-white underline cursor-pointer"
             >
-              Terms of Use
+              Terms of Use (EULA)
             </button>
             <span>•</span>
             <button

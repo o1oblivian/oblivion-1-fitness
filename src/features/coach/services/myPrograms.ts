@@ -1,6 +1,5 @@
 import { supabase } from '../../../services/supabaseClient';
 import { getAuthenticatedUserId } from '../../../services/authUser';
-import { useReelsStore } from '../../../stores/useReelsStore';
 import { isValidUuid } from './coachService';
 import {
   PROGRAMS_EVENT,
@@ -12,7 +11,7 @@ import {
   mapProgramRow,
   uniquePrograms,
   withProgramContent,
-} from '../../reels/services/coachStorefront';
+} from './coachStorefront';
 
 export interface EnrolledProgram extends StorefrontProgram {
   coach: ProgramCoach;
@@ -166,14 +165,7 @@ export async function fetchBrowsePrograms(): Promise<BrowseProgram[]> {
     String(row.coach_id || row.catalog_coach_id || '');
 
   const coaches = new Map<string, ProgramCoach>();
-  for (const reel of useReelsStore.getState().reels) {
-    const c = reel.coach;
-    if (c?.id && !coaches.has(c.id))
-      coaches.set(c.id, { id: c.id, name: c.name, handle: c.handle, avatar: c.avatar });
-  }
-  const unknown = [
-    ...new Set(rows.map(coachIdOf).filter((id) => isValidUuid(id) && !coaches.has(id))),
-  ];
+  const unknown = [...new Set(rows.map(coachIdOf).filter((id) => isValidUuid(id)))];
   if (unknown.length) {
     const { data } = await supabase
       .from('coach_profiles')

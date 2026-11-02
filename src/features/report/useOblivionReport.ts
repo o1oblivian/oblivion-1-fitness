@@ -100,8 +100,8 @@ export function useOblivionReport(enabled: boolean): UseOblivionReportResult {
     const next = Math.min(7, Math.max(1, Math.round(n)));
     try {
       localStorage.setItem(TARGET_KEY, String(next));
-    } catch {
-      // best-effort
+    } catch (err) {
+      console.warn('[useOblivionReport] Could not save the weekly session target', err);
     }
     setTargetState(next);
   }, []);

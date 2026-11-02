@@ -92,12 +92,12 @@ export const TermsOfServiceModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </div>
             <p className="text-o1-label text-o1-muted">
               Coaches and athletes agree to zero harassment. There is no tolerance for
-              objectionable, abusive, sexual, hateful or illegal content in profiles, photos, reels,
-              reviews or messages. You can report any profile, reel, coach or message, and block any
-              member, from the menu on that item. We review reports within 24 hours and remove the
-              content and the offending account when a report is upheld. Harassment or misconduct
-              results in immediate banishment and revocation of club credentials without refund. To
-              reach us directly, write to legal@oblivion1.club.
+              objectionable, abusive, sexual, hateful or illegal content in profiles, photos,
+              programs, reviews or messages. You can report any profile, coach or message, and block
+              any member, from the menu on that item. We review reports within 24 hours and remove
+              the content and the offending account when a report is upheld. Harassment or
+              misconduct results in immediate banishment and revocation of club credentials without
+              refund. To reach us directly, write to legal@oblivion1.club.
             </p>
           </div>
 

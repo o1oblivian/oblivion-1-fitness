@@ -12,17 +12,14 @@ export interface PlanCopy {
   renews: boolean;
 }
 
-export const TIER_PLANS: Record<MembershipTier, PlanCopy> = {
-  core: {
-    product: IAP_PRODUCTS.core_free,
-    audience: 'athlete',
-    headline: 'Start free with 90 days of full access.',
-    highlights: [
-      'Workout logger for every exercise',
-      'Hydration, supplement and basic fuel tracking',
-    ],
-    renews: false,
-  },
+/** Tiers sold through the store. `core` and `coach` mean no paid plan and are never listed. */
+export type PaidTier = Exclude<MembershipTier, 'core' | 'coach'>;
+
+export function isPaidTier(tier: string): tier is PaidTier {
+  return tier in TIER_PLANS;
+}
+
+export const TIER_PLANS: Record<PaidTier, PlanCopy> = {
   pro: {
     product: IAP_PRODUCTS.premium,
     audience: 'athlete',
@@ -42,18 +39,6 @@ export const TIER_PLANS: Record<MembershipTier, PlanCopy> = {
       'Everything in Pro, permanently',
       'Founding member badge',
       'One payment, never renews',
-    ],
-    renews: false,
-  },
-  coach: {
-    product: IAP_PRODUCTS.coach_free,
-    audience: 'coach',
-    headline: 'Coach up to 5 athletes free.',
-    highlights: [
-      'Roster of up to 5 athletes',
-      'Workout dispatch and form video review',
-      'Earnings dashboard',
-      '15% fee on program sales',
     ],
     renews: false,
   },

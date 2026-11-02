@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Trash2, Check, X, Plus, Upload } from 'lucide-react';
-import { CrimsonSwitch } from './CrimsonSwitch';
 import { BodyMetricsEditor } from './BodyMetricsEditor';
 import { useUserStore } from '../../stores/useUserStore';
 import { useRoleStore } from '../../stores/useRoleStore';
@@ -23,11 +22,9 @@ interface ProfileSectionProps {
   heightCm: number;
   weightKg: number;
   bio: string;
-  eliteReelsPresence: boolean;
   weightUnit?: string;
   heightUnit?: string;
   onUpdateBio: (val: string) => void;
-  onToggleReels: (val: boolean) => void;
   onUpdateName?: (val: string) => void;
   onUpdateHandle?: (val: string) => void;
   onUpdateAge?: (val: number) => void;
@@ -42,11 +39,9 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
   heightCm,
   weightKg,
   bio,
-  eliteReelsPresence,
   weightUnit = 'kg',
   heightUnit = 'cm',
   onUpdateBio,
-  onToggleReels,
   onUpdateName,
   onUpdateHandle,
   onUpdateAge,
@@ -327,23 +322,6 @@ export const SettingsProfileSection: React.FC<ProfileSectionProps> = ({
             placeholder="Add training background, PR targets, or coaching philosophy..."
             rows={2}
             className="w-full text-xs font-sans bg-black border border-white/[0.07] rounded-xl p-2.5 text-o1-bone placeholder:text-o1-faint focus:outline-none focus:border-o1-crimson transition-colors resize-none leading-relaxed"
-          />
-        </div>
-
-        {/* Elite Reels Presence Toggle */}
-        <div className="pt-2 border-t border-white/[0.05] flex items-center justify-between gap-3">
-          <div>
-            <span className="text-xs font-tactical font-semibold text-o1-bone block">
-              Elite Reels Presence
-            </span>
-            <span className="text-o1-label font-sans text-o1-muted leading-tight block">
-              Showcase your profile card and training highlights across reels
-            </span>
-          </div>
-          <CrimsonSwitch
-            label="Elite Reels presence"
-            checked={eliteReelsPresence}
-            onChange={onToggleReels}
           />
         </div>
       </div>

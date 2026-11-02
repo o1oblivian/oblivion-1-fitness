@@ -4,7 +4,7 @@ import {
   CoachingApplication,
   decideApplication,
   fetchCoachApplications,
-} from '../../reels/services/coachStorefront';
+} from '../services/coachStorefront';
 import { AthleteAvatar } from './floor/FloorAthleteCard';
 
 const REQUESTS_EVENT = 'o1-coaching-requests-changed';

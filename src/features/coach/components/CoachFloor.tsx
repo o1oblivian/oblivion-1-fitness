@@ -1,9 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Dumbbell, MessageSquare, User } from 'lucide-react';
 import { useAuthStore } from '../../../stores/useAuthStore';
 import { useCoachStore } from '../../../stores/useCoachStore';
-import { useModalStore } from '../../../components/modals/useModalStore';
-import { useReelsStore } from '../../../stores/useReelsStore';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { Athlete } from '../services/coachService';
 import { AthleteCheckInSubmission } from '../types/coachPlatformTypes';
@@ -25,7 +23,6 @@ import { CoachFeedbackSheet } from './floor/CoachFeedbackSheet';
 import { CheckinsWaitingSection } from './floor/CheckinsWaitingSection';
 import { ClientsTab } from './floor/ClientsTab';
 import { CoachFloorHeader } from './floor/CoachFloorHeader';
-import { FilmsTab } from './floor/FilmsTab';
 import { FloorTabBar } from './floor/FloorTabBar';
 import { RecentSessionsSection } from './floor/RecentSessionsSection';
 import { RosterSection } from './floor/RosterSection';
@@ -33,7 +30,7 @@ import { FeedbackTarget, dispatchTarget } from './floor/floorFormat';
 import { useFloorData } from './floor/useFloorData';
 import { useCoachingRequests } from './CoachingRequests';
 import { ROSTER_FULL_COACH_MESSAGE } from '../services/rosterCap';
-import { CoachProgramsTab } from '../../reels/components/profile/CoachProgramsTab';
+import { CoachProgramsTab } from './profile/CoachProgramsTab';
 
 export interface CoachFloorProps {
   coachId: string;
@@ -96,45 +93,23 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
   onShowToast,
   onRosterChanged,
 }) => {
-  const openFullEliteReels = useModalStore((s) => s.openFullEliteReels);
-  const ownReelCount = useReelsStore(
-    (s) => s.reels.filter((reel) => reel.coach?.id === coachId).length,
-  );
   const finishedWorkouts = useCoachStore((s) => s.finishedWorkouts);
   const applyWorkoutFeedback = useCoachStore((s) => s.applyWorkoutFeedback);
   const profileName = useAuthStore((s) => s.profile?.name || '');
   const tab = useCoachViewStore((s) => s.floorTab);
   const setTab = useCoachViewStore((s) => s.setFloorTab);
   const [feedbackFor, setFeedbackFor] = useState<FeedbackTarget | null>(null);
-  const {
-    films,
-    filmsFailed,
-    loadFilms,
-    storefront,
-    setStorefront,
-    programs,
-    latestFeedback,
-    setLatestFeedback,
-  } = useFloorData({ coachId, tab, programsRevision, ownReelCount });
+  const { storefront, setStorefront, programs, latestFeedback, setLatestFeedback } = useFloorData({
+    coachId,
+    tab,
+    programsRevision,
+  });
   const { requests, decide } = useCoachingRequests(coachId, onRosterChanged, () =>
     onShowToast?.(ROSTER_FULL_COACH_MESSAGE),
   );
 
-  const filmList = films ?? [];
-  const showFilms = filmsFailed || filmList.length > 0;
-
-  useEffect(() => {
-    if (tab === 'films' && films !== null && !showFilms) setTab('floor');
-  }, [tab, films, showFilms, setTab]);
-
   const people = useMemo(() => liveClients(athletes ?? []), [athletes]);
   const name = (card?.name || profileName || 'Coach').trim();
-
-  const openReel = (reelId?: string) => {
-    tactileEngine.triggerSelectionBuzz();
-    if (reelId) openFullEliteReels({ initialMode: 'player', initialReelId: reelId });
-    else openFullEliteReels({ initialMode: 'grid', initialCoachId: coachId });
-  };
 
   const contacts = useMemo(() => {
     const book: Record<string, InboxContact> = {};
@@ -242,12 +217,9 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         card={card}
         name={name}
         storefront={storefront}
-        filmCount={filmList.length}
-        firstFilmId={filmList[0]?.id}
         clientCount={athletes === null ? '--' : String(people.length)}
         onCardChange={onCardChange}
         onStorefrontChange={(changes) => setStorefront((prev) => ({ ...prev, ...changes }))}
-        onOpenReel={openReel}
         onOpenVault={onOpenVault}
         onCreateProgram={onCreateProgram}
         onOpenWorkout={onOpenWorkout}
@@ -255,16 +227,7 @@ export const CoachFloor: React.FC<CoachFloorProps> = ({
         onShowToast={onShowToast}
       />
 
-      <FloorTabBar tab={tab} showFilms={showFilms} onSelect={setTab} />
-
-      {tab === 'films' && (
-        <FilmsTab
-          films={films}
-          failed={filmsFailed}
-          onRetry={() => void loadFilms()}
-          onOpenReel={openReel}
-        />
-      )}
+      <FloorTabBar tab={tab} onSelect={setTab} />
 
       {tab === 'programs' && (
         <CoachProgramsTab programs={programs} isOwn onCreate={onCreateProgram} />

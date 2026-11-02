@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { X, Check, Send } from 'lucide-react';
-import { ExploreCoach } from '../reelTypes';
+import { ExploreCoach } from '../coachTypes';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useAuthStore } from '../../../stores/useAuthStore';
-import { sendCoachMessage } from '../../coach/services/coachBridge';
-import { reportUser } from '../../../services/safetyService';
-import { useReelSafetyStore } from '../services/reelSafety';
+import { sendCoachMessage } from '../services/coachBridge';
+import { blockUser, reportUser } from '../../../services/safetyService';
 import { SafetyReportSheet } from '../../../components/common/SafetyReportSheet';
 
 interface CoachDirectMessageModalProps {
@@ -25,8 +24,6 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
   const [reportOpen, setReportOpen] = useState(false);
   const [safetyNote, setSafetyNote] = useState('');
   const senderName = useAuthStore((s) => s.profile?.name);
-  const blockCoach = useReelSafetyStore((s) => s.blockCoach);
-
   if (!coach) return null;
 
   const close = () => {
@@ -163,7 +160,7 @@ export const CoachDirectMessageModal: React.FC<CoachDirectMessageModalProps> = (
                 : 'Report did not send. Sign in and try again.',
             );
           });
-          if (alsoBlock) void blockCoach(coach.id);
+          if (alsoBlock) void blockUser(coach.id);
         }}
       />
     </div>

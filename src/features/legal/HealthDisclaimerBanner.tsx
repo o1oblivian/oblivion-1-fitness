@@ -33,8 +33,11 @@ export const HealthDisclaimerBanner: React.FC<Props> = ({ onLearnMore, compact =
     sessionDismissed = true;
     try {
       localStorage.setItem(DISMISS_KEY, '1');
-    } catch {
-      // storage unavailable: stays hidden for this session only
+    } catch (err) {
+      console.warn(
+        '[HealthDisclaimerBanner] storage unavailable: stays hidden for this session only',
+        err,
+      );
     }
     setDismissed(true);
     window.dispatchEvent(new Event(DISMISS_EVENT));
