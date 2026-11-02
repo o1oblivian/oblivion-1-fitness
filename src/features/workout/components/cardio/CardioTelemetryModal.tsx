@@ -7,7 +7,11 @@ import {
 } from '../../../../services/geminiVisionService';
 import { processCardioScanImage } from '../../../log/services/cardioScanService';
 import { Capacitor } from '@capacitor/core';
-import { capturePhotoDataUrl, PhotoSource } from '../../../../services/nativeCameraService';
+import {
+  capturePhotoDataUrl,
+  isPhotoCancelled,
+  PhotoSource,
+} from '../../../../services/nativeCameraService';
 import { warmApi } from '../../../../services/apiBase';
 import {
   defaultScanMerge,
@@ -296,6 +300,8 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose, onPostC
       })
       .catch((err: unknown) => {
         setIsCapturing(false);
+        // Backing out of the camera is a choice, not a failure.
+        if (isPhotoCancelled(err)) return;
         const message = err instanceof Error ? err.message : 'Could not open the camera.';
         setStatusMessage({ ok: false, text: message });
       });

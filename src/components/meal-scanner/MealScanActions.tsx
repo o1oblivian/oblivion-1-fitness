@@ -1,9 +1,10 @@
-﻿import React, { RefObject, useEffect, useState } from 'react';
+import React, { RefObject, useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Camera, Upload, Scan, Video } from 'lucide-react';
 import { ScanMode } from '../../services/mealVisionTypes';
 import {
   capturePhotoDataUrl,
+  isPhotoCancelled,
   preloadNativeCamera,
   PhotoSource,
 } from '../../services/nativeCameraService';
@@ -36,6 +37,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
 }) => {
   const [showLiveScanner, setShowLiveScanner] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
+  const [failedSource, setFailedSource] = useState<PhotoSource | null>(null);
 
   useEffect(() => {
     preloadNativeCamera();
@@ -47,6 +49,7 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
       return;
     }
     setCaptureError(null);
+    setFailedSource(null);
     void capturePhotoDataUrl(source, SCAN_PHOTO_PX)
       .then(async (dataUrl) => {
         const blob = await (await fetch(dataUrl)).blob();
@@ -57,8 +60,9 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
       })
       .catch((err: unknown) => {
         const message = err instanceof Error ? err.message : 'The camera did not open.';
-        if (/cancel/i.test(message)) return;
+        if (isPhotoCancelled(err)) return;
         setCaptureError(message);
+        setFailedSource(source);
       });
   };
 
@@ -171,7 +175,20 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
           <span>Upload Photo</span>
         </button>
       </div>
-      {captureError ? <p className="text-o1-caption text-o1-crimson">{captureError}</p> : null}
+      {captureError ? (
+        <div role="alert" className="space-y-1.5">
+          <p className="text-o1-caption text-o1-crimson">{captureError}</p>
+          {failedSource === 'camera' ? (
+            <button
+              type="button"
+              onClick={() => openPhoto('photos')}
+              className="text-o1-caption text-o1-text underline underline-offset-2 cursor-pointer"
+            >
+              Choose a photo from your gallery instead
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 };

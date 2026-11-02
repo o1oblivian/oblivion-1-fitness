@@ -225,7 +225,7 @@ export const ScannedMealResultCard: React.FC<ScannedMealResultCardProps> = ({
       </div>
 
       {/* Pinned footer: the log button stays in view while the rest scrolls */}
-      <div className="sticky bottom-0 z-20 shrink-0 bg-[#0d0d0d] pt-2 pb-safe px-3 border-t border-white/[0.07] space-y-1.5">
+      <div className="sticky bottom-0 z-20 shrink-0 bg-o1-card pt-2 pb-safe px-3 border-t border-white/[0.07] space-y-1.5">
         <button
           type="button"
           disabled={isLogging || !hasAllMacros || weight <= 0}
