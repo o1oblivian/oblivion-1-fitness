@@ -49,7 +49,7 @@ export const MealMacroScannerModal: React.FC<MealMacroScannerModalProps> = (prop
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim o1-scrim-top">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 o1-sheet-scrim">
       <div className="o1-sheet-card o1-sheet-scanner bg-o1-card max-h-[92vh] flex flex-col overflow-hidden shadow-xl border border-white/[0.07]">
         <div className="flex items-center justify-between px-3 py-2.5 bg-black">
           <div className="flex items-center gap-2.5">

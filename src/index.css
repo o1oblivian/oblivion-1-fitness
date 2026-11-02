@@ -450,12 +450,6 @@ body {
   border: 2px solid #121214;
 }
 
-/* Scanners open just below the status bar instead of mid-screen. */
-.o1-sheet-scrim.o1-scrim-top {
-  align-items: flex-start !important;
-  padding-top: max(16px, env(safe-area-inset-top, 0px)) !important;
-}
-
 .o1-sheet-card.o1-sheet-scanner {
   max-height: min(92vh, 92dvh) !important;
   overflow: hidden !important;

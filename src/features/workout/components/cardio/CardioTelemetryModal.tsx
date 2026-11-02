@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Camera, Image as ImageIcon, Pencil, Loader2 } from 'lucide-react';
 import {
@@ -79,6 +79,27 @@ interface Props {
   onClose: () => void;
 }
 
+/** The card needs this much height for its buttons, so a button near the bottom edge lifts it up. */
+const PANEL_MIN_ROOM_PX = 320;
+const PANEL_GAP_PX = 8;
+
+/** Screen position just below the element with `anchorId`, kept in place on rotation or resize. */
+function usePanelTopBelow(anchorId: string, active: boolean): number {
+  const [top, setTop] = useState(16);
+  useLayoutEffect(() => {
+    if (!active) return;
+    const place = () => {
+      const rect = document.getElementById(anchorId)?.getBoundingClientRect();
+      const below = rect ? rect.bottom + PANEL_GAP_PX : 16;
+      setTop(Math.max(16, Math.min(below, window.innerHeight - PANEL_MIN_ROOM_PX)));
+    };
+    place();
+    window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  }, [anchorId, active]);
+  return top;
+}
+
 const SECONDARY_BUTTON =
   'h-11 rounded-2xl bg-o1-well text-o1-text text-o1-caption flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition disabled:opacity-50';
 
@@ -98,6 +119,8 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [merge, setMerge] = useState<ScanMerge | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const panelTop = usePanelTopBelow('hero-cardio-btn', isOpen);
 
   useEffect(() => {
     if (isOpen) warmApi();
@@ -321,9 +344,21 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
       role="dialog"
       aria-modal="true"
       aria-labelledby="cardio-scan-title"
-      className="fixed inset-0 z-50 flex flex-col bg-black/60 select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 select-none animate-in fade-in duration-150"
     >
-      <div className="w-full max-w-[420px] mx-auto max-h-[92dvh] overflow-y-auto overscroll-contain rounded-b-3xl bg-o1-surface px-4 pt-[max(env(safe-area-inset-top),16px)] pb-4 space-y-3 animate-in slide-in-from-top-6 duration-200">
+      {/* Tap outside the card to close. It is clear, so the Cardio button stays in view above the card. */}
+      <button
+        type="button"
+        aria-label="Close"
+        tabIndex={-1}
+        onClick={onClose}
+        className="absolute inset-0 w-full h-full cursor-default"
+      />
+
+      <div
+        style={{ top: panelTop, maxHeight: `calc(100dvh - ${panelTop}px - 12px)` }}
+        className="absolute inset-x-3 mx-auto max-w-[420px] overflow-y-auto overscroll-contain rounded-3xl bg-o1-surface border border-white/[0.07] px-4 pt-3 pb-4 space-y-3 shadow-2xl animate-in slide-in-from-top-2 duration-200"
+      >
         <header className="flex items-center justify-between">
           <h2 id="cardio-scan-title" className="text-xl font-light tracking-wide text-o1-text">
             Scan
@@ -507,15 +542,6 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </>
         ) : null}
       </div>
-
-      {/* Tap below the card to close. */}
-      <button
-        type="button"
-        aria-label="Close"
-        tabIndex={-1}
-        onClick={onClose}
-        className="flex-1 min-h-0 w-full cursor-default"
-      />
     </div>,
     document.body,
   );
