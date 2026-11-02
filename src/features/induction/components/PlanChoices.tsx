@@ -2,6 +2,7 @@ import { Check } from 'lucide-react';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { TIER_PLANS, type PaidTier } from '../../membership/planCatalog';
 import { StorePlansState } from '../../membership/components/StorePlansState';
+import { FounderPassCount } from '../../membership/components/FounderPassCount';
 import type { StorePlans } from '../../membership/useStorePlans';
 import { PERIOD_LABEL } from '../inductionHelpers';
 import { glass, glassActive } from '../inductionStyles';
@@ -99,6 +100,7 @@ export function PlanChoices({
                   <p className="mt-0.5 text-o1-label font-normal leading-snug text-o1-muted">
                     {copy.headline}
                   </p>
+                  <FounderPassCount product={copy.product} founder={plans.founder} />
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="text-right">

@@ -82,7 +82,9 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
               Cardio console, watch and meal scan photos, and barcode scans, are sent securely to
               our scanning service, and to Google's Gemini image-analysis service, only to read the
               numbers on them. Scan photos are not saved to your account. Profile photos and Vault
-              media you upload are stored in your account and shown to the people you choose.
+              media you upload are stored in your account and shown to the people you choose. Reels
+              you post are public to every member, with your name and profile photo, until you
+              delete them.
             </p>
           </div>
 
@@ -134,10 +136,10 @@ export const PrivacyPolicyModal: React.FC<Props> = ({ isOpen, onClose, onDeleteR
             </div>
             <p className="text-o1-label text-o1-muted">
               You can delete your account at any time in Settings &rarr; Delete account. Our server
-              then permanently deletes your profile, logs, messages, photos, videos and sign-in, and
-              the app clears everything stored on your phone. Payment records for coaching sales are
-              kept as the law requires. A store subscription is cancelled separately in{' '}
-              {store.settings}.
+              then permanently deletes your profile, logs, messages, photos, videos, reels and
+              sign-in, and the app clears everything stored on your phone. Payment records for
+              coaching sales are kept as the law requires. A store subscription is cancelled
+              separately in {store.settings}.
             </p>
             {onDeleteRequest && (
               <button

@@ -22,6 +22,7 @@ import { Capacitor } from '@capacitor/core';
 import { applyAuthCallbackUrl } from './services/oauthDeepLink';
 import { captureInviteFromUrl } from './features/log/publicShare';
 import { captureCoachLink } from './features/coach/services/coachLinks';
+import { captureReelLink } from './features/reels/services/reelLinks';
 import { AppErrorBoundary } from './components/common/AppErrorBoundary';
 import { useModalStore } from './components/modals/useModalStore';
 
@@ -169,17 +170,20 @@ export default function App() {
           console.warn('[App] Could not tidy the invite out of the address bar:', err);
         }
       }
-      if (captureCoachLink(webHref)) {
+      const coachLink = captureCoachLink(webHref);
+      const reelLink = captureReelLink(webHref);
+      if (coachLink || reelLink) {
         try {
           const cleaned = new URL(window.location.href);
           cleaned.searchParams.delete('coach');
+          cleaned.searchParams.delete('reel');
           window.history.replaceState(
             {},
             document.title,
             cleaned.pathname + cleaned.search + cleaned.hash,
           );
         } catch (err) {
-          console.warn('[App] Could not tidy the coach link out of the address bar:', err);
+          console.warn('[App] Could not tidy the shared link out of the address bar:', err);
         }
       }
       /** A paid checkout finished: show the Coach tab and re-read programs while the webhook lands. */
@@ -233,6 +237,7 @@ export default function App() {
               if (!url) return;
               captureInviteFromUrl(url);
               captureCoachLink(url);
+              captureReelLink(url);
               await handleAuthUrl(url);
               redeemInvite();
             })
@@ -261,6 +266,7 @@ export default function App() {
                 if (!launch?.url) return;
                 captureInviteFromUrl(launch.url);
                 captureCoachLink(launch.url);
+                captureReelLink(launch.url);
                 void handleAuthUrl(launch.url).then(redeemInvite);
               })
               .catch((err) => {

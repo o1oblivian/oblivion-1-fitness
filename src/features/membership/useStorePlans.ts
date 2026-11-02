@@ -3,6 +3,12 @@ import { IAP_PRODUCTS, type IAPProductInfo } from '../../types/iap';
 import { revenueCatService, type StoreCatalog } from '../../services/revenueCatService';
 import { BUILD_STAMP } from '../../services/buildStamp';
 import { storeCopy } from '../../utils/storeCopy';
+import {
+  founderSoldOut,
+  isFounderProduct,
+  useFounderPasses,
+  type FounderPasses,
+} from './useFounderPasses';
 
 export type StoreStatus = 'loading' | 'ready' | 'unavailable';
 
@@ -18,6 +24,8 @@ export interface StorePlans {
   retry: () => void;
   /** Which build this is and which store step it is on, or the store's own reason for failing. Empty once prices are in. */
   detail: string;
+  /** Founder Passes left out of 5,000, or `null` until the server answers. */
+  founder: FounderPasses | null;
 }
 
 interface Loaded {
@@ -112,9 +120,14 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
 
   // Read on every render: the text carries the seconds elapsed, so it changes as the timer redraws.
   const progress = revenueCatService.progress;
+  const founder = useFounderPasses(enabled);
 
   return useMemo<StorePlans>(() => {
-    const priceOf = (product: IAPProductInfo) => loaded.prices[product.productId] ?? null;
+    // A sold-out Founder Pass has no price to show, so every plan list drops it.
+    const priceOf = (product: IAPProductInfo) =>
+      isFounderProduct(product.productId) && founderSoldOut(founder)
+        ? null
+        : (loaded.prices[product.productId] ?? null);
     return {
       status: loaded.status,
       offered: (products) => products.filter((product) => priceOf(product) !== null),
@@ -127,6 +140,7 @@ export function useStorePlans(enabled: boolean = true): StorePlans {
           : loaded.status === 'unavailable' && loaded.issue
             ? loaded.issue
             : `Build ${BUILD_STAMP} · ${progress}`,
+      founder,
     };
-  }, [loaded, retry, progress]);
+  }, [loaded, retry, progress, founder]);
 }

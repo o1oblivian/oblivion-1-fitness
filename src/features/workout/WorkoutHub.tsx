@@ -6,6 +6,7 @@ import { useAthleteRealtime } from './hooks/useAthleteRealtime';
 import { useCoachStore } from '../../stores/useCoachStore';
 import { modalActions } from '../../components/modals/useModalStore';
 import { WorkoutHeroBanner } from './components/WorkoutHeroBanner';
+import { ProgramReelsScroller } from './components/ProgramReelsScroller';
 import { TrainingHubCards } from './components/TrainingHubCards';
 import { ExerciseHubDrawer } from './components/ExerciseHubDrawer';
 import { ActiveLogCard } from './components/ActiveLogCard';
@@ -89,7 +90,14 @@ export const WorkoutHub: React.FC = () => {
         <HealthDisclaimerBanner compact />
       </div>
 
-      {/* 2. TRAINING HUB SECTION (With Accordion Tabs) */}
+      {/* 2. MEMBER REELS */}
+      <ProgramReelsScroller
+        onSelect={(category) =>
+          modalActions.openReels({ initialMode: 'grid', initialCategory: category })
+        }
+      />
+
+      {/* 3. TRAINING HUB SECTION (With Accordion Tabs) */}
       <TrainingHubCards
         expandedHubTab={expandedHubTab}
         onToggleTab={handleToggleHubTab}

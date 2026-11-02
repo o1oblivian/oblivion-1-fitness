@@ -2,6 +2,8 @@ import React from 'react';
 import { Check } from 'lucide-react';
 import { IAPProductInfo } from '../../../types/iap';
 import { tactileEngine } from '../../../services/tactileEngine';
+import type { FounderPasses } from '../useFounderPasses';
+import { FounderPassCount } from './FounderPassCount';
 
 interface Props {
   product: IAPProductInfo;
@@ -9,6 +11,7 @@ interface Props {
   price: string;
   isSelected: boolean;
   onSelect: (productId: string) => void;
+  founder: FounderPasses | null;
 }
 
 function badgeTone(badge: string): string {
@@ -19,7 +22,13 @@ function badgeTone(badge: string): string {
   return 'text-o1-stone border-white/[0.14]';
 }
 
-export const MembershipPlanCard: React.FC<Props> = ({ product, price, isSelected, onSelect }) => {
+export const MembershipPlanCard: React.FC<Props> = ({
+  product,
+  price,
+  isSelected,
+  onSelect,
+  founder,
+}) => {
   return (
     <div
       onClick={() => {
@@ -64,6 +73,7 @@ export const MembershipPlanCard: React.FC<Props> = ({ product, price, isSelected
         <p className="text-o1-label sm:text-o1-label text-o1-muted mt-1 line-clamp-2 leading-snug">
           {product.description}
         </p>
+        <FounderPassCount product={product} founder={founder} />
       </div>
 
       {/* Price */}

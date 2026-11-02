@@ -3,6 +3,7 @@ import {
   ModalType,
   ModalPayloadMap,
   CoachProfilePayload,
+  ReelsPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
   GenericToastPayload,
@@ -18,6 +19,7 @@ interface ModalStoreActions {
   openModal: <T extends ModalType>(modalType: T, payload?: ModalPayloadMap[T]) => void;
   closeModal: () => void;
   openSettings: (payload?: GenericToastPayload) => void;
+  openReels: (payload?: ReelsPayload) => void;
   openCoachProfile: (payload: CoachProfilePayload) => void;
   openCardioScanner: () => void;
   openExerciseSwapper: (payload?: ExerciseSwapperPayload) => void;
@@ -48,6 +50,10 @@ const modalStore = createStore<ModalStoreState, ModalStoreActions>(initialState,
 
   openSettings: (payload) => {
     modalStore.actions.openModal('SETTINGS', payload || {});
+  },
+
+  openReels: (payload) => {
+    modalStore.actions.openModal('REELS', payload || { initialMode: 'grid' });
   },
 
   openCoachProfile: (payload) => {

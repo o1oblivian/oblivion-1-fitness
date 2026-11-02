@@ -15,6 +15,7 @@ const DEVICE_KEYS = new Set([
   'o1_club_taxonomy_v1',
   'o1_pending_invite',
   'o1_pending_coach_link',
+  'o1_pending_reel_link',
   'o1fc_remember_me',
   'o1fc_remember_email',
   'o1fc_onboarding_completed',

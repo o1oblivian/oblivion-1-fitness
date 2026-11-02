@@ -5,15 +5,20 @@ import { useModalStore } from './useModalStore';
 
 import {
   CoachProfilePayload,
+  ReelsPayload,
   ExerciseSwapperPayload,
   HydrationPayload,
   GenericToastPayload,
 } from './types';
 import { COACH_LINK_EVENT, consumeCoachLink } from '../../features/coach/services/coachLinks';
+import { REEL_LINK_EVENT, consumeReelLink } from '../../features/reels/services/reelLinks';
 
 // Each sheet is its own chunk and is fetched the first time it opens, so none of them weigh on the first screen.
 const SettingsModal = lazy(() =>
   import('../SettingsModal').then((m) => ({ default: m.SettingsModal })),
+);
+const ReelsHub = lazy(() =>
+  import('../../features/reels/ReelsHub').then((m) => ({ default: m.ReelsHub })),
 );
 const CoachProfileModal = lazy(() =>
   import('../../features/coach/components/profile/CoachProfileModal').then((m) => ({
@@ -46,23 +51,31 @@ const SupplementTimingModal = lazy(() =>
  * Eliminates prop drilling and bloated layout states while preserving 100% visual parity and animations.
  */
 export const ModalRegistry: React.FC = () => {
-  const { activeModal, payload, closeModal, openCoachProfile } = useModalStore();
+  const { activeModal, payload, closeModal, openCoachProfile, openReels } = useModalStore();
 
   useEffect(() => {
-    const openPending = (event?: Event) => {
-      const fromEvent = event instanceof CustomEvent ? event.detail : null;
-      const coachId = consumeCoachLink() ?? (typeof fromEvent === 'string' ? fromEvent : null);
+    const detailOf = (event?: Event) =>
+      event instanceof CustomEvent && typeof event.detail === 'string' ? event.detail : null;
+    const openPendingCoach = (event?: Event) => {
+      const coachId = consumeCoachLink() ?? detailOf(event);
       if (coachId) openCoachProfile({ coachId });
     };
-    openPending();
-    window.addEventListener(COACH_LINK_EVENT, openPending);
+    const openPendingReel = (event?: Event) => {
+      const reelId = consumeReelLink() ?? detailOf(event);
+      if (reelId) openReels({ initialMode: 'player', initialReelId: reelId });
+    };
+    openPendingCoach();
+    openPendingReel();
+    window.addEventListener(COACH_LINK_EVENT, openPendingCoach);
+    window.addEventListener(REEL_LINK_EVENT, openPendingReel);
     const closeOnSignOut = () => closeModal();
     window.addEventListener('o1fc_signed_out', closeOnSignOut);
     return () => {
-      window.removeEventListener(COACH_LINK_EVENT, openPending);
+      window.removeEventListener(COACH_LINK_EVENT, openPendingCoach);
+      window.removeEventListener(REEL_LINK_EVENT, openPendingReel);
       window.removeEventListener('o1fc_signed_out', closeOnSignOut);
     };
-  }, [openCoachProfile, closeModal]);
+  }, [openCoachProfile, openReels, closeModal]);
 
   if (!activeModal) return null;
 
@@ -77,7 +90,19 @@ export const ModalRegistry: React.FC = () => {
         />
       )}
 
-      {/* 2. Coach profile (Coach tab cards, program owners, shared coach links) */}
+      {/* 2. Reels: the member feed, the player and the upload sheet */}
+      {activeModal === 'REELS' && (
+        <ReelsHub
+          isOpen
+          onClose={closeModal}
+          initialMode={(payload as ReelsPayload | null)?.initialMode}
+          initialReelId={(payload as ReelsPayload | null)?.initialReelId}
+          initialCategory={(payload as ReelsPayload | null)?.initialCategory}
+          openUpload={(payload as ReelsPayload | null)?.openUpload}
+        />
+      )}
+
+      {/* 3. Coach profile (Coach tab cards, program owners, shared coach links) */}
       {activeModal === 'COACH_PROFILE' && (payload as CoachProfilePayload | null)?.coachId && (
         <CoachProfileModal
           coachId={(payload as CoachProfilePayload).coachId}

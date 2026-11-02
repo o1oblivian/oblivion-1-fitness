@@ -27,7 +27,7 @@ export interface CompressedMediaResult {
   compressionNote?: string;
 }
 
-function formatFileSize(bytes: number): string {
+export function formatFileSize(bytes: number): string {
   if (!bytes || bytes <= 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -255,6 +255,8 @@ export interface VideoCompressOptions {
   maxLongEdge?: number;
   /** 0-100. */
   onProgress?: (pct: number) => void;
+  /** Refuse the clip instead of falling back to the original when it cannot be re-encoded on the phone. */
+  requireEncode?: boolean;
 }
 
 function percentSaved(originalBytes: number, finalBytes: number): number {
@@ -381,7 +383,7 @@ export async function compressVideo(
     } catch (err) {
       const reason = err instanceof Error ? err.message : String(err);
       console.warn('[mediaCompressor] on-device encode failed:', reason);
-      if (originalSizeBytes > MAX_UPLOAD_BYTES) {
+      if (options.requireEncode || originalSizeBytes > MAX_UPLOAD_BYTES) {
         throw new VideoCompressionError(
           'transcode-failed',
           `This video could not be compressed on your phone (${reason}).`,
@@ -390,6 +392,12 @@ export async function compressVideo(
       compressionNote = `On-device compression failed (${reason}); the original is used.`;
     }
   } else {
+    if (options.requireEncode) {
+      throw new VideoCompressionError(
+        'transcode-failed',
+        'Videos are compressed by the Oblivion 1 app on your phone. Post this clip from the app.',
+      );
+    }
     compressionNote =
       'Video compression runs in the installed app; this browser uploads the original.';
   }

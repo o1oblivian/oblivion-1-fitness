@@ -169,6 +169,7 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
                     price={plans.priceOf(p) ?? ''}
                     isSelected={currentSelected?.productId === p.productId}
                     onSelect={handleSelectPlan}
+                    founder={plans.founder}
                   />
                 </div>
               ))}

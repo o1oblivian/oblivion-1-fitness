@@ -1,4 +1,4 @@
-/** Where the shared links (invite, coach) land: a small page that sends people to the stores. */
+/** Where the shared links (invite, coach, reel) land: a small page that sends people to the stores. */
 
 const APP_SCHEME = 'com.o1fc.fitness';
 
@@ -75,9 +75,10 @@ export function renderJoinPage(options: JoinPageOptions): string {
   var SCHEME = ${jsString(APP_SCHEME)};
   var q = new URLSearchParams(location.search);
   function clean(v) { v = (v || '').trim(); return /^[A-Za-z0-9_.:-]{1,120}$/.test(v) ? v : ''; }
-  var invite = clean(q.get('invite')), coach = clean(q.get('coach'));
+  var invite = clean(q.get('invite')), reel = clean(q.get('reel')), coach = clean(q.get('coach'));
   var p = new URLSearchParams();
   if (invite) p.set('invite', invite);
+  if (reel) p.set('reel', reel);
   if (coach) p.set('coach', coach);
   var query = p.toString();
   var ua = navigator.userAgent || '';
@@ -93,6 +94,9 @@ export function renderJoinPage(options: JoinPageOptions): string {
   } else if (coach) {
     title.textContent = 'A coach shared their page.';
     lead.textContent = 'Open it in the app to see their programs and send a request.';
+  } else if (reel) {
+    title.textContent = 'Someone shared a reel with you.';
+    lead.textContent = 'Open it in the app to watch.';
   }
 
   var play = document.getElementById('play'), apple = document.getElementById('apple'), open = document.getElementById('open');

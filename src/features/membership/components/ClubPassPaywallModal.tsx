@@ -10,6 +10,7 @@ import { COACH_PAYWALL_FEATURE } from '../planCatalog';
 import { useStorePlans } from '../useStorePlans';
 import { useStorePurchase } from '../useStorePurchase';
 import { StorePlansState } from './StorePlansState';
+import { FounderPassCount } from './FounderPassCount';
 
 type Audience = 'athletes' | 'coaches';
 
@@ -187,6 +188,7 @@ export const ClubPassPaywallModal: React.FC = () => {
                     <span className="text-o1-label font-num text-o1-muted block mt-0.5">
                       {plan.description}
                     </span>
+                    <FounderPassCount product={plan} founder={storePlans.founder} />
                   </div>
                   <span className="text-sm font-black font-num text-white shrink-0 text-right">
                     {storePlans.priceOf(plan)}

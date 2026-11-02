@@ -3,7 +3,7 @@ import { getAuthenticatedUserId } from './authUser';
 
 const MEDIA_BUCKET = 'media';
 
-export type MediaFolder = 'vault' | 'avatars' | 'covers';
+export type MediaFolder = 'vault' | 'avatars' | 'covers' | 'reels';
 
 export interface StoredMedia {
   url: string;
