@@ -24,6 +24,7 @@ import {
 } from '../../../log/services/cardioScanSave';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { CardioMetricsGrid, MetricItem } from './CardioMetricsGrid';
+import { estimateStepsFromKm } from '../../../telemetry/services/stepEstimate';
 
 const NO_NUMBERS = {
   ok: false,
@@ -53,6 +54,13 @@ const foundMessage = (
   if (r.steps) {
     const where = r.deviceType === 'watch' ? 'watch' : 'screen';
     return { ok: true, text: `Read ${r.steps.toLocaleString()} steps from the ${where}.` };
+  }
+  const estimate = estimateStepsFromKm(r.distanceKm, r.elapsedMinutes);
+  if (estimate) {
+    return {
+      ok: true,
+      text: `No steps on screen, so ${r.distanceKm} km counts as about ${estimate.toLocaleString()} steps.`,
+    };
   }
   return { ok: true, text: 'Numbers found. Steps were not on screen.' };
 };
@@ -221,6 +229,12 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
     });
   };
 
+  // A screen without a step count still gets steps, worked out from its distance and marked as an estimate.
+  const estimatedSteps =
+    telemetry && !telemetry.steps
+      ? estimateStepsFromKm(telemetry.distanceKm, telemetry.elapsedMinutes)
+      : null;
+
   const scanToSave = (): ScanToSave | null => {
     if (!telemetry) return null;
     const readSteps = telemetry.steps || 0;
@@ -232,7 +246,7 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
           : selectedImage && telemetry.deviceType === 'console'
             ? 'Console'
             : 'Cardio',
-      steps: readSteps,
+      steps: readSteps || estimatedSteps || 0,
       readSteps,
       distanceKm: telemetry.distanceKm || 0,
       durationMinutes: telemetry.elapsedMinutes || 0,
@@ -271,8 +285,13 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
     {
       id: 'steps',
       label: 'Steps',
-      num: telemetry?.steps != null ? telemetry.steps.toLocaleString() : '--',
-      unit: 'steps',
+      num:
+        telemetry?.steps != null
+          ? telemetry.steps.toLocaleString()
+          : estimatedSteps != null
+            ? `~${estimatedSteps.toLocaleString()}`
+            : '--',
+      unit: telemetry?.steps == null && estimatedSteps != null ? 'est.' : 'steps',
     },
     {
       id: 'elapsed',

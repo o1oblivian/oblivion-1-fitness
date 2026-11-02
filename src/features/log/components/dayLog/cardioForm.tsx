@@ -3,6 +3,8 @@ import { CardioDayRecord, useTelemetryHistoryStore } from '../../store/useTeleme
 import { useFuelStore } from '../../../fuel/store/useFuelStore';
 import { sanitizeNumericInput } from '../../../../utils/numberInputUtils';
 import { persistCardioLog } from '../../services/cardioLogService';
+import { estimateStepsFromKm } from '../../../telemetry/services/stepEstimate';
+import { telemetryArbitrationService } from '../../../telemetry/services/telemetryArbitrationService';
 import { readNum, type DayLogContext, type SaveOutcome } from './shared';
 
 /** Cardio day: distance, time, burn and heart rate. */
@@ -47,26 +49,41 @@ export function useCardioLogForm({ isOpen, dayMeta, category, mode, onSaved }: D
       return 'stay';
     }
     const activity = cardioType.trim() || 'Cardio';
-    const cardioRecord = {
-      hasData: true,
-      distanceKm: distNum ?? 0,
-      durationMinutes: durNum ?? 0,
-      burnedKcal: burnNum ?? 0,
-      avgHeartRateBpm: hrNum ?? 0,
-      zone2Minutes: 0,
-      activityType: activity,
-    };
-    updateDayRecord(dayMeta.dateKey, 'cardio', cardioRecord);
-    if (mode !== 'edit') {
+    // No step count is typed here, so the distance gives one, the same way a console scan does.
+    const steps = estimateStepsFromKm(distNum, durNum) ?? undefined;
+    if (mode === 'edit') {
+      const previous = historyByDate[dayMeta.dateKey]?.cardio;
+      updateDayRecord(dayMeta.dateKey, 'cardio', {
+        hasData: true,
+        distanceKm: distNum ?? 0,
+        durationMinutes: durNum ?? 0,
+        burnedKcal: burnNum ?? 0,
+        avgHeartRateBpm: hrNum ?? 0,
+        zone2Minutes: previous?.zone2Minutes ?? 0,
+        activityType: activity,
+        steps: previous?.steps ?? steps,
+        stepKcal: previous?.stepKcal,
+      });
+    } else {
       if (dayMeta.isToday && burnNum != null && burnNum > 0) {
         useFuelStore.getState().logBurned(burnNum);
       }
+      if (dayMeta.isToday && steps) {
+        telemetryArbitrationService.recordConsoleSession({
+          distanceKm: distNum ?? 0,
+          durationMinutes: durNum ?? 0,
+          steps,
+          burnedKcal: burnNum ?? 0,
+        });
+      }
+      // Writes the day record itself, added to anything already logged that day.
       persistCardioLog({
         activityType: activity,
         distanceKm: distNum ?? 0,
         durationMinutes: durNum ?? 0,
         burnedKcal: burnNum ?? 0,
         avgHeartRateBpm: hrNum ?? undefined,
+        steps,
         dateKey: dayMeta.dateKey,
       }).then(
         (outcome) => {

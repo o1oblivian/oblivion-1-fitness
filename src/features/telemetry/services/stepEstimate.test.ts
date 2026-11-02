@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { estimateKcalFromSteps, estimateKmFromSteps } from './stepEstimate';
+import { estimateKcalFromSteps, estimateKmFromSteps, estimateStepsFromKm } from './stepEstimate';
 
 describe('estimateKmFromSteps', () => {
   it('turns steps into a walking distance', () => {
@@ -10,6 +10,26 @@ describe('estimateKmFromSteps', () => {
   it('guesses nothing without steps', () => {
     expect(estimateKmFromSteps(0)).toBeNull();
     expect(estimateKmFromSteps(undefined)).toBeNull();
+  });
+});
+
+describe('estimateStepsFromKm', () => {
+  it('uses the walking stride for a slow treadmill walk', () => {
+    // Life Fitness console: 1.36 km in 32:18, about 2.5 km/h.
+    expect(estimateStepsFromKm(1.36, 32.3)).toBe(1904);
+  });
+
+  it('uses the running stride at running pace', () => {
+    expect(estimateStepsFromKm(5, 25)).toBe(5500);
+  });
+
+  it('assumes walking when the time is unknown', () => {
+    expect(estimateStepsFromKm(2)).toBe(2800);
+  });
+
+  it('guesses nothing without a distance', () => {
+    expect(estimateStepsFromKm(0, 30)).toBeNull();
+    expect(estimateStepsFromKm(null, 30)).toBeNull();
   });
 });
 
