@@ -61,6 +61,8 @@ export interface FuelState extends FuelProfileFields, FuelDayFields {
   addFoodItem: (category: string, item: Partial<MealItem> & { name: string }) => void;
   removeMealItem: (slot: FuelSlot, itemId: string) => void;
   clearDailyMeals: () => void;
+  /** Starts a blank log when the calendar day has moved on. Does nothing on the same day. */
+  rollToToday: () => void;
   setSupplementStack: (stack: SupplementItem[]) => void;
   toggleSupplementTaken: (id: string) => void;
   setSupplementsTaken: (ids: string[]) => void;

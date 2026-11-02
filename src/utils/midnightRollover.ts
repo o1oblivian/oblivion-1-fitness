@@ -32,6 +32,22 @@ function getTodayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
+/** Starts every daily counter over. Each store resets on its own, so one failure cannot block the rest. */
+function resetDailyStores(): void {
+  const resets: Array<() => void> = [
+    () => useFuelStore.getState().rollToToday(),
+    () => useWorkoutStore.getState().clearDailyWorkout(),
+    () => useTelemetryStore.getState().setStepCount(0),
+  ];
+  for (const reset of resets) {
+    try {
+      reset();
+    } catch (error) {
+      console.error('[O1FC Midnight Rollover] Daily reset step failed:', error);
+    }
+  }
+}
+
 /**
  * Executes a full midnight rollover and telemetry archiving cycle.
  */
@@ -147,14 +163,7 @@ async function performMidnightRollover(
     });
 
     // 4. Reset daily tracking counters across all stores for the new day
-    // Reset fuel meals and daily hydration
-    fuelState.clearDailyMeals();
-
-    // Reset workout exercises & active session logs
-    workoutState.clearDailyWorkout();
-
-    // Reset daily steps in telemetry store
-    telemetryState.setStepCount(0);
+    resetDailyStores();
 
     // 5. Update and persist the O1FC_LAST_LOG_DATE marker
     safeStorage.setItem(O1FC_LAST_LOG_DATE_KEY, currentDate);
@@ -164,6 +173,9 @@ async function performMidnightRollover(
     return true;
   } catch (error) {
     console.error('[O1FC Midnight Rollover] Error during rollover cycle:', error);
+    // The archive step failed, but the new day must still start clean. Without this, yesterday's
+    // meals stay on screen all day while the date marker says the rollover already ran.
+    resetDailyStores();
     // Still ensure the date gets updated to avoid infinite error loops
     safeStorage.setItem(O1FC_LAST_LOG_DATE_KEY, currentDate);
     return false;
@@ -178,19 +190,29 @@ function checkAndExecuteMidnightRollover(): boolean {
 
   const today = getTodayDateString();
   const lastLogDate = safeStorage.getItem<string>(O1FC_LAST_LOG_DATE_KEY, '');
+  const fuelDayBefore = useFuelStore.getState().dateKey;
+  let rolledOver = false;
 
   if (!lastLogDate) {
     // First run or initial initialization: stamp today's date
     safeStorage.setItem(O1FC_LAST_LOG_DATE_KEY, today);
-    return false;
-  }
-
-  if (lastLogDate !== today) {
+  } else if (lastLogDate !== today) {
     performMidnightRollover(lastLogDate, today);
-    return true;
+    rolledOver = true;
   }
 
-  return false;
+  // The fuel log is checked against its own date every time, not only when the marker is old.
+  // A log left over from an earlier day clears itself here even if the marker already says today.
+  useFuelStore.getState().rollToToday();
+  if (useFuelStore.getState().dateKey !== fuelDayBefore) {
+    // Meals logged today on another device arrive from the account.
+    void useFuelStore
+      .getState()
+      .hydrate()
+      .catch(() => undefined);
+  }
+
+  return rolledOver;
 }
 
 /**

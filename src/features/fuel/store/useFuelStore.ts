@@ -281,6 +281,12 @@ export const useFuelStore = create<FuelState>((set, get) => {
       persist();
     },
 
+    rollToToday: () => {
+      const before = get().dateKey;
+      ensureToday();
+      if (get().dateKey !== before) persist();
+    },
+
     setSupplementStack: (stack) => {
       const ids = new Set(stack.map((s) => s.id));
       set((s) => ({
