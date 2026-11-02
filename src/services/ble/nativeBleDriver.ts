@@ -15,6 +15,11 @@ import {
   parseBeatIntervalsMs,
 } from './bleTypes';
 
+const blePermissionMessage = () =>
+  Capacitor.getPlatform() === 'android'
+    ? 'Bluetooth access is off. Allow Nearby devices for Oblivion 1 in your phone Settings. Heart rate sensors need Android 12 or newer.'
+    : 'Bluetooth access is off. Allow Bluetooth for Oblivion 1 in your phone Settings.';
+
 export class NativeBleDriver implements BleDriver {
   private client: BleClientInterface | null = null;
   private initialized = false;
@@ -78,6 +83,9 @@ export class NativeBleDriver implements BleDriver {
       if (deviceId) await this.disconnect(deviceId);
       if (isPickerCancel(err)) return { success: false, cancelled: true };
       const message = err instanceof Error ? err.message : '';
+      // The app has no location permission, which Android 11 and older require for any Bluetooth scan.
+      if (/permission|denied|location/i.test(message))
+        return { success: false, error: blePermissionMessage() };
       return { success: false, error: message || 'Could not connect to the sensor.' };
     }
   }

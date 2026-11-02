@@ -70,8 +70,8 @@ export const AthleteLaunchProtocolCard: React.FC<AthleteLaunchProtocolCardProps>
       </div>
 
       <p className="mt-3 px-2 text-center text-o1-label font-normal leading-relaxed text-o1-muted/80">
-        Camera, location and notifications are only requested when you open a feature that uses
-        them.
+        Camera, Bluetooth and notifications are only requested when you open a feature that uses
+        them. The app never asks for your location.
       </p>
 
       <div className="mt-5 space-y-1">
