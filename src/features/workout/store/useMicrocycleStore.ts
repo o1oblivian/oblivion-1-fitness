@@ -5,7 +5,7 @@ import { DayStrainDetail, EMPTY_MICROCYCLE_DAYS } from '../components/microcycle
 import { computeAcwr, weekCompletionPct, AcwrSnapshot } from '../../../utils/acwrMath';
 import { getAuthenticatedUserId } from '../../../services/authUser';
 import { useConsultationStore } from '../../induction/useConsultationStore';
-import { localDayKey } from '../../log/services/dayLogService';
+import { isForgotten, localDayKey } from '../../log/services/dayLogService';
 
 export interface MicrocycleStoreState {
   activeDays: DayStrainDetail[];
@@ -61,10 +61,8 @@ function localMidnightIso(dateKey: string, endOfDay = false): string {
 }
 
 interface CloudDay {
-  logVol: number;
-  logSets: number;
-  sessVol: number;
-  sessSets: number;
+  vol: number;
+  sets: number;
   title: string | null;
 }
 
@@ -73,7 +71,7 @@ let cloudByDay = new Map<string, CloudDay>();
 function bucket(map: Map<string, CloudDay>, key: string): CloudDay {
   let day = map.get(key);
   if (!day) {
-    day = { logVol: 0, logSets: 0, sessVol: 0, sessSets: 0, title: null };
+    day = { vol: 0, sets: 0, title: null };
     map.set(key, day);
   }
   return day;
@@ -89,22 +87,19 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
     const dates = computeIsoWeekDates();
     const historyByDate = useTelemetryHistoryStore.getState().historyByDate;
 
+    // The day log on this phone is the record: it already holds edits and deletions the account
+    // backup may not have caught up with. The backup only fills days this phone has nothing for.
     const dayLoad = (key: string) => {
       const hist = historyByDate[key]?.workout;
-      const cloud = cloudByDay.get(key);
-      return {
-        vol: Math.max(
-          hist?.hasData ? Number(hist.tonnageKg) || 0 : 0,
-          cloud?.logVol ?? 0,
-          cloud?.sessVol ?? 0,
-        ),
-        sets: Math.max(
-          hist?.hasData ? Number(hist.completedSets) || 0 : 0,
-          cloud?.logSets ?? 0,
-          cloud?.sessSets ?? 0,
-        ),
-        title: (hist?.hasData && hist.routineName) || cloud?.title || null,
-      };
+      if (hist?.hasData) {
+        return {
+          vol: Number(hist.tonnageKg) || 0,
+          sets: Number(hist.completedSets) || 0,
+          title: hist.routineName || null,
+        };
+      }
+      const cloud = isForgotten(key, 'workout') ? undefined : cloudByDay.get(key);
+      return { vol: cloud?.vol ?? 0, sets: cloud?.sets ?? 0, title: cloud?.title || null };
     };
 
     const computed = EMPTY_MICROCYCLE_DAYS.map((baseDay, idx) => {
@@ -145,32 +140,18 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
       // Built locally and swapped in at the end, so overlapping refreshes cannot add the same rows twice.
       const next = new Map<string, CloudDay>();
       if (uid) {
-        const weekStart = localMidnightIso(dates[0].dateKey);
         const weekEnd = localMidnightIso(dates[6].dateKey, true);
         const chronicStart = localMidnightIso(dateKeyOffset(27));
-        const [logsRes, sessRes] = await Promise.all([
-          supabase
-            .from('workout_logs')
-            .select('weight_kg, reps, created_at')
-            .eq('user_id', uid)
-            .gte('created_at', weekStart)
-            .lte('created_at', weekEnd)
-            .order('created_at', { ascending: false })
-            .limit(ROW_CAP),
-          supabase
-            .from('completed_sessions')
-            .select('tonnage_kg, total_sets, title, completed_at, created_at')
-            .eq('user_id', uid)
-            .gte('created_at', chronicStart)
-            .lte('created_at', weekEnd)
-            .order('created_at', { ascending: false })
-            .limit(ROW_CAP),
-        ]);
-        for (const r of Array.isArray(logsRes.data) ? logsRes.data : []) {
-          const day = bucket(next, localDayKey(r.created_at));
-          day.logVol += (Number(r.weight_kg) || 0) * (Number(r.reps) || 0);
-          day.logSets += 1;
-        }
+        // Sessions carry the day the workout happened; set rows only carry when they were uploaded,
+        // which for a workout added later on Log is a different day.
+        const sessRes = await supabase
+          .from('completed_sessions')
+          .select('tonnage_kg, total_sets, title, completed_at, created_at')
+          .eq('user_id', uid)
+          .gte('completed_at', chronicStart)
+          .lte('completed_at', weekEnd)
+          .order('completed_at', { ascending: false })
+          .limit(ROW_CAP);
         for (const s of Array.isArray(sessRes.data) ? sessRes.data : []) {
           if (
             String(s.title || '')
@@ -179,8 +160,8 @@ export const useMicrocycleStore = create<MicrocycleStoreState>((set, get) => ({
           )
             continue;
           const day = bucket(next, localDayKey(s.completed_at || s.created_at));
-          day.sessVol += Number(s.tonnage_kg) || 0;
-          day.sessSets += Number(s.total_sets) || 0;
+          day.vol += Number(s.tonnage_kg) || 0;
+          day.sets += Number(s.total_sets) || 0;
           day.title = day.title || s.title || null;
         }
       }
