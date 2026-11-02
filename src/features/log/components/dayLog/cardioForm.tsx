@@ -3,7 +3,8 @@ import { CardioDayRecord, useTelemetryHistoryStore } from '../../store/useTeleme
 import { useFuelStore } from '../../../fuel/store/useFuelStore';
 import { sanitizeNumericInput } from '../../../../utils/numberInputUtils';
 import { persistCardioLog } from '../../services/cardioLogService';
-import { estimateStepsFromKm } from '../../../telemetry/services/stepEstimate';
+import { fillCardioGaps } from '../../../telemetry/services/cardioEstimate';
+import { athleteBodyweightKg } from '../../../workout/utils/sessionEnergy';
 import { telemetryArbitrationService } from '../../../telemetry/services/telemetryArbitrationService';
 import { readNum, type DayLogContext, type SaveOutcome } from './shared';
 
@@ -42,15 +43,26 @@ export function useCardioLogForm({ isOpen, dayMeta, category, mode, onSaved }: D
     if (!dayMeta) return 'stay';
     const distNum = readNum(cardioDistance);
     const durNum = readNum(cardioDuration);
-    const burnNum = readNum(cardioBurn);
+    const typedBurn = readNum(cardioBurn);
     const hrNum = readNum(cardioHeartRate);
-    if (distNum == null && durNum == null && burnNum == null && hrNum == null) {
+    if (distNum == null && durNum == null && typedBurn == null && hrNum == null) {
       onSaved?.('Add a number first');
       return 'stay';
     }
     const activity = cardioType.trim() || 'Cardio';
-    // No step count is typed here, so the distance gives one, the same way a console scan does.
-    const steps = estimateStepsFromKm(distNum, durNum) ?? undefined;
+    // No step count is typed here, and the burn may be blank: both come from distance and time, as a scan's do.
+    const est = fillCardioGaps(
+      {
+        steps: null,
+        distanceKm: distNum,
+        elapsedMinutes: durNum,
+        caloriesBurned: typedBurn,
+        speedKmh: null,
+      },
+      athleteBodyweightKg(),
+    );
+    const steps = est.steps ?? undefined;
+    const burnNum = typedBurn ?? est.caloriesBurned;
     if (mode === 'edit') {
       const previous = historyByDate[dayMeta.dateKey]?.cardio;
       updateDayRecord(dayMeta.dateKey, 'cardio', {

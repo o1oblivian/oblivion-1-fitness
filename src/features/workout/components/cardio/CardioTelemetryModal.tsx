@@ -24,7 +24,8 @@ import {
 } from '../../../log/services/cardioScanSave';
 import { tactileEngine } from '../../../../services/tactileEngine';
 import { CardioMetricsGrid, MetricItem } from './CardioMetricsGrid';
-import { estimateStepsFromKm } from '../../../telemetry/services/stepEstimate';
+import { fillCardioGaps, type CardioEstimates } from '../../../telemetry/services/cardioEstimate';
+import { athleteBodyweightKg } from '../../utils/sessionEnergy';
 
 const NO_NUMBERS = {
   ok: false,
@@ -48,21 +49,26 @@ function readsAnyNumber(r: CardioTelemetryResult): boolean {
   );
 }
 
-const foundMessage = (
-  r: Pick<CardioTelemetryResult, 'steps' | 'distanceKm' | 'elapsedMinutes' | 'deviceType'>,
-) => {
-  if (r.steps) {
-    const where = r.deviceType === 'watch' ? 'watch' : 'screen';
-    return { ok: true, text: `Read ${r.steps.toLocaleString()} steps from the ${where}.` };
-  }
-  const estimate = estimateStepsFromKm(r.distanceKm, r.elapsedMinutes);
-  if (estimate) {
-    return {
-      ok: true,
-      text: `No steps on screen, so ${r.distanceKm} km counts as about ${estimate.toLocaleString()} steps.`,
-    };
-  }
-  return { ok: true, text: 'Numbers found. Steps were not on screen.' };
+const ESTIMATE_NAMES: [keyof CardioEstimates, string][] = [
+  ['steps', 'steps'],
+  ['distanceKm', 'distance'],
+  ['caloriesBurned', 'calories'],
+  ['elapsedMinutes', 'time'],
+  ['speedKmh', 'speed'],
+];
+
+const foundMessage = (r: CardioTelemetryResult) => {
+  const where = r.deviceType === 'watch' ? 'watch' : 'screen';
+  const worked = ESTIMATE_NAMES.filter(([key]) => fillCardioGaps(r)[key] != null).map(
+    ([, name]) => name,
+  );
+  const read = r.steps
+    ? `Read ${r.steps.toLocaleString()} steps from the ${where}.`
+    : `Read the ${where}.`;
+  if (!worked.length) return { ok: true, text: read };
+  const list =
+    worked.length > 1 ? `${worked.slice(0, -1).join(', ')} and ${worked.at(-1)}` : worked[0];
+  return { ok: true, text: `${read} Worked out ${list} from it (marked est.).` };
 };
 
 /** "6,157 steps · 188 kcal" for what today's log already holds. */
@@ -229,14 +235,13 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
     });
   };
 
-  // A screen without a step count still gets steps, worked out from its distance and marked as an estimate.
-  const estimatedSteps =
-    telemetry && !telemetry.steps
-      ? estimateStepsFromKm(telemetry.distanceKm, telemetry.elapsedMinutes)
-      : null;
+  // Anything the screen left out is worked out from what it showed, and marked as an estimate.
+  const est: CardioEstimates | null = telemetry
+    ? fillCardioGaps(telemetry, athleteBodyweightKg())
+    : null;
 
   const scanToSave = (): ScanToSave | null => {
-    if (!telemetry) return null;
+    if (!telemetry || !est) return null;
     const readSteps = telemetry.steps || 0;
     return {
       device: telemetry.deviceType,
@@ -246,11 +251,11 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
           : selectedImage && telemetry.deviceType === 'console'
             ? 'Console'
             : 'Cardio',
-      steps: readSteps || estimatedSteps || 0,
+      steps: readSteps || est.steps || 0,
       readSteps,
-      distanceKm: telemetry.distanceKm || 0,
-      durationMinutes: telemetry.elapsedMinutes || 0,
-      burnedKcal: telemetry.caloriesBurned || 0,
+      distanceKm: telemetry.distanceKm || est.distanceKm || 0,
+      durationMinutes: telemetry.elapsedMinutes || est.elapsedMinutes || 0,
+      burnedKcal: telemetry.caloriesBurned || est.caloriesBurned || 0,
       avgHeartRateBpm: telemetry.avgHeartRateBpm || 0,
     };
   };
@@ -281,48 +286,39 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  /** A read number as is; a worked-out one as "~N" with its unit and "est.". */
+  const tile = (
+    id: string,
+    label: string,
+    unit: string,
+    read: number | null | undefined,
+    estimate: number | null | undefined,
+  ): MetricItem =>
+    read
+      ? { id, label, num: read.toLocaleString(), unit }
+      : estimate != null
+        ? { id, label, num: `~${estimate.toLocaleString()}`, unit: `${unit} est.` }
+        : { id, label, num: read ?? '--', unit };
+
   const metrics: MetricItem[] = [
-    {
-      id: 'steps',
-      label: 'Steps',
-      num:
-        telemetry?.steps != null
-          ? telemetry.steps.toLocaleString()
-          : estimatedSteps != null
-            ? `~${estimatedSteps.toLocaleString()}`
-            : '--',
-      unit: telemetry?.steps == null && estimatedSteps != null ? 'est.' : 'steps',
-    },
-    {
-      id: 'elapsed',
-      label: 'Time',
-      num: telemetry?.elapsedDisplay || (telemetry?.elapsedMinutes ?? '--'),
-      unit: String(telemetry?.elapsedDisplay ?? '').includes(':') ? '' : 'min',
-    },
-    {
-      id: 'calories',
-      label: 'Calories',
-      num: telemetry?.caloriesBurned != null ? telemetry.caloriesBurned : '--',
-      unit: 'kcal',
-    },
-    {
-      id: 'distance',
-      label: 'Distance',
-      num: telemetry?.distanceKm != null ? telemetry.distanceKm : '--',
-      unit: 'km',
-    },
+    tile('steps', 'Steps', 'steps', telemetry?.steps, est?.steps),
+    telemetry?.elapsedDisplay || !est?.elapsedMinutes
+      ? {
+          id: 'elapsed',
+          label: 'Time',
+          num: telemetry?.elapsedDisplay || (telemetry?.elapsedMinutes ?? '--'),
+          unit: String(telemetry?.elapsedDisplay ?? '').includes(':') ? '' : 'min',
+        }
+      : tile('elapsed', 'Time', 'min', telemetry?.elapsedMinutes, est.elapsedMinutes),
+    tile('calories', 'Calories', 'kcal', telemetry?.caloriesBurned, est?.caloriesBurned),
+    tile('distance', 'Distance', 'km', telemetry?.distanceKm, est?.distanceKm),
     {
       id: 'heartRate',
       label: 'Heart rate',
       num: telemetry?.avgHeartRateBpm != null ? telemetry.avgHeartRateBpm : '--',
       unit: 'bpm',
     },
-    {
-      id: 'speed',
-      label: 'Speed',
-      num: telemetry?.speedKmh != null ? telemetry.speedKmh : '--',
-      unit: 'km/h',
-    },
+    tile('speed', 'Speed', 'km/h', telemetry?.speedKmh, est?.speedKmh),
     {
       id: 'incline',
       label: 'Incline',
