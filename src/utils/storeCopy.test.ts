@@ -16,6 +16,9 @@ describe('storeCopyFor', () => {
       'In-App Subscription: Billed via Apple App Store. Your Oblivion 1 Club Pass unlocks across all your devices.',
     );
     expect(storeCopyFor('ios').footerName).toBe('Apple App Store');
+    expect(storeCopyFor('ios').renewalDisclosure).toBe(
+      'Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Payment will be charged to your Apple ID account at confirmation of purchase. Subscriptions may be managed and auto-renewal turned off in your Account Settings after purchase.',
+    );
   });
 
   it('names only Google Play on Android', () => {

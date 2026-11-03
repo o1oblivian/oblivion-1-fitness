@@ -4,7 +4,8 @@ import { X, Shield, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../types/iap';
 import { tactileEngine } from '../../services/tactileEngine';
 import { isNativeStorePlatform } from '../../services/purchasesService';
-import { openLegalUrl } from '../../services/apiBase';
+import { LEGAL_URLS, openLegalUrl } from '../../services/apiBase';
+import { planKind } from '../../services/revenueCatService';
 import { storeCopy } from '../../utils/storeCopy';
 import { useSubscription } from '../../context/SubscriptionContext';
 import { MembershipPlanCard } from './components/MembershipPlanCard';
@@ -223,6 +224,21 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
             </button>
           )}
 
+          {currentSelected && planKind(currentSelected.productId) !== 'lifetime' && (
+            <p className="text-xs font-num text-o1-text text-center leading-snug">
+              {currentSelected.name}. Length: 1 month.
+              {plans.priceOf(currentSelected)
+                ? ` Price: ${plans.priceOf(currentSelected)}.`
+                : ''}
+            </p>
+          )}
+
+          <p className="text-xs font-num text-o1-muted text-center leading-snug">
+            {currentSelected && planKind(currentSelected.productId) === 'lifetime'
+              ? `Founder Pass is a one-time, non-recurring purchase. Billed via ${store.billedBy}.`
+              : store.renewalDisclosure}
+          </p>
+
           {/* Footer Links & Restore */}
           <div className="flex items-center justify-center gap-2.5 text-o1-label font-num text-o1-muted flex-wrap">
             <span>{store.footerName}</span>
@@ -237,21 +253,31 @@ export const MembershipPlansModal: React.FC<MembershipPlansModalProps> = ({
               Restore Purchases
             </button>
             <span>•</span>
-            <button
-              type="button"
-              onClick={() => void openLegalUrl('eula')}
+            <a
+              href={LEGAL_URLS.appleEula}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                void openLegalUrl('eula');
+              }}
               className="hover:text-white underline cursor-pointer"
             >
               Terms of Use (EULA)
-            </button>
+            </a>
             <span>•</span>
-            <button
-              type="button"
-              onClick={() => void openLegalUrl('privacy')}
+            <a
+              href={LEGAL_URLS.privacy}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                void openLegalUrl('privacy');
+              }}
               className="hover:text-white underline cursor-pointer"
             >
               Privacy Policy
-            </button>
+            </a>
           </div>
         </div>
       </div>

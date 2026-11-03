@@ -1,6 +1,7 @@
 ﻿import React, { useRef, useEffect, useState } from 'react';
 import { Camera, X, AlertCircle } from 'lucide-react';
 import { canDetectBarcodes, tryDetectNativeBarcode } from '../../services/barcodeLookupService';
+import { NATIVE_CALL_TIMEOUT_MS, withNativeTimeout } from '../../utils/nativeTimeout';
 
 interface LiveBarcodeScannerProps {
   onDetected: (barcode: string) => void;
@@ -22,24 +23,30 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
     let reading = false;
 
     async function startCamera() {
+      let stream: MediaStream | null = null;
       try {
         if (!canDetectBarcodes()) throw new Error('This device has no barcode reader');
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-        });
-        if (!active) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
+        stream = await withNativeTimeout(
+          navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'environment',
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+          }),
+          'The camera did not open. Use manual lookup or photo upload.',
+          NATIVE_CALL_TIMEOUT_MS,
+        );
+        if (!active) return;
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           await videoRef.current.play();
           setIsStreaming(true);
+        } else {
+          stream.getTracks().forEach((t) => t.stop());
+          streamRef.current = null;
+          setIsStreaming(false);
         }
 
         scanInterval = setInterval(async () => {
@@ -51,6 +58,8 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
           } catch (err) {
             active = false;
             if (scanInterval) clearInterval(scanInterval);
+            streamRef.current?.getTracks().forEach((t) => t.stop());
+            streamRef.current = null;
             setIsStreaming(false);
             setError(
               `${err instanceof Error ? err.message : String(err)}. Use manual lookup or photo upload.`,
@@ -70,6 +79,11 @@ export const LiveBarcodeScanner: React.FC<LiveBarcodeScannerProps> = ({ onDetect
         // Show what the device reported (NotAllowedError, NotFoundError, NotReadableError), not a guess.
         const reason = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
         setError(`Camera error. ${reason}. Use manual lookup or photo upload.`);
+      } finally {
+        if (!active && stream) {
+          stream.getTracks().forEach((t) => t.stop());
+          if (streamRef.current === stream) streamRef.current = null;
+        }
       }
     }
 

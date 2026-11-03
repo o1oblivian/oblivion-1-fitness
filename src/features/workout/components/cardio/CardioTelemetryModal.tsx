@@ -333,12 +333,13 @@ export const CardioTelemetryModal: React.FC<Props> = ({ isOpen, onClose }) => {
       (source === 'camera' ? cameraInputRef : fileInputRef).current?.click();
       return;
     }
+    if (isCapturing) return;
     setIsCapturing(true);
     setStatusMessage(null);
     let dataUrl: string | null = null;
     try {
       dataUrl = await capturePhotoDataUrl(source);
-    } catch (err) {
+    } catch (err: unknown) {
       // Backing out of the camera is a choice, not a failure.
       if (!isPhotoCancelled(err)) {
         const message = err instanceof Error ? err.message : 'Could not open the camera.';

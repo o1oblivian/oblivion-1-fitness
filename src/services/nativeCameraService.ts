@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import { NATIVE_PROMPT_TIMEOUT_MS, withNativeTimeout } from '../utils/nativeTimeout';
+import { NATIVE_CALL_TIMEOUT_MS, withNativeTimeout } from '../utils/nativeTimeout';
 
 /** The camera or photo picker stays open while the person frames the shot, so this is generous. */
 const CAMERA_SESSION_TIMEOUT_MS = 5 * 60_000;
@@ -100,7 +100,7 @@ export async function capturePhotoDataUrl(
     const permissions = await withNativeTimeout(
       Camera.requestPermissions({ permissions: [source === 'camera' ? 'camera' : 'photos'] }),
       'The camera permission prompt did not answer. Close the app, open it again and retry.',
-      NATIVE_PROMPT_TIMEOUT_MS,
+      NATIVE_CALL_TIMEOUT_MS,
     );
     const state = source === 'camera' ? permissions.camera : permissions.photos;
     if (state === 'denied') throw new Error('denied');

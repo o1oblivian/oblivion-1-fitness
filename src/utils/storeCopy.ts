@@ -26,9 +26,19 @@ export interface StoreCopy {
   processor: string;
   /** The company whose distribution terms apply: "Apple Inc.", "Google LLC", or "the store". */
   distributor: string;
+  /**
+   * The auto-renewal paragraph App Store Review Guideline 3.1.2(c) requires under a subscribe button.
+   * On iOS this is the Apple wording, with the charge named against the Apple ID.
+   */
+  renewalDisclosure: string;
 }
 
 const NOTICE_TAIL = 'Your Oblivion 1 Club Pass unlocks across all your devices.';
+
+/** Guideline 3.1.2(c). `account` is the platform's own billing account, already phrased for a sentence. */
+function renewalDisclosure(account: string): string {
+  return `Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Payment will be charged to ${account} at confirmation of purchase. Subscriptions may be managed and auto-renewal turned off in your Account Settings after purchase.`;
+}
 
 export function storeCopyFor(platform: string): StoreCopy {
   if (platform === 'ios') {
@@ -43,6 +53,7 @@ export function storeCopyFor(platform: string): StoreCopy {
       footerName: 'Apple App Store',
       processor: 'Apple',
       distributor: 'Apple Inc.',
+      renewalDisclosure: renewalDisclosure('your Apple ID account'),
     };
   }
   if (platform === 'android') {
@@ -57,6 +68,7 @@ export function storeCopyFor(platform: string): StoreCopy {
       footerName: 'Google Play',
       processor: 'Google',
       distributor: 'Google LLC',
+      renewalDisclosure: renewalDisclosure('your Google Play account'),
     };
   }
   return {
@@ -70,6 +82,7 @@ export function storeCopyFor(platform: string): StoreCopy {
     footerName: 'In-app billing',
     processor: 'the store',
     distributor: 'the store',
+    renewalDisclosure: renewalDisclosure('your store account'),
   };
 }
 

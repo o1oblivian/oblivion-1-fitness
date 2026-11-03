@@ -87,10 +87,13 @@ export function warmApi(): void {
   });
 }
 
+/** Live site. A relative /privacy link does not open from the installed app. */
+const PUBLISHED_ORIGIN = API_ORIGIN || 'https://oblivion-1-fitness.onrender.com';
+
 export const LEGAL_URLS = {
-  privacy: `${API_ORIGIN}/privacy`,
-  terms: `${API_ORIGIN}/terms`,
-  deleteAccount: `${API_ORIGIN}/delete-account`,
+  privacy: `${PUBLISHED_ORIGIN}/privacy`,
+  terms: `${PUBLISHED_ORIGIN}/terms`,
+  deleteAccount: `${PUBLISHED_ORIGIN}/delete-account`,
   appleEula: 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
 } as const;
 

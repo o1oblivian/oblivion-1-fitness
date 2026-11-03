@@ -3,7 +3,7 @@ import { X, ShieldCheck, RotateCcw, Check, Sparkles, Loader2 } from 'lucide-reac
 import { useSubscription } from '../../../context/SubscriptionContext';
 import { tactileEngine } from '../../../services/tactileEngine';
 import { planKind } from '../../../services/revenueCatService';
-import { openLegalUrl } from '../../../services/apiBase';
+import { LEGAL_URLS, openLegalUrl } from '../../../services/apiBase';
 import { storeCopy } from '../../../utils/storeCopy';
 import { IAP_PRODUCTS, IAPProductInfo } from '../../../types/iap';
 import { COACH_PAYWALL_FEATURE } from '../planCatalog';
@@ -84,24 +84,22 @@ export const ClubPassPaywallModal: React.FC = () => {
     setStatusMsg(null);
     tactileEngine.triggerSelectionBuzz();
     // Through the app's subscription state, so the restored plan unlocks features straight away.
-    let restored = false;
     try {
-      restored = await restorePurchases();
+      const restored = await restorePurchases();
+      if (restored) {
+        tactileEngine.playPRCelebration();
+        closePaywall();
+      } else {
+        setStatusMsg('No active subscription found for this account.');
+      }
     } catch (err) {
-      setIsRestoring(false);
       setStatusMsg(
         err instanceof Error
           ? err.message
           : 'Could not reach the store. Check your connection and try again.',
       );
-      return;
-    }
-    setIsRestoring(false);
-    if (restored) {
-      tactileEngine.playPRCelebration();
-      closePaywall();
-    } else {
-      setStatusMsg('No active subscription found for this account.');
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -236,41 +234,56 @@ export const ClubPassPaywallModal: React.FC = () => {
             </button>
           )}
 
-          <div className="flex items-center justify-center gap-3 text-o1-label font-sans text-o1-muted">
-            <button
-              type="button"
-              onClick={() => void openLegalUrl('eula')}
+          {selected && kind !== 'lifetime' && (
+            <p className="text-xs font-num text-o1-text text-center leading-snug">
+              {selected.name}. Length: 1 month.
+              {selectedPrice ? ` Price: ${selectedPrice}.` : ''}
+            </p>
+          )}
+
+          <p className="text-xs font-num text-o1-muted text-center leading-snug">
+            {kind === 'lifetime'
+              ? `Founder Pass is a one-time, non-recurring purchase. Billed via ${store.billedBy}.`
+              : store.renewalDisclosure}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => void handleRestore()}
+            disabled={isRestoring}
+            className="w-full py-2 text-xs font-num text-o1-text hover:text-white underline flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isRestoring ? 'animate-spin' : ''}`} />
+            <span>{isRestoring ? 'Restoring...' : 'Restore Purchases'}</span>
+          </button>
+
+          <div className="flex items-center justify-center gap-3 text-xs font-sans text-o1-text">
+            <a
+              href={LEGAL_URLS.appleEula}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                void openLegalUrl('eula');
+              }}
               className="hover:text-white underline cursor-pointer"
             >
               Terms of Use (EULA)
-            </button>
-            <span>•</span>
-            <button
-              type="button"
-              onClick={() => void openLegalUrl('privacy')}
+            </a>
+            <span className="text-o1-muted">•</span>
+            <a
+              href={LEGAL_URLS.privacy}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                void openLegalUrl('privacy');
+              }}
               className="hover:text-white underline cursor-pointer"
             >
               Privacy Policy
-            </button>
+            </a>
           </div>
-
-          <div className="flex items-center justify-between text-o1-label font-num text-o1-muted px-1">
-            <button
-              onClick={handleRestore}
-              disabled={isRestoring}
-              className="text-o1-muted hover:underline flex items-center gap-1 cursor-pointer disabled:opacity-50"
-            >
-              <RotateCcw className={`w-3 h-3 text-o1-muted ${isRestoring ? 'animate-spin' : ''}`} />
-              <span>{isRestoring ? 'Restoring...' : 'Restore Purchases'}</span>
-            </button>
-            <span>{kind === 'lifetime' ? 'One-time payment' : 'Cancel anytime in Store'}</span>
-          </div>
-
-          <p className="text-o1-label font-num text-o1-faint text-center leading-tight">
-            {kind === 'lifetime'
-              ? `Founder Pass is a one-time, non-recurring purchase. Billed via ${store.billedBy}.`
-              : `Subscriptions auto-renew unless cancelled 24h before period end. Billed via ${store.billedBy}.`}
-          </p>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { openLegalUrl } from '../../../services/apiBase';
+import { LEGAL_URLS, openLegalUrl } from '../../../services/apiBase';
 import { storeCopy } from '../../../utils/storeCopy';
 import type { PlanCopy } from '../../membership/planCatalog';
 
@@ -56,9 +56,14 @@ export function PlanCheckout({
               `Buy once · ${price}`
             )}
           </button>
-          <p className="mt-1 text-center text-o1-label font-normal leading-snug text-o1-muted/70">
+          {plan.renews ? (
+            <p className="mt-2 text-center text-xs font-normal leading-snug text-o1-text">
+              {plan.product.name}. Length: 1 month.{price ? ` Price: ${price}.` : ''}
+            </p>
+          ) : null}
+          <p className="mt-2 text-center text-xs font-normal leading-snug text-o1-muted">
             {plan.renews
-              ? `Renews monthly at ${price} until cancelled. Cancel at least 24 hours before renewal in ${store.settings}.`
+              ? store.renewalDisclosure
               : `One payment through ${store.inSentence}. It never renews.`}
           </p>
         </>
@@ -72,15 +77,33 @@ export function PlanCheckout({
         Not now
       </button>
       <div className="flex items-center justify-center gap-5 text-o1-label font-normal text-o1-muted">
-        <button type="button" onClick={onRestore} disabled={working} className="h-8">
-          {restoring ? 'Restoring…' : 'Restore purchases'}
+        <button type="button" onClick={onRestore} disabled={working} className="h-8 underline">
+          {restoring ? 'Restoring…' : 'Restore Purchases'}
         </button>
-        <button type="button" onClick={() => void openLegalUrl('eula')} className="h-9">
+        <a
+          href={LEGAL_URLS.appleEula}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => {
+            e.preventDefault();
+            void openLegalUrl('eula');
+          }}
+          className="inline-flex h-9 items-center underline"
+        >
           Terms of Use (EULA)
-        </button>
-        <button type="button" onClick={() => void openLegalUrl('privacy')} className="h-9">
-          Privacy
-        </button>
+        </a>
+        <a
+          href={LEGAL_URLS.privacy}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => {
+            e.preventDefault();
+            void openLegalUrl('privacy');
+          }}
+          className="inline-flex h-9 items-center underline"
+        >
+          Privacy Policy
+        </a>
       </div>
     </footer>
   );

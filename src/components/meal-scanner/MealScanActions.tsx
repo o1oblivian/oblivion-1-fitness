@@ -38,32 +38,37 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
   const [showLiveScanner, setShowLiveScanner] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [failedSource, setFailedSource] = useState<PhotoSource | null>(null);
+  const [opening, setOpening] = useState<PhotoSource | null>(null);
 
   useEffect(() => {
     preloadNativeCamera();
   }, []);
 
-  const openPhoto = (source: PhotoSource) => {
+  const openPhoto = async (source: PhotoSource) => {
     if (!Capacitor.isNativePlatform()) {
       (source === 'camera' ? cameraInputRef : fileInputRef).current?.click();
       return;
     }
+    if (opening) return;
     setCaptureError(null);
     setFailedSource(null);
-    void capturePhotoDataUrl(source, SCAN_PHOTO_PX)
-      .then(async (dataUrl) => {
-        const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], source === 'camera' ? 'meal.jpg' : 'meal-upload.jpg', {
-          type: blob.type || 'image/jpeg',
-        });
-        onFileUpload(file);
-      })
-      .catch((err: unknown) => {
+    setOpening(source);
+    try {
+      const dataUrl = await capturePhotoDataUrl(source, SCAN_PHOTO_PX);
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], source === 'camera' ? 'meal.jpg' : 'meal-upload.jpg', {
+        type: blob.type || 'image/jpeg',
+      });
+      onFileUpload(file);
+    } catch (err: unknown) {
+      if (!isPhotoCancelled(err)) {
         const message = err instanceof Error ? err.message : 'The camera did not open.';
-        if (isPhotoCancelled(err)) return;
         setCaptureError(message);
         setFailedSource(source);
-      });
+      }
+    } finally {
+      setOpening(null);
+    }
   };
 
   return (
@@ -159,20 +164,20 @@ export const MealScanActions: React.FC<MealScanActionsProps> = ({
         <button
           type="button"
           onClick={() => openPhoto('camera')}
-          disabled={isLoading}
+          disabled={isLoading || opening !== null}
           className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-white text-o1-canvas text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Camera className="w-4 h-4" />
-          <span>Take Photo</span>
+          <span>{opening === 'camera' ? 'Opening camera…' : 'Take Photo'}</span>
         </button>
         <button
           type="button"
           onClick={() => openPhoto('photos')}
-          disabled={isLoading}
+          disabled={isLoading || opening !== null}
           className="h-10 flex items-center justify-center gap-2 px-3 rounded-xl bg-o1-well hover:bg-white/[0.06] text-o1-ink-soft text-xs font-semibold cursor-pointer active:scale-95 transition-transform disabled:opacity-50"
         >
           <Upload className="w-4 h-4" />
-          <span>Upload Photo</span>
+          <span>{opening === 'photos' ? 'Opening photos…' : 'Upload Photo'}</span>
         </button>
       </div>
       {captureError ? (
